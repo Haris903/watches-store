@@ -168,12 +168,12 @@ export default function WristWatchesPage() {
 
   // Menu bar 
   const navLinks = [
-    { name: "NEW ARRIVAL", href: "/new-arrival" },
-    { name: "MEN", href: "/men" },
-    { name: "WOMEN", href: "/women" },
-    { name: "SMART WATCHES", href: "/smart-watches" },
-    { name: "FOR COUPLES", href: "/for-couples" },
-    { name: "TRACK ORDER", href: "/track-order" },
+    { name: "NEW ARRIVAL", href: "./new-arrival" },
+    { name: "MEN", href: "./men" },
+    { name: "WOMEN", href: "./women" },
+    { name: "SMART WATCHES", href: "./smart-watches" },
+    { name: "FOR COUPLES", href: "./for-couples" },
+    { name: "TRACK ORDER", href: "./track-order" },
     { name: "CONTACT US", href: "https://wa.me/923186643032" },
   ];
 

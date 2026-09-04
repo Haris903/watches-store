@@ -1,9 +1,10 @@
+"use client"
 import React from 'react'
 
-const page = () => {
+const MEN = () => {
   return (
-    <div>page</div>
+    <div>Men collection</div>
   )
 }
 
-export default page
+export default MEN
