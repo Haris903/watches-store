@@ -419,9 +419,10 @@ export default function WristWatchesPage() {
             {/* Logo */}
           <div className="flex mx-1 sm:-mx-5 flex-col items-center md:ml-8">
             <Link href={'/'} className="flex w-12 items-center justify-center">
-              <img
+              <Image
                 src="/wlogo.png"
                 alt="SVESTON Logo"
+                priority
                 className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105"
                 />
             </Link>
