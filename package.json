@@ -9,9 +9,16 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "cloudinary": "^2.10.0",
+    "framer-motion": "^12.42.2",
+    "mongodb": "^7.5.0",
+    "mongoose": "^9.8.1",
     "next": "16.2.11",
+    "next-auth": "^4.24.15",
+    "nodemailer": "^9.0.3",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "swiper": "^14.0.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

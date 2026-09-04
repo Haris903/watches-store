@@ -1,26 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Inter & Outfit Google Fonts */
+
+.font-Inter {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+} 
+  .font-Sans{
+    font-family:'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+    mix-blend-mode: plus-lighter;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+
+/* Item 1 Animation */
+.slide-item-1 {
+  animation: slideUp1 8s infinite ease-in-out;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Item 2 Animation */
+.slide-item-2 {
+  animation: slideUp2 8s infinite ease-in-out;
+}
+
+/* Div 1: Center mein rukega -> Upar nikal jayega -> Instant neeche jump karke wapis neeche se aayega */
+@keyframes slideUp1 {
+  0%, 40% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+  48%, 92% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  93% {
+    transform: translateY(100%); /* Instant Jump to Bottom (Hidden) */
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Div 2: Neeche wait karega -> Center aayega -> Upar nikal jayega */
+@keyframes slideUp2 {
+  0%, 40% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  48%, 92% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+.bar{
+    box-shadow: inset 0px -1px 0px #f0bc73;
+}
+
+.wtxt{
+  text-shadow: -2px 4px 25px #f0bc73;
 }
