@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
+import wLogo from "@/public/wLogo.png"
 
 export default function WristWatchesPage() {
   const router = useRouter();
@@ -148,7 +149,7 @@ export default function WristWatchesPage() {
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 
     if (isMobileDevice) {
-      router.replace("/collections/home");
+      router.push('/collections/wrist-watches');
     }
   }, [router]);
 
@@ -420,7 +421,7 @@ export default function WristWatchesPage() {
             <div className="flex mx-1 sm:-mx-5 flex-col items-center md:ml-8">
               <Link href={'/'} className="flex w-12 items-center justify-center">
                 <Image
-                  src="/wLogo.png"
+                  src={wLogo}
                   alt="SVESTON Logo"
                   priority
                   className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105"
