@@ -1031,7 +1031,7 @@ export default function WristWatchesPage() {
                           onClick={() => handleAddToCart(selectedWatch)}
                           className="flex-1 py-3.5 px-6 rounded-full border border-amber-500/50 bg-neutral-900 text-amber-300 font-medium text-xs tracking-widest uppercase transition-all hover:bg-amber-500/10 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] flex items-center justify-center gap-4 cursor-pointer"
                         >
-                          <span><Image className="w-5 brightness-0 invert h-5" src="/cart.png" alt="" priority /></span> Add To Cart
+                          <span><Image className="w-5 brightness-0 invert h-5" src="/cart.png" alt="" loading="lazy" /></span> Add To Cart
                         </motion.button>
 
                         <motion.button
