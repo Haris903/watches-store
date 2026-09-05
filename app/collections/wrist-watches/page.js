@@ -977,10 +977,11 @@ export default function WristWatchesPage() {
                       </h4>
                       {checkoutItems.map((item, index) => (
                         <div key={index} className="flex items-center gap-3 bg-neutral-950/80 p-2.5 rounded-xl border border-neutral-800">
-                          <img 
+                          <Image
                             src={item.image} 
                             alt={item.title} 
-                            loading="lazy"
+                            priority
+                            placeholder="blur"
                             decoding="async"
                             className="w-12 h-12 object-contain bg-neutral-900 rounded-lg p-1" 
                           />
