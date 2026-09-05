@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import "./globals.css";
 import Providers from "@/components/providers.js";
 
@@ -28,7 +29,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col" suppressHydrationWarning><Providers>{children}</Providers>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning><Providers>{children}</Providers> <SpeedInsights />
       </body>
     </html>
   );
