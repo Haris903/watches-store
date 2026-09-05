@@ -396,39 +396,39 @@ export default function WristWatchesPage() {
       {/* Header Bar */}
       <header
         className={`w-full sticky top-0 z-50 bg-black border-b border-neutral-900 transition-all duration-300 ${isScrolled
-            ? "fixed top-0 left-0 right-0 z-50 shadow-2xl animate-in slide-in-from-top"
-            : "relative"
+          ? "fixed top-0 left-0 right-0 z-50 shadow-2xl animate-in slide-in-from-top"
+          : "relative"
           }`}
       >
 
         <div className="w-full max-w-[1600px] mx-auto px-2 sm:px-6 lg:px-10 h-25 flex items-center justify-between gap-2">
-            {/* hamburger menu */}
+          {/* hamburger menu */}
 
-            {/* Mobile Menu Button (Hamburger) */}
-            <div className="flex justify-center items-center">
+          {/* Mobile Menu Button (Hamburger) */}
+          <div className="flex justify-center items-center">
 
             <button
               onClick={() => setIsMobileMenuOpen(true)}
               className="md:hidden hover:opacity-75 cursor-pointer transition-opacity p-1 focus:outline-none text-white"
-              >
+            >
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
 
             {/* Logo */}
-          <div className="flex mx-1 sm:-mx-5 flex-col items-center md:ml-8">
-            <Link href={'/'} className="flex w-12 items-center justify-center">
-              <Image
-                src="/wLogo.png"
-                alt="SVESTON Logo"
-                priority
-                className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105"
+            <div className="flex mx-1 sm:-mx-5 flex-col items-center md:ml-8">
+              <Link href={'/'} className="flex w-12 items-center justify-center">
+                <Image
+                  src="/wLogo.png"
+                  alt="SVESTON Logo"
+                  priority
+                  className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105"
                 />
-            </Link>
-            <div className="text-[#DCAA4A] hidden sm:flex text-xs font-medium whitespace-nowrap">Elegance On Your Wrist</div>
+              </Link>
+              <div className="text-[#DCAA4A] hidden sm:flex text-xs font-medium whitespace-nowrap">Elegance On Your Wrist</div>
+            </div>
           </div>
-                </div>
 
           <nav className="flex items-center justify-center flex-wrap gap-x-1 sm:gap-x-2 md:gap-x-3 lg:gap-x-6">
             {navLinks.map((link, idx) => (
@@ -727,7 +727,7 @@ export default function WristWatchesPage() {
                           <span className="text-xs font-bold text-amber-100 uppercase tracking-normal truncate max-w-[120px]">
                             {session.user.name}
                           </span>
-                         
+
                         </div>
                       </div>
                     ) : (
@@ -743,7 +743,7 @@ export default function WristWatchesPage() {
                       </button>
                     )}
                   </div>
-                  
+
                   {/* Close Button */}
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -760,7 +760,7 @@ export default function WristWatchesPage() {
                   <span className="text-[10px] font-bold text-neutral-600 tracking-[0.25em] uppercase block mb-4 ml-2">
                     Menu Collections
                   </span>
-                  
+
                   <div className="flex flex-col gap-1">
                     {navLinks.map((link, idx) => (
                       <motion.div
@@ -777,10 +777,10 @@ export default function WristWatchesPage() {
                           <span className="text-[13px] font-bold text-neutral-300 group-hover:text-amber-400 tracking-widest uppercase transition-colors">
                             {link.name}
                           </span>
-                          <svg 
-                            className="w-4 h-4 text-neutral-700 group-hover:text-amber-500 transition-all transform group-hover:translate-x-1 duration-300" 
-                            fill="none" 
-                            viewBox="0 0 24 24" 
+                          <svg
+                            className="w-4 h-4 text-neutral-700 group-hover:text-amber-500 transition-all transform group-hover:translate-x-1 duration-300"
+                            fill="none"
+                            viewBox="0 0 24 24"
                             stroke="currentColor"
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -790,15 +790,15 @@ export default function WristWatchesPage() {
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Footer Logo Area */}
                 <div className="p-6 border-t border-neutral-900 relative z-10 bg-neutral-950">
-                   <div className="flex items-center justify-center">
-                     <img src="/wlogo.png" alt="Logo" className="h-8 opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
-                   </div>
-                   <p className="text-center text-[9px] text-amber-500/50 uppercase tracking-[0.25em] mt-3 font-semibold">
-                     Elegance On Your Wrist
-                   </p>
+                  <div className="flex items-center justify-center">
+                    <img src="/wlogo.png" alt="Logo" className="h-8 opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
+                  </div>
+                  <p className="text-center text-[9px] text-amber-500/50 uppercase tracking-[0.25em] mt-3 font-semibold">
+                    Elegance On Your Wrist
+                  </p>
                 </div>
               </motion.aside>
             </>
@@ -1031,7 +1031,13 @@ export default function WristWatchesPage() {
                           onClick={() => handleAddToCart(selectedWatch)}
                           className="flex-1 py-3.5 px-6 rounded-full border border-amber-500/50 bg-neutral-900 text-amber-300 font-medium text-xs tracking-widest uppercase transition-all hover:bg-amber-500/10 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] flex items-center justify-center gap-4 cursor-pointer"
                         >
-                          <span><Image className="w-5 brightness-0 invert h-5" src="/cart.png" alt="" loading="lazy" /></span> Add To Cart
+                          <span>
+                            <Image
+                              className="w-5 brightness-0 invert h-5"
+                              src="/cart.png"
+                              alt=""
+                              priority
+                              placeholder="blur" /></span> Add To Cart
                         </motion.button>
 
                         <motion.button
@@ -1218,111 +1224,110 @@ export default function WristWatchesPage() {
                       </div>
 
                       {/* Dynamic Payment Method Selector & Details */}
-<div className="bg-neutral-950/90 border border-amber-500/30 rounded-2xl p-4 sm:p-5 space-y-4 my-3 shadow-[0_0_25px_rgba(245,158,11,0.08)]">
-  
-  {/* Step Header */}
-  <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
-    <span className="text-[11px] font-sans font-medium text-amber-400 tracking-[0.2em] uppercase">
-      Step 1 — Send Payment
-    </span>
-    <span className="text-xs sm:block hidden font-sans font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.15)]">
-      {calculateTotal(checkoutItems)}
-    </span>
-  </div>
+                      <div className="bg-neutral-950/90 border border-amber-500/30 rounded-2xl p-4 sm:p-5 space-y-4 my-3 shadow-[0_0_25px_rgba(245,158,11,0.08)]">
 
-  {/* Method Toggle Buttons (Tab Bar) */}
-  <div className="grid grid-cols-3 gap-2 bg-neutral-900/80 p-1.5 rounded-xl border border-neutral-800">
-    {["EASYPAISA", "JAZZCASH"].map((method) => {
-      const isSelected = paymentMethod === method;
-      return (
-        <button
-          key={method}
-          type="button"
-          onClick={() => setPaymentMethod(method)}
-          className={`relative py-1 px-2 rounded-lg font-sans font-medium text-[11px] sm:text-xs tracking-wider transition-all duration-300 cursor-pointer overflow-hidden ${
-            isSelected
-              ? "text-amber-300 border border-amber-400/70 bg-gradient-to-b from-amber-500/20 to-amber-950/40 shadow-[0_0_20px_rgba(245,158,11,0.35)]"
-              : "text-neutral-400 hover:text-neutral-200 border border-transparent hover:bg-neutral-800/60"
-          }`}
-        >
-          {method}
-          {isSelected && (
-            <motion.div
-              layoutId="glowIndicator"
-              className="absolute inset-0 bg-amber-400/10 rounded-lg pointer-events-none"
-              transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            />
-          )}
-        </button>
-      );
-    })}
-  </div>
+                        {/* Step Header */}
+                        <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
+                          <span className="text-[11px] font-sans font-medium text-amber-400 tracking-[0.2em] uppercase">
+                            Step 1 — Send Payment
+                          </span>
+                          <span className="text-xs sm:block hidden font-sans font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.15)]">
+                            {calculateTotal(checkoutItems)}
+                          </span>
+                        </div>
 
-  {/* Details Display with Glow & Fade Animation */}
-  <AnimatePresence mode="wait">
-    <motion.div
-      key={paymentMethod}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.25 }}
-      className="space-y-3 pt-1"
-    >
-      {/* Account / Mobile Number Box */}
-      <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
-        <div>
-          {/* Label: Gray text 1-2px larger (text-[12px]) font-sans font-medium */}
-          <span className="block text-[11px] font-Sans font-medium text-neutral-400 tracking-wider uppercase mb-1">
-            {paymentData[paymentMethod].label}
-          </span>
-          <span className="font-Sans font-bold text-[#DCAA4A] drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
-            {paymentData[paymentMethod].number}
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            navigator.clipboard.writeText(paymentData[paymentMethod].number);
-            setCopiedField("number");
-            setTimeout(() => setCopiedField(null), 2000);
-          }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-sans font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-        >
-          📋 {copiedField === "number" ? "Copied!" : "Copy"}
-        </button>
-      </div>
+                        {/* Method Toggle Buttons (Tab Bar) */}
+                        <div className="grid grid-cols-3 gap-2 bg-neutral-900/80 p-1.5 rounded-xl border border-neutral-800">
+                          {["EASYPAISA", "JAZZCASH"].map((method) => {
+                            const isSelected = paymentMethod === method;
+                            return (
+                              <button
+                                key={method}
+                                type="button"
+                                onClick={() => setPaymentMethod(method)}
+                                className={`relative py-1 px-2 rounded-lg font-sans font-medium text-[11px] sm:text-xs tracking-wider transition-all duration-300 cursor-pointer overflow-hidden ${isSelected
+                                    ? "text-amber-300 border border-amber-400/70 bg-gradient-to-b from-amber-500/20 to-amber-950/40 shadow-[0_0_20px_rgba(245,158,11,0.35)]"
+                                    : "text-neutral-400 hover:text-neutral-200 border border-transparent hover:bg-neutral-800/60"
+                                  }`}
+                              >
+                                {method}
+                                {isSelected && (
+                                  <motion.div
+                                    layoutId="glowIndicator"
+                                    className="absolute inset-0 bg-amber-400/10 rounded-lg pointer-events-none"
+                                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                  />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
 
-      {/* Account Title Box */}
-      <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
-        <div>
-          {/* Label: Gray text 1-2px larger (text-[12px]) font-sans font-medium */}
-          <span className="block text-[12px] font-sans font-medium text-neutral-400 tracking-wider uppercase">
-            ACCOUNT TITLE
-          </span>
-          <span className="font-Sans font-bold text-mauve-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
-            {paymentData[paymentMethod].accountTitle}
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            navigator.clipboard.writeText(paymentData[paymentMethod].accountTitle);
-            setCopiedField("title");
-            setTimeout(() => setCopiedField(null), 2000);
-          }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-sans font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-        >
-          📋 {copiedField === "title" ? "Copied!" : "Copy"}
-        </button>
-      </div>
+                        {/* Details Display with Glow & Fade Animation */}
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={paymentMethod}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.25 }}
+                            className="space-y-3 pt-1"
+                          >
+                            {/* Account / Mobile Number Box */}
+                            <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
+                              <div>
+                                {/* Label: Gray text 1-2px larger (text-[12px]) font-sans font-medium */}
+                                <span className="block text-[11px] font-Sans font-medium text-neutral-400 tracking-wider uppercase mb-1">
+                                  {paymentData[paymentMethod].label}
+                                </span>
+                                <span className="font-Sans font-bold text-[#DCAA4A] drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
+                                  {paymentData[paymentMethod].number}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(paymentData[paymentMethod].number);
+                                  setCopiedField("number");
+                                  setTimeout(() => setCopiedField(null), 2000);
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-sans font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                              >
+                                📋 {copiedField === "number" ? "Copied!" : "Copy"}
+                              </button>
+                            </div>
 
-      {/* Subtext instruction: Gray text (text-[13px] font-sans font-medium) */}
-      <p className="text-[13px] font-sans font-medium text-neutral-400 pt-1 tracking-wide">
-        {paymentData[paymentMethod].instruction}
-      </p>
-    </motion.div>
-  </AnimatePresence>
-</div>
+                            {/* Account Title Box */}
+                            <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
+                              <div>
+                                {/* Label: Gray text 1-2px larger (text-[12px]) font-sans font-medium */}
+                                <span className="block text-[12px] font-sans font-medium text-neutral-400 tracking-wider uppercase">
+                                  ACCOUNT TITLE
+                                </span>
+                                <span className="font-Sans font-bold text-mauve-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
+                                  {paymentData[paymentMethod].accountTitle}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(paymentData[paymentMethod].accountTitle);
+                                  setCopiedField("title");
+                                  setTimeout(() => setCopiedField(null), 2000);
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-sans font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                              >
+                                📋 {copiedField === "title" ? "Copied!" : "Copy"}
+                              </button>
+                            </div>
+
+                            {/* Subtext instruction: Gray text (text-[13px] font-sans font-medium) */}
+                            <p className="text-[13px] font-sans font-medium text-neutral-400 pt-1 tracking-wide">
+                              {paymentData[paymentMethod].instruction}
+                            </p>
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
 
                       <div className="bg-neutral-900/70 border border-amber-500/20 rounded-xl p-3 space-y-2 mt-2">
 
@@ -1356,8 +1361,8 @@ export default function WristWatchesPage() {
                         whileHover={!loading ? { scale: 1.01 } : {}}
                         whileTap={!loading ? { scale: 0.98 } : {}}
                         className={`w-full mt-3 py-3 rounded-full text-neutral-950 font-bold text-xs tracking-widest uppercase transition-all ${loading || orderSuccess
-                            ? "bg-amber-600/60 opacity-70 cursor-not-allowed"
-                            : "bg-gradient-to-r from-amber-500 to-amber-600 shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] cursor-pointer"
+                          ? "bg-amber-600/60 opacity-70 cursor-not-allowed"
+                          : "bg-gradient-to-r from-amber-500 to-amber-600 shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] cursor-pointer"
                           }`}
                       >
                         {loading ? (
@@ -1684,8 +1689,8 @@ export default function WristWatchesPage() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: idx * 0.05 }}
                   className={`group rounded-2xl border transition-all duration-300 overflow-hidden ${isOpen
-                      ? "bg-neutral-950 border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.15)]"
-                      : "bg-neutral-950/60 border-neutral-800 hover:border-amber-500/30 hover:bg-neutral-900/80"
+                    ? "bg-neutral-950 border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.15)]"
+                    : "bg-neutral-950/60 border-neutral-800 hover:border-amber-500/30 hover:bg-neutral-900/80"
                     }`}
                 >
                   <button
@@ -1698,8 +1703,8 @@ export default function WristWatchesPage() {
                     </span>
 
                     <div className={`w-7 h-7 rounded-lg flex items-center justify-center border text-xs transition-all duration-300 flex-shrink-0 ${isOpen
-                        ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
-                        : "border-neutral-800 bg-neutral-900 text-neutral-400 group-hover:border-amber-500/30 group-hover:text-amber-400"
+                      ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
+                      : "border-neutral-800 bg-neutral-900 text-neutral-400 group-hover:border-amber-500/30 group-hover:text-amber-400"
                       }`}>
                       {isOpen ? "−" : "+"}
                     </div>

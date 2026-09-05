@@ -12,7 +12,7 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 
 if (isMobile) {
     // Mobile user hai toh /collections/home par bhej do
-    redirect('/collections/home');
+    redirect('/collections/wrist-watches');
   } else {
     // Desktop user hai toh /collections/wrist-watches par bhej do
     redirect('/collections/wrist-watches');
