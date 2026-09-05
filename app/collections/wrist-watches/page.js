@@ -923,9 +923,9 @@ export default function WristWatchesPage() {
       </div>
 
       {/* ================= QUICK VIEW & CHECKOUT MODAL ================= */}
-      <AnimatePresence>
+    <AnimatePresence>
         {(selectedWatch || isCheckout) && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6 overflow-y-auto transform-gpu">
 
             <motion.div
               initial={{ opacity: 0 }}
@@ -936,18 +936,20 @@ export default function WristWatchesPage() {
                 setIsCheckout(false);
                 setCheckoutItems([]);
               }}
+              style={{ willChange: "opacity" }}
               className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
             />
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "spring", stiffness: 350, damping: 30 }}
+              style={{ willChange: "transform, opacity" }}
               className="relative w-full max-w-4xl bg-neutral-950/90 border border-amber-500/30 rounded-3xl p-6 md:p-10 shadow-[0_0_60px_rgba(245,158,11,0.15)] backdrop-blur-xl z-10 overflow-hidden"
             >
-              <div className="absolute -top-24 -left-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -top-24 -left-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
+              <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
 
               {!isCheckout && (
                 <button
@@ -966,7 +968,7 @@ export default function WristWatchesPage() {
 
                 {/* Left Column: Watch Image / Multiple Selected Items Display */}
                 <div className="relative flex flex-col justify-center min-h-[280px] max-h-[380px] bg-neutral-900/50 rounded-2xl p-4 border border-amber-500/10 overflow-y-scroll [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                  <div className="absolute w-48 h-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none self-center" />
+                  <div className="absolute w-48 h-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none self-center transform-gpu" />
 
                   {isCheckout && checkoutItems.length > 0 ? (
                     <div className="space-y-3 relative z-10 w-full pr-1">
@@ -975,7 +977,13 @@ export default function WristWatchesPage() {
                       </h4>
                       {checkoutItems.map((item, index) => (
                         <div key={index} className="flex items-center gap-3 bg-neutral-950/80 p-2.5 rounded-xl border border-neutral-800">
-                          <img src={item.image} alt={item.title} className="w-12 h-12 object-contain bg-neutral-900 rounded-lg p-1" />
+                          <img 
+                            src={item.image} 
+                            alt={item.title} 
+                            loading="lazy"
+                            decoding="async"
+                            className="w-12 h-12 object-contain bg-neutral-900 rounded-lg p-1" 
+                          />
                           <div className="flex-1 min-w-0">
                             <p className="text-[14px] font-Sans font-bold text-amber-100 truncate">{item.title}</p>
                             <p className="text-xs font-Sans text-amber-400 font-semibold mt-1">{item.price}</p>
@@ -985,15 +993,23 @@ export default function WristWatchesPage() {
                     </div>
                   ) : (
                     selectedWatch && (
-                      <div className="flex flex-col items-center justify-center h-full">
-                        <motion.img
-                          initial={{ scale: 0.8, rotate: -5 }}
+                      <div className="flex flex-col items-center justify-center h-full w-full relative min-h-[250px] md:min-h-[320px]">
+                        <motion.div
+                          initial={{ scale: 0.85, rotate: -3 }}
                           animate={{ scale: 1, rotate: 0 }}
-                          transition={{ duration: 0.5, ease: "easeOut" }}
-                          src={selectedWatch.image}
-                          alt={selectedWatch.title}
-                          className="relative z-10 h-64 md:h-80 object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.9)]"
-                        />
+                          transition={{ duration: 0.4, ease: "easeOut" }}
+                          style={{ willChange: "transform" }}
+                          className="relative w-full h-full min-h-[250px] md:min-h-[320px]"
+                        >
+                          <Image
+                            src={selectedWatch.image}
+                            alt={selectedWatch.title}
+                            fill
+                            priority
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            className="object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.9)]"
+                          />
+                        </motion.div>
                       </div>
                     )
                   )}
@@ -1008,6 +1024,7 @@ export default function WristWatchesPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.3 }}
+                      style={{ willChange: "transform, opacity" }}
                     >
                       <span className="text-[10px] tracking-[0.3em] font-medium text-amber-500 uppercase bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 inline-block mb-3">
                         {selectedWatch?.spec || "SWISS PRECISION MOVEMENT"}
@@ -1037,8 +1054,10 @@ export default function WristWatchesPage() {
                               className="w-5 brightness-0 invert h-5"
                               src="/cart.png"
                               alt=""
-                              priority
-                              placeholder="blur" /></span> Add To Cart
+                              width={20}
+                              height={20}
+                            />
+                          </span> Add To Cart
                         </motion.button>
 
                         <motion.button
@@ -1061,6 +1080,7 @@ export default function WristWatchesPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.3 }}
+                      style={{ willChange: "transform, opacity" }}
                       onSubmit={async (e) => {
                         e.preventDefault();
 
@@ -1098,7 +1118,7 @@ export default function WristWatchesPage() {
                           phone,
                           email: e.target.email?.value.trim() || "",
                           address,
-                          paymentMethod, // <--- YE LINE ADD KAREIN
+                          paymentMethod,
                           watchTitle: checkoutItems.map((item) => item.title).join(", "),
                           watchPrice: calculateTotal(checkoutItems),
                           screenshotName: screenshotName || "",
@@ -1154,7 +1174,7 @@ export default function WristWatchesPage() {
                           exit={{ opacity: 0, y: -10 }}
                           className="bg-red-500/20 border border-red-500/50 text-red-300 p-2.5 rounded-xl text-xs text-center font-semibold flex items-center justify-center gap-4"
                         >
-                          <span className="text-[15px]">⚠️</span> Screenshot Uploaded Fail | Please Retry!
+                          <span className="text-[15px]">⚠️</span> {errorMessage}
                         </motion.div>
                       )}
 
@@ -1277,7 +1297,6 @@ export default function WristWatchesPage() {
                             {/* Account / Mobile Number Box */}
                             <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
                               <div>
-                                {/* Label: Gray text 1-2px larger (text-[12px]) font-sans font-medium */}
                                 <span className="block text-[11px] font-Sans font-medium text-neutral-400 tracking-wider uppercase mb-1">
                                   {paymentData[paymentMethod].label}
                                 </span>
@@ -1301,7 +1320,6 @@ export default function WristWatchesPage() {
                             {/* Account Title Box */}
                             <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
                               <div>
-                                {/* Label: Gray text 1-2px larger (text-[12px]) font-sans font-medium */}
                                 <span className="block text-[12px] font-sans font-medium text-neutral-400 tracking-wider uppercase">
                                   ACCOUNT TITLE
                                 </span>
@@ -1322,7 +1340,6 @@ export default function WristWatchesPage() {
                               </button>
                             </div>
 
-                            {/* Subtext instruction: Gray text (text-[13px] font-sans font-medium) */}
                             <p className="text-[13px] font-sans font-medium text-neutral-400 pt-1 tracking-wide">
                               {paymentData[paymentMethod].instruction}
                             </p>
@@ -1362,8 +1379,8 @@ export default function WristWatchesPage() {
                         whileHover={!loading ? { scale: 1.01 } : {}}
                         whileTap={!loading ? { scale: 0.98 } : {}}
                         className={`w-full mt-3 py-3 rounded-full text-neutral-950 font-bold text-xs tracking-widest uppercase transition-all ${loading || orderSuccess
-                          ? "bg-amber-600/60 opacity-70 cursor-not-allowed"
-                          : "bg-gradient-to-r from-amber-500 to-amber-600 shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] cursor-pointer"
+                            ? "bg-amber-600/60 opacity-70 cursor-not-allowed"
+                            : "bg-gradient-to-r from-amber-500 to-amber-600 shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] cursor-pointer"
                           }`}
                       >
                         {loading ? (
@@ -1386,7 +1403,7 @@ export default function WristWatchesPage() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> 
 
       {/* Footer Promise */}
       <section className="relative bg-black py-20 px-4 sm:px-8 lg:px-16 border-t border-neutral-900 overflow-hidden">
