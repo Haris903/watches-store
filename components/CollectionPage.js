@@ -649,23 +649,22 @@ export default function MenWatchesCollectionPage() {
   }, [session, status]);
 
   useEffect(() => {
-    if (!isMounted || isInitialSync.current) return;
-    localStorage.setItem("my_store_cart", JSON.stringify(cart));
-    if (session?.user) {
-      fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart }),
-      }).catch((err) => console.error("Database update error:", err));
-    }
-  }, [cart, isMounted, session]);
+  if (!isMounted || isInitialSync.current) return;
+  localStorage.setItem("my_store_cart", JSON.stringify(cart));
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  if (!session?.user) return;
+
+  // ⏱️ Debounce timer taake bar bar request na jaye
+  const timer = setTimeout(() => {
+    fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cart }),
+    }).catch((err) => console.error("Database update error:", err));
+  }, 800); // 0.8 seconds ka delay
+
+  return () => clearTimeout(timer);
+}, [cart, isMounted, session]);
 
   // ===================== FILTER BAR STICK DETECTION =====================
   // Jab filter bar nav ki jagah le, nav upar chala jaye
@@ -1424,7 +1423,7 @@ export default function MenWatchesCollectionPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 
                     {/* Left Column: Watch Image / Multiple Selected Items Display */}
-                  <div className="relative flex flex-col justify-center min-h-[280px] max-h-[380px] bg-neutral-900/50 rounded-2xl p-4 border border-amber-500/10 overflow-y-scroll [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                    <div className="relative flex flex-col justify-start min-h-[280px] max-h-[380px] overflow-y-auto bg-neutral-900/50 rounded-2xl p-4 border border-zinc-800/80 watch-box-scroll">
                       <div className="absolute w-48 h-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none self-center transform-gpu" />
 
                       {isCheckout && checkoutItems.length > 0 ? (
