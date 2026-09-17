@@ -811,7 +811,7 @@ export default function WristWatchesPage() {
                 {/* Footer Logo Area */}
                 <div className="p-6 border-t border-neutral-900 relative z-10 bg-neutral-950">
                   <div className="flex items-center justify-center">
-                    <Image src="/wlogo.png" preload alt="Logo" width={40} height={40} className=" opacity-70 hover:opacity-100 transition-all duration-500" />
+                    <Image src="/wLogo.png" preload alt="Logo" width={40} height={40} className=" opacity-70 hover:opacity-100 transition-all duration-500" />
                   </div>
                   <p className="text-center text-[9px] text-amber-500/50 uppercase tracking-[0.25em] mt-3 font-semibold">
                     Elegance On Your Wrist
