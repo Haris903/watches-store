@@ -1257,7 +1257,7 @@ export default function MenWatchesCollectionPage() {
               {/* Footer Logo Area */}
               <div className="p-6 border-t border-neutral-900 relative z-10 bg-neutral-950">
                 <div className="flex items-center justify-center">
-                  <Image src={wLogo} alt="Logo" className="h-8 opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
+                  <Image src={wLogo} preload width={40} height={40} alt="Logo" className="opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
                 </div>
                 <p className="text-center text-[9px] text-amber-500/50 uppercase tracking-[0.25em] mt-3 font-semibold">
                   Elegance On Your Wrist
