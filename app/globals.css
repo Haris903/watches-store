@@ -11,7 +11,50 @@
     mix-blend-mode: plus-lighter;
 }
 
+/* Scroll bar  */
 
+/* =========================================
+   SCROLLBAR THEME: ELEGANCE GOLD (BUG FIX)
+   ========================================= */
+
+/* 🔴 SIRF Firefox ke liye (Is se Chrome apne arrows force nahi karega) */
+@-moz-document url-prefix() {
+  html, body {
+    scrollbar-width: thin !important;
+    scrollbar-color: #DCAA4A #000000 !important;
+  }
+}
+
+/* =========================================
+   Chrome, Edge, Safari (Arrow-less)
+   ========================================= */
+::-webkit-scrollbar {
+  width: 10px !important;
+  height: 10px !important;
+  background-color: #000000 !important;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #000000 !important;
+  border-left: 1px solid rgba(220, 170, 74, 0.1) !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #DCAA4A !important;
+  border-radius: 10px !important;
+  border: 3px solid #000000 !important; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #eabb64 !important;
+}
+
+/* Arrows ko band karne ka direct command */
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
 
 /* Item 1 Animation */
 .slide-item-1 {

@@ -106,6 +106,21 @@ export default function WristWatchesPage() {
     syncOnAuthChange();
   }, [session, status]);
 
+  //order cont ke piche koi chez scroll nhi ho gi
+  useEffect(() => {
+  // Agar cart, modal ya drawer mein se koi bhi open hai
+  if (isCartOpen || isCheckout || isMobileMenuOpen || selectedWatch) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+
+  // Cleanup: Component unmount ya close hone par scroll restore karega
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, [isCartOpen, isCheckout, isMobileMenuOpen, selectedWatch]);
+
   // 2. Sirf tab DB save chale jab User manually cart mein koi item add/remove kare
   useEffect(() => {
     if (!isMounted || isInitialSync.current) return;
@@ -168,13 +183,13 @@ export default function WristWatchesPage() {
   }, [index]);
 
   // Menu bar 
-  const navLinks = [
-    { name: "NEW ARRIVAL", href: "./new-arrival" },
-    { name: "MEN", href: "./men" },
-    { name: "WOMEN", href: "./women" },
-    { name: "SMART WATCHES", href: "./smart-watches" },
-    { name: "FOR COUPLES", href: "./for-couples" },
-    { name: "TRACK ORDER", href: "./track-order" },
+ const navLinks = [
+    { name: "THE FRESH DROP", href: "/collections/the-fresh-drop" },
+    { name: "MEN", href: "/collections/men" },
+    { name: "WOMEN", href: "/collections/women" },
+    { name: "SMART WATCHES", href: "/collections/smart-watches" },
+    { name: "FOR COUPLES", href: "/collections/for-couples" },
+    { name: "TRACK ORDER", href: "/collections/track-order" },
     { name: "CONTACT US", href: "https://wa.me/923186643032" },
   ];
 
@@ -360,7 +375,7 @@ export default function WristWatchesPage() {
   ];
 
   return (
-    <div className="w-full min-h-600 text-white flex flex-col relative">
+    <div className="w-full min-h-screen text-white flex flex-col relative">
       <nav className="flex anouncement-bar-scroll sticky top-0 z-50 bg-[linear-gradient(to_right,_black_5%,_#9E674F_18%,_#9E674F_80%,_black_94%)] px-16 h-12 w-full justify-center md:space-x-26 items-center">
 
         {/* Left Arrow */}
@@ -395,10 +410,11 @@ export default function WristWatchesPage() {
       </nav>
 
       {/* Header Bar */}
+     {/* Header Bar */}
       <header
         className={`w-full sticky top-0 z-50 bg-black border-b border-neutral-900 transition-all duration-300 ${isScrolled
-          ? "fixed top-0 left-0 right-0 z-50 shadow-2xl animate-in slide-in-from-top"
-          : "relative"
+          ? "shadow-2xl animate-in slide-in-from-top"
+          : ""
           }`}
       >
 
@@ -571,7 +587,7 @@ export default function WristWatchesPage() {
                     Popular Searches
                   </span>
                   <div className="flex flex-wrap gap-2">
-                    {["Chronograph", "Couple Set", "Minimalist Gold", "Smart Series", "New Arrival"].map((tag, i) => (
+                    {["Chronograph", "Couple Set", "Minimalist Gold", "Smart Series", "The Fresh Drop"].map((tag, i) => (
                       <button
                         key={i}
                         onClick={() => {
@@ -795,7 +811,7 @@ export default function WristWatchesPage() {
                 {/* Footer Logo Area */}
                 <div className="p-6 border-t border-neutral-900 relative z-10 bg-neutral-950">
                   <div className="flex items-center justify-center">
-                    <img src="/wlogo.png" alt="Logo" className="h-8 opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
+                    <Image src="/wlogo.png" alt="Logo" width={40} height={40} className=" opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
                   </div>
                   <p className="text-center text-[9px] text-amber-500/50 uppercase tracking-[0.25em] mt-3 font-semibold">
                     Elegance On Your Wrist
@@ -809,34 +825,40 @@ export default function WristWatchesPage() {
       </header>
 
       {/* Hero Banner Section */}
-      <section className="relative w-full h-[550px] bg-gradient-to-b from-black/80 via-black/20 to-black/80 pt-5 pb-2 overflow-hidden select-none">
-        <motion.div
-          className="flex w-full h-full cursor-grab active:cursor-grabbing touch-pan-y"
-          drag="x"
-          dragSnapToOrigin={true}
-          dragElastic={0.1}
-          onDragEnd={handleDragEnd}
-          animate={{ x: `-${currentIndex * 100}%` }}
-          transition={{
-            duration: 0.8,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-          style={{ willChange: "transform" }}
-        >
-          {heroImages.map((imgUrl, index) => (
-            <div key={index} className="w-full min-w-full h-full flex-shrink-0 px-5">
-              <div className="relative w-full h-full rounded-4xl overflow-hidden bg-neutral-950">
-                <img
-                  src={imgUrl}
-                  alt={`SVESTON Watch ${index + 1}`}
-                  className="w-full h-full object-cover pointer-events-none"
-                  draggable={false}
-                />
-              </div>
-            </div>
-          ))}
-        </motion.div>
-      </section>
+       <section className="relative w-full h-[550px] pt-5 pb-2 overflow-hidden select-none">
+  {/* 1. Permanent Base Background (Back aane par bhi color change nahi hone dega) */}
+  <div className="absolute inset-0 bg-[#F5F5F0] pointer-events-none" />
+
+  {/* 2. Aapka Exact Original Gradient */}
+  <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/20 to-black/80 pointer-events-none" />
+
+  <motion.div
+    className="relative z-10 flex w-full h-full cursor-grab active:cursor-grabbing touch-pan-y"
+    drag="x"
+    dragSnapToOrigin={true}
+    dragElastic={0.1}
+    onDragEnd={handleDragEnd}
+    animate={{ x: `-${currentIndex * 100}%` }}
+    transition={{
+      duration: 0.8,
+      ease: [0.16, 1, 0.3, 1],
+    }}
+    style={{ willChange: "transform" }}
+  >
+    {heroImages.map((imgUrl, index) => (
+      <div key={index} className="w-full min-w-full h-full flex-shrink-0 px-5">
+        <div className="relative w-full h-full rounded-4xl overflow-hidden bg-neutral-950">
+          <img
+            src={imgUrl}
+            alt={`SVESTON Watch ${index + 1}`}
+            className="w-full h-full object-cover pointer-events-none"
+            draggable={false}
+          />
+        </div>
+      </div>
+    ))}
+  </motion.div>
+</section>
 
       {/* Watches Mapping Section */}
       <div className="collection-cont">
@@ -923,10 +945,11 @@ export default function WristWatchesPage() {
       </div>
 
       {/* ================= QUICK VIEW & CHECKOUT MODAL ================= */}
-    <AnimatePresence>
+   <AnimatePresence>
         {(selectedWatch || isCheckout) && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6 overflow-y-auto transform-gpu">
-
+          <div className="fixed inset-0 z-50">
+            
+            {/* 1. Backdrop Overlay (Fixed Blur) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -937,471 +960,468 @@ export default function WristWatchesPage() {
                 setCheckoutItems([]);
               }}
               style={{ willChange: "opacity" }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+              className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity z-0"
             />
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: "spring", stiffness: 350, damping: 30 }}
-              style={{ willChange: "transform, opacity" }}
-              className="relative w-full max-w-4xl bg-neutral-950/90 border border-amber-500/30 rounded-3xl p-6 md:p-10 shadow-[0_0_60px_rgba(245,158,11,0.15)] backdrop-blur-xl z-10 overflow-hidden"
-            >
-              <div className="absolute -top-24 -left-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
-              <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
+            {/* 2. Scrollable Content Wrapper */}
+            <div className="relative z-10 h-full w-full overflow-y-auto p-4 sm:p-6 flex items-start justify-center transform-gpu">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                style={{ willChange: "transform, opacity" }}
+                className="relative my-auto w-full max-w-4xl bg-neutral-950/90 border border-amber-500/30 rounded-3xl p-6 md:p-10 shadow-[0_0_60px_rgba(245,158,11,0.15)] backdrop-blur-xl overflow-hidden"
+              >
+                <div className="absolute -top-24 -left-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
+                <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
 
-              {!isCheckout && (
-                <button
-                  onClick={() => {
-                    setSelectedWatch(null);
-                    setIsCheckout(false);
-                    setScreenshotName("");
-                  }}
-                  className="absolute top-5 right-5 w-10 h-10 rounded-full bg-neutral-900 border border-amber-500/20 text-neutral-400 hover:text-amber-400 hover:border-amber-400 transition-all flex items-center justify-center text-lg z-20 cursor-pointer"
-                >
-                  ✕
-                </button>
-              )}
+                {!isCheckout && (
+                  <button
+                    onClick={() => {
+                      setSelectedWatch(null);
+                      setIsCheckout(false);
+                      setScreenshotName("");
+                    }}
+                    className="absolute top-5 right-5 w-10 h-10 rounded-full bg-neutral-900 border border-amber-500/20 text-neutral-400 hover:text-amber-400 hover:border-amber-400 transition-all flex items-center justify-center text-lg z-20 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 
-                {/* Left Column: Watch Image / Multiple Selected Items Display */}
-                <div className="relative flex flex-col justify-center min-h-[280px] max-h-[380px] bg-neutral-900/50 rounded-2xl p-4 border border-amber-500/10 overflow-y-scroll [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                  <div className="absolute w-48 h-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none self-center transform-gpu" />
+                  {/* Left Column: Watch Image / Multiple Selected Items Display */}
+                 <div className="relative flex flex-col justify-center min-h-[280px] max-h-[380px] bg-neutral-900/50 rounded-2xl p-4 border border-amber-500/10 overflow-y-scroll [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                    <div className="absolute w-48 h-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none self-center transform-gpu" />
 
-                  {isCheckout && checkoutItems.length > 0 ? (
-                    <div className="space-y-3 relative z-10 w-full pr-1">
-                      <h4 className="text-xs font-medium font-Sans tracking-widest text-amber-400 uppercase mb-2 border-b border-amber-500/20 pb-1">
-                        Order Summary ({checkoutItems.length} Items)
-                      </h4>
-                      {checkoutItems.map((item, index) => (
-                        <div key={index} className="flex items-center gap-3 bg-neutral-950/80 p-2.5 rounded-xl border border-neutral-800">
-                          <Image
-                            src={item.image} 
-                            alt={item.title} 
-                            priority
-                            placeholder="blur"
-                            decoding="async"
-                            className="w-12 h-12 object-contain bg-neutral-900 rounded-lg p-1" 
+                    {isCheckout && checkoutItems.length > 0 ? (
+                      <div className="space-y-3 relative z-10 w-full pr-1">
+                        <h4 className="text-xs font-medium font-Sans tracking-widest text-amber-400 uppercase mb-2 border-b border-amber-500/20 pb-1">
+                          Order Summary ({checkoutItems.length} Items)
+                        </h4>
+                        {checkoutItems.map((item, index) => (
+                          <div key={index} className="flex items-center gap-3 bg-neutral-950/80 p-2.5 rounded-xl border border-neutral-800">
+                            <img
+                              src={item.image} 
+                              alt={item.title} 
+                              className="w-12 h-12 object-contain bg-neutral-900 rounded-lg p-1" 
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[14px] font-Sans font-bold text-amber-100 truncate">{item.title}</p>
+                              <p className="text-xs font-Sans text-amber-400 font-semibold mt-1">{item.price}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      selectedWatch && (
+                        <div className="flex flex-col items-center justify-center h-full w-full relative min-h-[250px] md:min-h-[320px]">
+                          <motion.div
+                            initial={{ scale: 0.85, rotate: -3 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
+                            style={{ willChange: "transform" }}
+                            className="relative w-full h-full min-h-[250px] md:min-h-[320px]"
+                          >
+                            <img
+                              src={selectedWatch.image}
+                              alt={selectedWatch.title}
+                              className="w-full h-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.9)]"
+                            />
+                          </motion.div>
+                        </div>
+                      )
+                    )}
+                  </div>
+
+                  {/* Right Column: Watch Details OR Checkout Form */}
+                  <div className="flex flex-col justify-between">
+                    {!isCheckout ? (
+                      /* 1. WATCH DETAILS VIEW */
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                        style={{ willChange: "transform, opacity" }}
+                      >
+                        <span className="text-[10px] tracking-[0.3em] font-medium text-amber-500 uppercase bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 inline-block mb-3">
+                          {selectedWatch?.spec || "SWISS PRECISION MOVEMENT"}
+                        </span>
+
+                        <h2 className="text-2xl md:text-3xl font-bold text-amber-100 tracking-wider uppercase mb-2">
+                          {selectedWatch?.title}
+                        </h2>
+
+                        <p className="text-xl md:text-2xl font-Sans font-semibold text-amber-400 tracking-wide mb-4 drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]">
+                          {selectedWatch?.price}
+                        </p>
+
+                        <p className="text-neutral-400 text-xs md:text-sm leading-relaxed mb-6 border-t border-b border-neutral-800 py-4">
+                          Crafted with sapphire crystal glass, 316L surgical-grade stainless steel, and high-precision automatic movement. A true statement of timeless elegance and craftsmanship.
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row gap-4 mt-2">
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => handleAddToCart(selectedWatch)}
+                            className="flex-1 py-3.5 px-6 rounded-full border border-amber-500/50 bg-neutral-900 text-amber-300 font-medium text-xs tracking-widest uppercase transition-all hover:bg-amber-500/10 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] flex items-center justify-center gap-4 cursor-pointer"
+                          >
+                            <span>
+                              <Image
+                                className="w-5 brightness-0 invert h-5"
+                                src="/cart.png"
+                                alt=""
+                                width={20}
+                                height={20}
+                              />
+                            </span> Add To Cart
+                          </motion.button>
+
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => {
+                              setCheckoutItems([selectedWatch]);
+                              setIsCheckout(true);
+                            }}
+                            className="flex-1 py-3.5 px-6 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-Sans font-bold text-xs tracking-widest uppercase shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] transition-all cursor-pointer"
+                          >
+                            Buy Now
+                          </motion.button>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      /* 2. CHECKOUT FORM VIEW */
+                      <motion.form
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                        style={{ willChange: "transform, opacity" }}
+                        onSubmit={async (e) => {
+                          e.preventDefault();
+
+                          if (loading) return;
+                          setErrorMessage("");
+
+                          const name = e.target.name?.value.trim() || "";
+                          const phone = e.target.phone?.value.trim() || "";
+                          const address = e.target.address?.value.trim() || "";
+
+                          if (!name) {
+                            setErrorMessage("Please enter your name.");
+                            return;
+                          }
+
+                          if (!phone) {
+                            setErrorMessage("Please enter your phone number.");
+                            return;
+                          }
+
+                          if (!address) {
+                            setErrorMessage("Please enter your shipping address.");
+                            return;
+                          }
+
+                          if (!screenshotBase64) {
+                            setErrorMessage("Please upload your payment screenshot.");
+                            return;
+                          }
+
+                          setLoading(true);
+
+                          const formData = {
+                            name,
+                            phone,
+                            email: e.target.email?.value.trim() || "",
+                            address,
+                            paymentMethod,
+                            watchTitle: checkoutItems.map((item) => item.title).join(", "),
+                            watchPrice: calculateTotal(checkoutItems),
+                            screenshotName: screenshotName || "",
+                            screenshotBase64: screenshotBase64 || "",
+                          };
+
+                          try {
+                            const res = await fetch("/api/checkout", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify(formData),
+                            });
+
+                            const data = await res.json();
+
+                            if (data.success) {
+                              setOrderSuccess(true);
+                              setTimeout(() => {
+                                setOrderSuccess(false);
+                                setSelectedWatch(null);
+                                setIsCheckout(false);
+                                setCheckoutItems([]);
+                                setScreenshotName("");
+                                setScreenshotBase64("");
+                              }, 5000);
+                            } else {
+                              setErrorMessage(data.message || "Order didn't submit");
+                            }
+                          } catch (err) {
+                            setErrorMessage("Network error! Check the connection of your device");
+                          } finally {
+                            setLoading(false);
+                          }
+                        }}
+
+                        className="space-y-3"
+                      >
+                        {orderSuccess && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 p-3 rounded-xl text-xs text-center font-semibold flex items-center justify-center gap-2"
+                          >
+                            <span>✓</span> Order Successful! Thank you for your purchase.
+                          </motion.div>
+                        )}
+
+                        {errorMessage && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="bg-red-500/20 border border-red-500/50 text-red-300 p-2.5 rounded-xl text-xs text-center font-semibold flex items-center justify-center gap-4"
+                          >
+                            <span className="text-[15px]">⚠️</span> {errorMessage}
+                          </motion.div>
+                        )}
+
+                        <div className="flex items-center justify-between border-b border-neutral-800 pb-2 mb-2">
+                          <h3 className="text-sm font-extrabold text-amber-300 tracking-wider uppercase">
+                            Checkout
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={() => setIsCheckout(false)}
+                            className="text-xs text-neutral-400 hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer"
+                          >
+                            ← Back
+                          </button>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">
+                            Full Name
+                          </label>
+                          <input
+                            required
+                            name="name"
+                            type="text"
+                            placeholder="Muhammad Haris"
+                            className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50"
                           />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[14px] font-Sans font-bold text-amber-100 truncate">{item.title}</p>
-                            <p className="text-xs font-Sans text-amber-400 font-semibold mt-1">{item.price}</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">
+                              WhatsApp / Mobile Number
+                            </label>
+                            <input
+                              required
+                              name="phone"
+                              type="tel"
+                              placeholder="0300 1234567"
+                              className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">
+                              Email Address
+                            </label>
+                            <input
+                              required
+                              name="email"
+                              type="email"
+                              placeholder="Enter Your Email"
+                              className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50"
+                            />
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    selectedWatch && (
-                      <div className="flex flex-col items-center justify-center h-full w-full relative min-h-[250px] md:min-h-[320px]">
-                        <motion.div
-                          initial={{ scale: 0.85, rotate: -3 }}
-                          animate={{ scale: 1, rotate: 0 }}
-                          transition={{ duration: 0.4, ease: "easeOut" }}
-                          style={{ willChange: "transform" }}
-                          className="relative w-full h-full min-h-[250px] md:min-h-[320px]"
-                        >
-                          <Image
-                            src={selectedWatch.image}
-                            alt={selectedWatch.title}
-                            fill
-                            priority
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                            className="object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.9)]"
+
+                        <div>
+                          <label className="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">
+                            Shipping Address (House #, Street, City)
+                          </label>
+                          <input
+                            required
+                            name="address"
+                            type="text"
+                            placeholder="House #123, Street 5, Phase 4, Lahore"
+                            className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50"
                           />
-                        </motion.div>
-                      </div>
-                    )
-                  )}
-                </div>
+                        </div>
 
-                {/* Right Column: Watch Details OR Checkout Form */}
-                <div className="flex flex-col justify-between">
-                  {!isCheckout ? (
-                    /* 1. WATCH DETAILS VIEW */
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ willChange: "transform, opacity" }}
-                    >
-                      <span className="text-[10px] tracking-[0.3em] font-medium text-amber-500 uppercase bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 inline-block mb-3">
-                        {selectedWatch?.spec || "SWISS PRECISION MOVEMENT"}
-                      </span>
+                        {/* Dynamic Payment Method Selector & Details */}
+                        <div className="bg-neutral-950/90 border border-amber-500/30 rounded-2xl p-4 sm:p-5 space-y-4 my-3 shadow-[0_0_25px_rgba(245,158,11,0.08)]">
 
-                      <h2 className="text-2xl md:text-3xl font-bold text-amber-100 tracking-wider uppercase mb-2">
-                        {selectedWatch?.title}
-                      </h2>
+                          {/* Step Header */}
+                          <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
+                            <span className="text-[11px] font-sans font-medium text-amber-400 tracking-[0.2em] uppercase">
+                              Step 1 — Send Payment
+                            </span>
+                            <span className="text-xs sm:block hidden font-sans font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.15)]">
+                              {calculateTotal(checkoutItems)}
+                            </span>
+                          </div>
 
-                      <p className="text-xl md:text-2xl font-Sans font-semibold text-amber-400 tracking-wide mb-4 drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]">
-                        {selectedWatch?.price}
-                      </p>
+                          {/* Method Toggle Buttons (Tab Bar) */}
+                          <div className="grid grid-cols-3 gap-2 bg-neutral-900/80 p-1.5 rounded-xl border border-neutral-800">
+                            {["EASYPAISA", "JAZZCASH"].map((method) => {
+                              const isSelected = paymentMethod === method;
+                              return (
+                                <button
+                                  key={method}
+                                  type="button"
+                                  onClick={() => setPaymentMethod(method)}
+                                  className={`relative py-1 px-2 rounded-lg font-sans font-medium text-[11px] sm:text-xs tracking-wider transition-all duration-300 cursor-pointer overflow-hidden ${isSelected
+                                      ? "text-amber-300 border border-amber-400/70 bg-gradient-to-b from-amber-500/20 to-amber-950/40 shadow-[0_0_20px_rgba(245,158,11,0.35)]"
+                                      : "text-neutral-400 hover:text-neutral-200 border border-transparent hover:bg-neutral-800/60"
+                                    }`}
+                                >
+                                  <span className="relative z-10">{method}</span>
+                                  {isSelected && (
+                                    <motion.div
+                                      layoutId="glowIndicator"
+                                      className="absolute inset-0 bg-amber-400/10 rounded-lg pointer-events-none"
+                                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                    />
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
 
-                      <p className="text-neutral-400 text-xs md:text-sm leading-relaxed mb-6 border-t border-b border-neutral-800 py-4">
-                        Crafted with sapphire crystal glass, 316L surgical-grade stainless steel, and high-precision automatic movement. A true statement of timeless elegance and craftsmanship.
-                      </p>
+                          {/* Details Display with Glow & Fade Animation */}
+                          <AnimatePresence mode="wait">
+                            <motion.div
+                              key={paymentMethod}
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -8 }}
+                              transition={{ duration: 0.25 }}
+                              className="space-y-3 pt-1"
+                            >
+                              {/* Account / Mobile Number Box */}
+                              <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
+                                <div>
+                                  <span className="block text-[11px] font-Sans font-medium text-neutral-400 tracking-wider uppercase mb-1">
+                                    {paymentData[paymentMethod].label}
+                                  </span>
+                                  <span className="font-Sans font-bold text-[#DCAA4A] drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
+                                    {paymentData[paymentMethod].number}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(paymentData[paymentMethod].number);
+                                    setCopiedField("number");
+                                    setTimeout(() => setCopiedField(null), 2000);
+                                  }}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-sans font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                                >
+                                  📋 {copiedField === "number" ? "Copied!" : "Copy"}
+                                </button>
+                              </div>
 
-                      <div className="flex flex-col sm:flex-row gap-4 mt-2">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => handleAddToCart(selectedWatch)}
-                          className="flex-1 py-3.5 px-6 rounded-full border border-amber-500/50 bg-neutral-900 text-amber-300 font-medium text-xs tracking-widest uppercase transition-all hover:bg-amber-500/10 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] flex items-center justify-center gap-4 cursor-pointer"
-                        >
-                          <span>
-                            <Image
-                              className="w-5 brightness-0 invert h-5"
-                              src="/cart.png"
-                              alt=""
-                              width={20}
-                              height={20}
+                              {/* Account Title Box */}
+                              <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
+                                <div>
+                                  <span className="block text-[12px] font-sans font-medium text-neutral-400 tracking-wider uppercase">
+                                    ACCOUNT TITLE
+                                  </span>
+                                  <span className="font-Sans font-bold text-mauve-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
+                                    {paymentData[paymentMethod].accountTitle}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(paymentData[paymentMethod].accountTitle);
+                                    setCopiedField("title");
+                                    setTimeout(() => setCopiedField(null), 2000);
+                                  }}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-sans font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                                >
+                                  📋 {copiedField === "title" ? "Copied!" : "Copy"}
+                                </button>
+                              </div>
+
+                              <p className="text-[13px] font-sans font-medium text-neutral-400 pt-1 tracking-wide">
+                                {paymentData[paymentMethod].instruction}
+                              </p>
+                            </motion.div>
+                          </AnimatePresence>
+                        </div>
+
+                        <div className="bg-neutral-900/70 border border-amber-500/20 rounded-xl p-3 space-y-2 mt-2">
+
+                          <label className="relative flex flex-col items-center justify-center border border-dashed border-amber-500/40 rounded-lg p-2.5 bg-neutral-950/60 cursor-pointer hover:border-amber-400 transition-all">
+                            <span className="text-[11px] text-neutral-300 font-medium flex items-center">
+                              📷 {screenshotName ? screenshotName : "Upload Payment Receipt / Screenshot"}
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files && e.target.files[0];
+                                if (file) {
+                                  setScreenshotName(file.name);
+
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setScreenshotBase64(reader.result);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              className="hidden"
                             />
-                          </span> Add To Cart
-                        </motion.button>
+                          </label>
+                        </div>
 
                         <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => {
-                            setCheckoutItems([selectedWatch]);
-                            setIsCheckout(true);
-                          }}
-                          className="flex-1 py-3.5 px-6 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-Sans font-bold text-xs tracking-widest uppercase shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] transition-all cursor-pointer"
+                          type="submit"
+                          disabled={loading || orderSuccess}
+                          whileHover={!loading ? { scale: 1.01 } : {}}
+                          whileTap={!loading ? { scale: 0.98 } : {}}
+                          className={`w-full mt-3 py-3 rounded-full text-neutral-950 font-bold text-xs tracking-widest uppercase transition-all ${loading || orderSuccess
+                              ? "bg-amber-600/60 opacity-70 cursor-not-allowed"
+                              : "bg-gradient-to-r from-amber-500 to-amber-600 shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] cursor-pointer"
+                            }`}
                         >
-                          Buy Now
+                          {loading ? (
+                            <span className="flex items-center justify-center gap-2">
+                              <svg className="animate-spin h-4 w-4 text-neutral-950" viewBox="0 0 24 24" fill="none">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                              </svg>
+                              Processing Order...
+                            </span>
+                          ) : (
+                            `Confirm Order • ${calculateTotal(checkoutItems)}`
+                          )}
                         </motion.button>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    /* 2. CHECKOUT FORM VIEW */
-                    <motion.form
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ willChange: "transform, opacity" }}
-                      onSubmit={async (e) => {
-                        e.preventDefault();
+                      </motion.form>
+                    )}
+                  </div>
 
-                        if (loading) return;
-                        setErrorMessage("");
-
-                        const name = e.target.name?.value.trim() || "";
-                        const phone = e.target.phone?.value.trim() || "";
-                        const address = e.target.address?.value.trim() || "";
-
-                        if (!name) {
-                          setErrorMessage("Please enter your name.");
-                          return;
-                        }
-
-                        if (!phone) {
-                          setErrorMessage("Please enter your phone number.");
-                          return;
-                        }
-
-                        if (!address) {
-                          setErrorMessage("Please enter your shipping address.");
-                          return;
-                        }
-
-                        if (!screenshotBase64) {
-                          setErrorMessage("Please upload your payment screenshot.");
-                          return;
-                        }
-
-                        setLoading(true);
-
-                        const formData = {
-                          name,
-                          phone,
-                          email: e.target.email?.value.trim() || "",
-                          address,
-                          paymentMethod,
-                          watchTitle: checkoutItems.map((item) => item.title).join(", "),
-                          watchPrice: calculateTotal(checkoutItems),
-                          screenshotName: screenshotName || "",
-                          screenshotBase64: screenshotBase64 || "",
-                        };
-
-                        try {
-                          const res = await fetch("/api/checkout", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(formData),
-                          });
-
-                          const data = await res.json();
-
-                          if (data.success) {
-                            setOrderSuccess(true);
-                            setTimeout(() => {
-                              setOrderSuccess(false);
-                              setSelectedWatch(null);
-                              setIsCheckout(false);
-                              setCheckoutItems([]);
-                              setScreenshotName("");
-                              setScreenshotBase64("");
-                            }, 5000);
-                          } else {
-                            setErrorMessage(data.message || "Order didn't submit");
-                          }
-                        } catch (err) {
-                          setErrorMessage("Network error! Check the connection of your device");
-                        } finally {
-                          setLoading(false);
-                        }
-                      }}
-
-                      className="space-y-3"
-                    >
-                      {orderSuccess && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 p-3 rounded-xl text-xs text-center font-semibold flex items-center justify-center gap-2"
-                        >
-                          <span>✓</span> Order Successful! Thank you for your purchase.
-                        </motion.div>
-                      )}
-
-                      {errorMessage && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="bg-red-500/20 border border-red-500/50 text-red-300 p-2.5 rounded-xl text-xs text-center font-semibold flex items-center justify-center gap-4"
-                        >
-                          <span className="text-[15px]">⚠️</span> {errorMessage}
-                        </motion.div>
-                      )}
-
-                      <div className="flex items-center justify-between border-b border-neutral-800 pb-2 mb-2">
-                        <h3 className="text-sm font-extrabold text-amber-300 tracking-wider uppercase">
-                          Checkout
-                        </h3>
-                        <button
-                          type="button"
-                          onClick={() => setIsCheckout(false)}
-                          className="text-xs text-neutral-400 hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer"
-                        >
-                          ← Back
-                        </button>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">
-                          Full Name
-                        </label>
-                        <input
-                          required
-                          name="name"
-                          type="text"
-                          placeholder="Muhammad Haris"
-                          className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">
-                            WhatsApp / Mobile Number
-                          </label>
-                          <input
-                            required
-                            name="phone"
-                            type="tel"
-                            placeholder="0300 1234567"
-                            className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">
-                            Email Address
-                          </label>
-                          <input
-                            required
-                            name="email"
-                            type="email"
-                            placeholder="Enter Your Email"
-                            className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">
-                          Shipping Address (House #, Street, City)
-                        </label>
-                        <input
-                          required
-                          name="address"
-                          type="text"
-                          placeholder="House #123, Street 5, Phase 4, Lahore"
-                          className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50"
-                        />
-                      </div>
-
-                      {/* Dynamic Payment Method Selector & Details */}
-                      <div className="bg-neutral-950/90 border border-amber-500/30 rounded-2xl p-4 sm:p-5 space-y-4 my-3 shadow-[0_0_25px_rgba(245,158,11,0.08)]">
-
-                        {/* Step Header */}
-                        <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
-                          <span className="text-[11px] font-sans font-medium text-amber-400 tracking-[0.2em] uppercase">
-                            Step 1 — Send Payment
-                          </span>
-                          <span className="text-xs sm:block hidden font-sans font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.15)]">
-                            {calculateTotal(checkoutItems)}
-                          </span>
-                        </div>
-
-                        {/* Method Toggle Buttons (Tab Bar) */}
-                        <div className="grid grid-cols-3 gap-2 bg-neutral-900/80 p-1.5 rounded-xl border border-neutral-800">
-                          {["EASYPAISA", "JAZZCASH"].map((method) => {
-                            const isSelected = paymentMethod === method;
-                            return (
-                              <button
-                                key={method}
-                                type="button"
-                                onClick={() => setPaymentMethod(method)}
-                                className={`relative py-1 px-2 rounded-lg font-sans font-medium text-[11px] sm:text-xs tracking-wider transition-all duration-300 cursor-pointer overflow-hidden ${isSelected
-                                    ? "text-amber-300 border border-amber-400/70 bg-gradient-to-b from-amber-500/20 to-amber-950/40 shadow-[0_0_20px_rgba(245,158,11,0.35)]"
-                                    : "text-neutral-400 hover:text-neutral-200 border border-transparent hover:bg-neutral-800/60"
-                                  }`}
-                              >
-                                {method}
-                                {isSelected && (
-                                  <motion.div
-                                    layoutId="glowIndicator"
-                                    className="absolute inset-0 bg-amber-400/10 rounded-lg pointer-events-none"
-                                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                  />
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        {/* Details Display with Glow & Fade Animation */}
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={paymentMethod}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -8 }}
-                            transition={{ duration: 0.25 }}
-                            className="space-y-3 pt-1"
-                          >
-                            {/* Account / Mobile Number Box */}
-                            <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
-                              <div>
-                                <span className="block text-[11px] font-Sans font-medium text-neutral-400 tracking-wider uppercase mb-1">
-                                  {paymentData[paymentMethod].label}
-                                </span>
-                                <span className="font-Sans font-bold text-[#DCAA4A] drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
-                                  {paymentData[paymentMethod].number}
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(paymentData[paymentMethod].number);
-                                  setCopiedField("number");
-                                  setTimeout(() => setCopiedField(null), 2000);
-                                }}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-sans font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-                              >
-                                📋 {copiedField === "number" ? "Copied!" : "Copy"}
-                              </button>
-                            </div>
-
-                            {/* Account Title Box */}
-                            <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
-                              <div>
-                                <span className="block text-[12px] font-sans font-medium text-neutral-400 tracking-wider uppercase">
-                                  ACCOUNT TITLE
-                                </span>
-                                <span className="font-Sans font-bold text-mauve-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
-                                  {paymentData[paymentMethod].accountTitle}
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(paymentData[paymentMethod].accountTitle);
-                                  setCopiedField("title");
-                                  setTimeout(() => setCopiedField(null), 2000);
-                                }}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-sans font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-                              >
-                                📋 {copiedField === "title" ? "Copied!" : "Copy"}
-                              </button>
-                            </div>
-
-                            <p className="text-[13px] font-sans font-medium text-neutral-400 pt-1 tracking-wide">
-                              {paymentData[paymentMethod].instruction}
-                            </p>
-                          </motion.div>
-                        </AnimatePresence>
-                      </div>
-
-                      <div className="bg-neutral-900/70 border border-amber-500/20 rounded-xl p-3 space-y-2 mt-2">
-
-                        <label className="relative flex flex-col items-center justify-center border border-dashed border-amber-500/40 rounded-lg p-2.5 bg-neutral-950/60 cursor-pointer hover:border-amber-400 transition-all">
-                          <span className="text-[11px] text-neutral-300 font-medium flex items-center">
-                            📷 {screenshotName ? screenshotName : "Upload Payment Receipt / Screenshot"}
-                          </span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files && e.target.files[0];
-                              if (file) {
-                                setScreenshotName(file.name);
-
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  setScreenshotBase64(reader.result);
-                                };
-                                reader.readAsDataURL(file);
-                              }
-                            }}
-                            className="hidden"
-                          />
-                        </label>
-                      </div>
-
-                      <motion.button
-                        type="submit"
-                        disabled={loading || orderSuccess}
-                        whileHover={!loading ? { scale: 1.01 } : {}}
-                        whileTap={!loading ? { scale: 0.98 } : {}}
-                        className={`w-full mt-3 py-3 rounded-full text-neutral-950 font-bold text-xs tracking-widest uppercase transition-all ${loading || orderSuccess
-                            ? "bg-amber-600/60 opacity-70 cursor-not-allowed"
-                            : "bg-gradient-to-r from-amber-500 to-amber-600 shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] cursor-pointer"
-                          }`}
-                      >
-                        {loading ? (
-                          <span className="flex items-center justify-center gap-2">
-                            <svg className="animate-spin h-4 w-4 text-neutral-950" viewBox="0 0 24 24" fill="none">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                            </svg>
-                            Processing Order...
-                          </span>
-                        ) : (
-                          `Confirm Order • ${calculateTotal(checkoutItems)}`
-                        )}
-                      </motion.button>
-                    </motion.form>
-                  )}
                 </div>
-
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </div>
         )}
       </AnimatePresence> 
@@ -1721,11 +1741,11 @@ export default function WristWatchesPage() {
                       {faq.q}
                     </span>
 
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center border text-xs transition-all duration-300 flex-shrink-0 ${isOpen
+                 <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center border text-lg sm:text-xl font-sans font-light leading-none transition-all duration-300 flex-shrink-0 ${isOpen
                       ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
                       : "border-neutral-800 bg-neutral-900 text-neutral-400 group-hover:border-amber-500/30 group-hover:text-amber-400"
                       }`}>
-                      {isOpen ? "−" : "+"}
+                      <span className="mt-[-2px]">{isOpen ? "−" : "+"}</span>
                     </div>
                   </button>
 
@@ -1772,7 +1792,7 @@ export default function WristWatchesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-neutral-900">
             <div className="lg:col-span-2 space-y-4">
               <div className="flex items-center gap-3">
-                <span className="text-2xl font-bold font-serif text-amber-400 tracking-wider"><img src="/wLogo.png" width={60} height={60} alt="" /></span>
+                <span className="text-2xl font-bold font-serif text-amber-400 tracking-wider"><Image src="/wLogo.png" width={60} height={60} alt="" /></span>
               </div>
               <p className="text-amber-400/90 text-xs font-medium tracking-widest uppercase">
                 Elegance On Your Wrist

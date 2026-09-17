@@ -354,10 +354,10 @@ function FloatingDock({ session, cartCount, isMounted, onCart, onSearch, onMenu,
         </div>
       </motion.header>
 
-      <motion.div
+    <motion.div
         initial={{ y: -60, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
+        animate={hidden ? { y: -100, opacity: 0 } : { y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="fixed inset-x-0 top-4 z-[60] flex justify-center px-4 lg:hidden"
       >
         <Link href="/" className="flex items-center gap-3 rounded-full border border-[#DCAA4A]/25 bg-black/80 px-5 py-2.5 shadow-[0_16px_44px_-18px_rgba(0,0,0,1)] backdrop-blur-xl">
@@ -367,7 +367,7 @@ function FloatingDock({ session, cartCount, isMounted, onCart, onSearch, onMenu,
           </span>
         </Link>
       </motion.div>
-
+      
       <motion.nav
         initial={{ y: 90, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -1369,477 +1369,490 @@ export default function MenWatchesCollectionPage() {
       </aside>
 
       {/* ============ QUICK VIEW / CHECKOUT MODAL ============ */}
+    {/* ============ QUICK VIEW / CHECKOUT MODAL ============ */}
       <AnimatePresence>
         {(selectedWatch || isCheckout) && (
-          <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 sm:p-6 overflow-y-auto transform-gpu font-jakarta">
+          <div className="fixed inset-0 z-[100] font-jakarta">
 
+            {/* 1. Backdrop Overlay (Fixed, Never Scrolls) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              style={{ willChange: "opacity" }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+            />
+
+            {/* 2. Scrollable Container */}
+            <div 
+              className="fixed inset-0 overflow-y-auto"
               onClick={() => {
                 setSelectedWatch(null);
                 setIsCheckout(false);
                 setCheckoutItems([]);
               }}
-              style={{ willChange: "opacity" }}
-              className="fixed inset-x-0 top-0 h-[160vh] bg-black/80 backdrop-blur-md transition-opacity"
-/>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: "spring", stiffness: 350, damping: 30 }}
-              style={{ willChange: "transform, opacity" }}
-              className="relative w-full max-w-4xl bg-neutral-950/90 border border-amber-500/30 rounded-3xl p-6 md:p-10 shadow-[0_0_60px_rgba(245,158,11,0.15)] backdrop-blur-xl z-10 overflow-hidden"
             >
-              <div className="absolute -top-24 -left-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
-              <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
-
-              {!isCheckout && (
-                <button
-                  onClick={() => {
-                    setSelectedWatch(null);
-                    setIsCheckout(false);
-                    setScreenshotName("");
-                  }}
-                  className="absolute top-5 right-5 w-10 h-10 rounded-full bg-neutral-900 border border-amber-500/20 text-neutral-400 hover:text-amber-400 hover:border-amber-400 transition-all flex items-center justify-center text-lg z-20 cursor-pointer"
+              {/* 3. Center Alignment Wrapper */}
+              <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
+                
+                {/* 4. Main Modal Box */}
+                <motion.div
+                  onClick={(e) => e.stopPropagation()}
+                  initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                  style={{ willChange: "transform, opacity" }}
+                  className="relative w-full max-w-4xl bg-neutral-950/90 border border-amber-500/30 rounded-3xl p-6 md:p-10 shadow-[0_0_60px_rgba(245,158,11,0.15)] backdrop-blur-xl z-10 overflow-hidden"
                 >
-                  ✕
-                </button>
-              )}
+                  <div className="absolute -top-24 -left-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
+                  <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-
-                {/* Left Column: Watch Image / Multiple Selected Items Display */}
-               <div className="relative flex flex-col justify-center min-h-[280px] max-h-[380px] bg-neutral-900/50 rounded-2xl p-4 border border-amber-500/10 overflow-y-scroll [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                  <div className="absolute w-48 h-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none self-center transform-gpu" />
-
-                  {isCheckout && checkoutItems.length > 0 ? (
-                    <div className="space-y-3 relative z-10 w-full pr-1">
-                      <h4 className="text-xs sm:text-sm font-medium tracking-widest text-amber-400 uppercase mb-2 border-b border-amber-500/20 pb-1">
-                        Order Summary ({checkoutItems.length} Items)
-                      </h4>
-                      {checkoutItems.map((item, index) => (
-                        <div key={index} className="flex items-center gap-3 bg-neutral-950/80 p-2.5 rounded-xl border border-neutral-800">
-                          <img
-                            src={item.image} 
-                            alt={item.title} 
-                            className="w-12 h-12 object-contain bg-neutral-900 rounded-lg p-1" 
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[14px] sm:text-[15px] font-bold text-amber-100 truncate">{item.title}</p>
-                            <p className="text-xs sm:text-sm text-amber-400 font-semibold mt-1">{item.price}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    selectedWatch && (
-                      <div className="flex flex-col items-center justify-center h-full w-full relative min-h-[250px] md:min-h-[320px]">
-                        <motion.div
-                          initial={{ scale: 0.85, rotate: -3 }}
-                          animate={{ scale: 1, rotate: 0 }}
-                          transition={{ duration: 0.4, ease: "easeOut" }}
-                          style={{ willChange: "transform" }}
-                          className="relative w-full h-full min-h-[250px] md:min-h-[320px]"
-                        >
-                          <img
-                            src={selectedWatch.image}
-                            alt={selectedWatch.title}
-                            className="w-full h-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.9)]"
-                          />
-                        </motion.div>
-                      </div>
-                    )
-                  )}
-                </div>
-
-                {/* Right Column: Watch Details OR Checkout Form */}
-                <div className="flex flex-col justify-between">
-                  {!isCheckout ? (
-                    /* 1. WATCH DETAILS VIEW */
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ willChange: "transform, opacity" }}
-                    >
-                      <span className="text-[10px] sm:text-[11px] tracking-[0.3em] font-medium text-amber-500 uppercase bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 inline-block mb-3">
-                        {selectedWatch?.spec || "SWISS PRECISION MOVEMENT"}
-                      </span>
-
-                      <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-amber-100 tracking-wider uppercase mb-2">
-                        {selectedWatch?.title}
-                      </h2>
-
-                      <div className="mt-3 sm:mt-4 flex flex-wrap items-end gap-2 sm:gap-3 mb-4">
-                         <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-amber-400 tracking-wide drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]">
-                           {selectedWatch?.price}
-                         </p>
-                         {selectedWatch?.original && (
-                            <p className="pb-0.5 sm:pb-1 text-sm sm:text-base font-bold text-neutral-600 line-through">{selectedWatch?.original}</p>
-                         )}
-                      </div>
-
-                      <p className="text-neutral-400 text-xs sm:text-sm md:text-[15px] leading-relaxed mb-6 border-t border-b border-neutral-800 py-4">
-                        Crafted with sapphire crystal glass, 316L surgical-grade stainless steel, and high-precision automatic movement. A true statement of timeless elegance and craftsmanship.
-                      </p>
-
-                      <div className="flex flex-col sm:flex-row gap-4 mt-2">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => handleAddToCart(selectedWatch)}
-                          className="flex-1 py-3.5 px-6 rounded-full border border-amber-500/50 bg-neutral-900 text-amber-300 font-medium text-xs sm:text-sm tracking-widest uppercase transition-all hover:bg-amber-500/10 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] flex items-center justify-center gap-3 cursor-pointer"
-                        >
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
-                           Add To Cart
-                        </motion.button>
-
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => {
-                            setCheckoutItems([selectedWatch]);
-                            setIsCheckout(true);
-                          }}
-                          className="flex-1 py-3.5 px-6 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-bold text-xs sm:text-sm tracking-widest uppercase shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] transition-all cursor-pointer"
-                        >
-                          Buy Now
-                        </motion.button>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    /* 2. CHECKOUT FORM VIEW */
-                    <motion.form
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ willChange: "transform, opacity" }}
-                      onSubmit={async (e) => {
-                        e.preventDefault();
-
-                        if (loading) return;
-                        setErrorMessage("");
-
-                        const name = e.target.name?.value.trim() || "";
-                        const phone = e.target.phone?.value.trim() || "";
-                        const address = e.target.address?.value.trim() || "";
-
-                        if (!name) {
-                          setErrorMessage("Please enter your name.");
-                          return;
-                        }
-
-                        if (!phone) {
-                          setErrorMessage("Please enter your phone number.");
-                          return;
-                        }
-
-                        if (!address) {
-                          setErrorMessage("Please enter your shipping address.");
-                          return;
-                        }
-
-                        if (!screenshotBase64) {
-                          setErrorMessage("Please upload your payment screenshot.");
-                          return;
-                        }
-
-                        setLoading(true);
-
-                        const formData = {
-                          name,
-                          phone,
-                          email: e.target.email?.value.trim() || "",
-                          address,
-                          paymentMethod,
-                          watchTitle: checkoutItems.map((item) => item.title).join(", "),
-                          watchPrice: calculateTotal(checkoutItems),
-                          screenshotName: screenshotName || "",
-                          screenshotBase64: screenshotBase64 || "",
-                        };
-
-                        try {
-                          const res = await fetch("/api/checkout", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(formData),
-                          });
-
-                          const data = await res.json();
-
-                          if (data.success) {
-                            setOrderSuccess(true);
-                            setTimeout(() => {
-                              setOrderSuccess(false);
-                              setSelectedWatch(null);
-                              setIsCheckout(false);
-                              setCheckoutItems([]);
-                              setScreenshotName("");
-                              setScreenshotBase64("");
-                            }, 5000);
-                          } else {
-                            setErrorMessage(data.message || "Order didn't submit");
-                          }
-                        } catch (err) {
-                          setErrorMessage("Network error! Check the connection of your device");
-                        } finally {
-                          setLoading(false);
-                        }
+                  {!isCheckout && (
+                    <button
+                      onClick={() => {
+                        setSelectedWatch(null);
+                        setIsCheckout(false);
+                        setScreenshotName("");
                       }}
-
-                      className="space-y-3"
+                      className="absolute top-5 right-5 w-10 h-10 rounded-full bg-neutral-900 border border-amber-500/20 text-neutral-400 hover:text-amber-400 hover:border-amber-400 transition-all flex items-center justify-center text-lg z-20 cursor-pointer"
                     >
-                      {orderSuccess && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 p-3 rounded-xl text-xs sm:text-sm text-center font-semibold flex items-center justify-center gap-2"
-                        >
-                          <span>✓</span> Order Successful! Thank you for your purchase.
-                        </motion.div>
-                      )}
-
-                      {errorMessage && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="bg-red-500/20 border border-red-500/50 text-red-300 p-2.5 rounded-xl text-xs sm:text-sm text-center font-semibold flex items-center justify-center gap-4"
-                        >
-                          <span className="text-[15px]">⚠️</span> {errorMessage}
-                        </motion.div>
-                      )}
-
-                      <div className="flex items-center justify-between border-b border-neutral-800 pb-2 mb-2">
-                        <h3 className="text-sm sm:text-base font-extrabold text-amber-300 tracking-wider uppercase">
-                          Checkout
-                        </h3>
-                        <button
-                          type="button"
-                          onClick={() => setIsCheckout(false)}
-                          className="text-xs sm:text-sm text-neutral-400 hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer"
-                        >
-                          ← Back
-                        </button>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest mb-1">
-                          Full Name
-                        </label>
-                        <input
-                          required
-                          name="name"
-                          type="text"
-                          placeholder="Muhammad Haris"
-                          className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 font-jakarta"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest mb-1">
-                            WhatsApp / Mobile Number
-                          </label>
-                          <input
-                            required
-                            name="phone"
-                            type="tel"
-                            placeholder="0300 1234567"
-                            className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 font-jakarta"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest mb-1">
-                            Email Address
-                          </label>
-                          <input
-                            required
-                            name="email"
-                            type="email"
-                            placeholder="Enter Your Email"
-                            className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 font-jakarta"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest mb-1">
-                          Shipping Address (House #, Street, City)
-                        </label>
-                        <input
-                          required
-                          name="address"
-                          type="text"
-                          placeholder="House #123, Street 5, Phase 4, Lahore"
-                          className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 font-jakarta"
-                        />
-                      </div>
-
-                      {/* Dynamic Payment Method Selector & Details */}
-                      <div className="bg-neutral-950/90 border border-amber-500/30 rounded-2xl p-4 sm:p-5 space-y-4 my-3 shadow-[0_0_25px_rgba(245,158,11,0.08)]">
-
-                        {/* Step Header */}
-                        <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
-                          <span className="text-[11px] sm:text-[12px] font-medium text-amber-400 tracking-[0.2em] uppercase">
-                            Step 1 — Send Payment
-                          </span>
-                          <span className="text-xs sm:block hidden font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.15)]">
-                            {calculateTotal(checkoutItems)}
-                          </span>
-                        </div>
-
-                        {/* Method Toggle Buttons (Tab Bar) */}
-                        <div className="grid grid-cols-3 gap-2 bg-neutral-900/80 p-1.5 rounded-xl border border-neutral-800">
-                          {["EASYPAISA", "JAZZCASH"].map((method) => {
-                            const isSelected = paymentMethod === method;
-                            return (
-                              <button
-                                key={method}
-                                type="button"
-                                onClick={() => setPaymentMethod(method)}
-                                className={`relative py-1 px-2 rounded-lg font-medium text-[11px] sm:text-xs tracking-wider transition-all duration-300 cursor-pointer overflow-hidden ${isSelected
-                                    ? "text-amber-300 border border-amber-400/70 bg-gradient-to-b from-amber-500/20 to-amber-950/40 shadow-[0_0_20px_rgba(245,158,11,0.35)]"
-                                    : "text-neutral-400 hover:text-neutral-200 border border-transparent hover:bg-neutral-800/60"
-                                  }`}
-                              >
-                                <span className="relative z-10">{method}</span>
-                                {isSelected && (
-                                  <motion.div
-                                    layoutId="glowIndicator"
-                                    className="absolute inset-0 bg-amber-400/10 rounded-lg pointer-events-none"
-                                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                  />
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        {/* Details Display with Glow & Fade Animation */}
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={paymentMethod}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -8 }}
-                            transition={{ duration: 0.25 }}
-                            className="space-y-3 pt-1"
-                          >
-                            {/* Account / Mobile Number Box */}
-                            <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
-                              <div>
-                                <span className="block text-[11px] sm:text-xs font-medium text-neutral-400 tracking-wider uppercase mb-1">
-                                  {PAYMENT_DATA[paymentMethod].label}
-                                </span>
-                                <span className="text-[13px] sm:text-sm font-bold text-[#DCAA4A] drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
-                                  {PAYMENT_DATA[paymentMethod].number}
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(PAYMENT_DATA[paymentMethod].number);
-                                  setCopiedField("number");
-                                  setTimeout(() => setCopiedField(null), 2000);
-                                }}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-                              >
-                                📋 {copiedField === "number" ? "Copied!" : "Copy"}
-                              </button>
-                            </div>
-
-                            {/* Account Title Box */}
-                            <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
-                              <div>
-                                <span className="block text-[11px] sm:text-xs font-medium text-neutral-400 tracking-wider uppercase">
-                                  ACCOUNT TITLE
-                                </span>
-                                <span className="text-[13px] sm:text-sm font-bold text-[#DCAA4A] drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
-                                  {PAYMENT_DATA[paymentMethod].accountTitle}
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(PAYMENT_DATA[paymentMethod].accountTitle);
-                                  setCopiedField("title");
-                                  setTimeout(() => setCopiedField(null), 2000);
-                                }}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-                              >
-                                📋 {copiedField === "title" ? "Copied!" : "Copy"}
-                              </button>
-                            </div>
-
-                            <p className="text-[12px] sm:text-[13px] font-medium text-neutral-400 pt-1 tracking-wide">
-                              {PAYMENT_DATA[paymentMethod].instruction}
-                            </p>
-                          </motion.div>
-                        </AnimatePresence>
-                      </div>
-
-                      <div className="bg-neutral-900/70 border border-amber-500/20 rounded-xl p-3 space-y-2 mt-2">
-
-                        <label className="relative flex flex-col items-center justify-center border border-dashed border-amber-500/40 rounded-lg p-3 sm:p-4 bg-neutral-950/60 cursor-pointer hover:border-amber-400 transition-all">
-                          <span className="text-[11px] sm:text-[12px] text-neutral-300 font-medium flex items-center">
-                            📷 {screenshotName ? screenshotName : "Upload Payment Receipt / Screenshot"}
-                          </span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files && e.target.files[0];
-                              if (file) {
-                                setScreenshotName(file.name);
-
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  setScreenshotBase64(reader.result);
-                                };
-                                reader.readAsDataURL(file);
-                              }
-                            }}
-                            className="hidden"
-                          />
-                        </label>
-                      </div>
-
-                      <motion.button
-                        type="submit"
-                        disabled={loading || orderSuccess}
-                        whileHover={!loading ? { scale: 1.01 } : {}}
-                        whileTap={!loading ? { scale: 0.98 } : {}}
-                        className={`w-full mt-3 py-3 sm:py-3.5 rounded-full text-neutral-950 font-bold text-xs sm:text-sm tracking-widest uppercase transition-all ${loading || orderSuccess
-                            ? "bg-amber-600/60 opacity-70 cursor-not-allowed"
-                            : "bg-gradient-to-r from-amber-500 to-amber-600 shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] cursor-pointer"
-                          }`}
-                      >
-                        {loading ? (
-                          <span className="flex items-center justify-center gap-2">
-                            <svg className="animate-spin h-4 w-4 text-neutral-950" viewBox="0 0 24 24" fill="none">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                            </svg>
-                            Processing Order...
-                          </span>
-                        ) : (
-                          `Confirm Order • ${calculateTotal(checkoutItems)}`
-                        )}
-                      </motion.button>
-                    </motion.form>
+                      ✕
+                    </button>
                   )}
-                </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+
+                    {/* Left Column: Watch Image / Multiple Selected Items Display */}
+                  <div className="relative flex flex-col justify-center min-h-[280px] max-h-[380px] bg-neutral-900/50 rounded-2xl p-4 border border-amber-500/10 overflow-y-scroll [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                      <div className="absolute w-48 h-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none self-center transform-gpu" />
+
+                      {isCheckout && checkoutItems.length > 0 ? (
+                        <div className="space-y-3 relative z-10 w-full pr-1">
+                          <h4 className="text-xs sm:text-sm font-medium tracking-widest text-amber-400 uppercase mb-2 border-b border-amber-500/20 pb-1">
+                            Order Summary ({checkoutItems.length} Items)
+                          </h4>
+                          {checkoutItems.map((item, index) => (
+                            <div key={index} className="flex items-center gap-3 bg-neutral-950/80 p-2.5 rounded-xl border border-neutral-800">
+                              <img
+                                src={item.image} 
+                                alt={item.title} 
+                                className="w-12 h-12 object-contain bg-neutral-900 rounded-lg p-1" 
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[14px] sm:text-[15px] font-bold text-amber-100 truncate">{item.title}</p>
+                                <p className="text-xs sm:text-sm text-amber-400 font-semibold mt-1">{item.price}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        selectedWatch && (
+                          <div className="flex flex-col items-center justify-center h-full w-full relative min-h-[250px] md:min-h-[320px]">
+                            <motion.div
+                              initial={{ scale: 0.85, rotate: -3 }}
+                              animate={{ scale: 1, rotate: 0 }}
+                              transition={{ duration: 0.4, ease: "easeOut" }}
+                              style={{ willChange: "transform" }}
+                              className="relative w-full h-full min-h-[250px] md:min-h-[320px]"
+                            >
+                              <img
+                                src={selectedWatch.image}
+                                alt={selectedWatch.title}
+                                className="w-full h-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.9)]"
+                              />
+                            </motion.div>
+                          </div>
+                        )
+                      )}
+                    </div>
+
+                    {/* Right Column: Watch Details OR Checkout Form */}
+                    <div className="flex flex-col justify-between">
+                      {!isCheckout ? (
+                        /* 1. WATCH DETAILS VIEW */
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -20 }}
+                          transition={{ duration: 0.3 }}
+                          style={{ willChange: "transform, opacity" }}
+                        >
+                          <span className="text-[10px] sm:text-[11px] tracking-[0.3em] font-medium text-amber-500 uppercase bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 inline-block mb-3">
+                            {selectedWatch?.spec || "SWISS PRECISION MOVEMENT"}
+                          </span>
+
+                          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-amber-100 tracking-wider uppercase mb-2">
+                            {selectedWatch?.title}
+                          </h2>
+
+                          <div className="mt-3 sm:mt-4 flex flex-wrap items-end gap-2 sm:gap-3 mb-4">
+                            <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-amber-400 tracking-wide drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]">
+                              {selectedWatch?.price}
+                            </p>
+                            {selectedWatch?.original && (
+                                <p className="pb-0.5 sm:pb-1 text-sm sm:text-base font-bold text-neutral-600 line-through">{selectedWatch?.original}</p>
+                            )}
+                          </div>
+
+                          <p className="text-neutral-400 text-xs sm:text-sm md:text-[15px] leading-relaxed mb-6 border-t border-b border-neutral-800 py-4">
+                            Crafted with sapphire crystal glass, 316L surgical-grade stainless steel, and high-precision automatic movement. A true statement of timeless elegance and craftsmanship.
+                          </p>
+
+                          <div className="flex flex-col sm:flex-row gap-4 mt-2">
+                            <motion.button
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => handleAddToCart(selectedWatch)}
+                              className="flex-1 py-3.5 px-6 rounded-full border border-amber-500/50 bg-neutral-900 text-amber-300 font-medium text-xs sm:text-sm tracking-widest uppercase transition-all hover:bg-amber-500/10 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] flex items-center justify-center gap-3 cursor-pointer"
+                            >
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
+                              Add To Cart
+                            </motion.button>
+
+                            <motion.button
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => {
+                                setCheckoutItems([selectedWatch]);
+                                setIsCheckout(true);
+                              }}
+                              className="flex-1 py-3.5 px-6 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-bold text-xs sm:text-sm tracking-widest uppercase shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] transition-all cursor-pointer"
+                            >
+                              Buy Now
+                            </motion.button>
+                          </div>
+                        </motion.div>
+                      ) : (
+                        /* 2. CHECKOUT FORM VIEW */
+                        <motion.form
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -20 }}
+                          transition={{ duration: 0.3 }}
+                          style={{ willChange: "transform, opacity" }}
+                          onSubmit={async (e) => {
+                            e.preventDefault();
+
+                            if (loading) return;
+                            setErrorMessage("");
+
+                            const name = e.target.name?.value.trim() || "";
+                            const phone = e.target.phone?.value.trim() || "";
+                            const address = e.target.address?.value.trim() || "";
+
+                            if (!name) {
+                              setErrorMessage("Please enter your name.");
+                              return;
+                            }
+
+                            if (!phone) {
+                              setErrorMessage("Please enter your phone number.");
+                              return;
+                            }
+
+                            if (!address) {
+                              setErrorMessage("Please enter your shipping address.");
+                              return;
+                            }
+
+                            if (!screenshotBase64) {
+                              setErrorMessage("Please upload your payment screenshot.");
+                              return;
+                            }
+
+                            setLoading(true);
+
+                            const formData = {
+                              name,
+                              phone,
+                              email: e.target.email?.value.trim() || "",
+                              address,
+                              paymentMethod,
+                              watchTitle: checkoutItems.map((item) => item.title).join(", "),
+                              watchPrice: calculateTotal(checkoutItems),
+                              screenshotName: screenshotName || "",
+                              screenshotBase64: screenshotBase64 || "",
+                            };
+
+                            try {
+                              const res = await fetch("/api/checkout", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(formData),
+                              });
+
+                              const data = await res.json();
+
+                              if (data.success) {
+                                setOrderSuccess(true);
+                                setTimeout(() => {
+                                  setOrderSuccess(false);
+                                  setSelectedWatch(null);
+                                  setIsCheckout(false);
+                                  setCheckoutItems([]);
+                                  setScreenshotName("");
+                                  setScreenshotBase64("");
+                                }, 5000);
+                              } else {
+                                setErrorMessage(data.message || "Order didn't submit");
+                              }
+                            } catch (err) {
+                              setErrorMessage("Network error! Check the connection of your device");
+                            } finally {
+                              setLoading(false);
+                            }
+                          }}
+
+                          className="space-y-3"
+                        >
+                          {orderSuccess && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 p-3 rounded-xl text-xs sm:text-sm text-center font-semibold flex items-center justify-center gap-2"
+                            >
+                              <span>✓</span> Order Successful! Thank you for your purchase.
+                            </motion.div>
+                          )}
+
+                          {errorMessage && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className="bg-red-500/20 border border-red-500/50 text-red-300 p-2.5 rounded-xl text-xs sm:text-sm text-center font-semibold flex items-center justify-center gap-4"
+                            >
+                              <span className="text-[15px]">⚠️</span> {errorMessage}
+                            </motion.div>
+                          )}
+
+                          <div className="flex items-center justify-between border-b border-neutral-800 pb-2 mb-2">
+                            <h3 className="text-sm sm:text-base font-extrabold text-amber-300 tracking-wider uppercase">
+                              Checkout
+                            </h3>
+                            <button
+                              type="button"
+                              onClick={() => setIsCheckout(false)}
+                              className="text-xs sm:text-sm text-neutral-400 hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer"
+                            >
+                              ← Back
+                            </button>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest mb-1">
+                              Full Name
+                            </label>
+                            <input
+                              required
+                              name="name"
+                              type="text"
+                              placeholder="Muhammad Haris"
+                              className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 font-jakarta"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest mb-1">
+                                WhatsApp / Mobile Number
+                              </label>
+                              <input
+                                required
+                                name="phone"
+                                type="tel"
+                                placeholder="0300 1234567"
+                                className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 font-jakarta"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest mb-1">
+                                Email Address
+                              </label>
+                              <input
+                                required
+                                name="email"
+                                type="email"
+                                placeholder="Enter Your Email"
+                                className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 font-jakarta"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest mb-1">
+                              Shipping Address (House #, Street, City)
+                            </label>
+                            <input
+                              required
+                              name="address"
+                              type="text"
+                              placeholder="House #123, Street 5, Phase 4, Lahore"
+                              className="w-full bg-neutral-900/90 border border-amber-500/30 rounded-xl px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-amber-100 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 font-jakarta"
+                            />
+                          </div>
+
+                          {/* Dynamic Payment Method Selector & Details */}
+                          <div className="bg-neutral-950/90 border border-amber-500/30 rounded-2xl p-4 sm:p-5 space-y-4 my-3 shadow-[0_0_25px_rgba(245,158,11,0.08)]">
+
+                            {/* Step Header */}
+                            <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
+                              <span className="text-[11px] sm:text-[12px] font-medium text-amber-400 tracking-[0.2em] uppercase">
+                                Step 1 — Send Payment
+                              </span>
+                              <span className="text-xs sm:block hidden font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.15)]">
+                                {calculateTotal(checkoutItems)}
+                              </span>
+                            </div>
+
+                            {/* Method Toggle Buttons (Tab Bar) */}
+                            <div className="grid grid-cols-3 gap-2 bg-neutral-900/80 p-1.5 rounded-xl border border-neutral-800">
+                              {["EASYPAISA", "JAZZCASH"].map((method) => {
+                                const isSelected = paymentMethod === method;
+                                return (
+                                  <button
+                                    key={method}
+                                    type="button"
+                                    onClick={() => setPaymentMethod(method)}
+                                    className={`relative py-1 px-2 rounded-lg font-medium text-[11px] sm:text-xs tracking-wider transition-all duration-300 cursor-pointer overflow-hidden ${isSelected
+                                        ? "text-amber-300 border border-amber-400/70 bg-gradient-to-b from-amber-500/20 to-amber-950/40 shadow-[0_0_20px_rgba(245,158,11,0.35)]"
+                                        : "text-neutral-400 hover:text-neutral-200 border border-transparent hover:bg-neutral-800/60"
+                                      }`}
+                                  >
+                                    <span className="relative z-10">{method}</span>
+                                    {isSelected && (
+                                      <motion.div
+                                        layoutId="glowIndicator"
+                                        className="absolute inset-0 bg-amber-400/10 rounded-lg pointer-events-none"
+                                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                      />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {/* Details Display with Glow & Fade Animation */}
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={paymentMethod}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -8 }}
+                                transition={{ duration: 0.25 }}
+                                className="space-y-3 pt-1"
+                              >
+                                {/* Account / Mobile Number Box */}
+                                <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
+                                  <div>
+                                    <span className="block text-[11px] sm:text-xs font-medium text-neutral-400 tracking-wider uppercase mb-1">
+                                      {PAYMENT_DATA[paymentMethod].label}
+                                    </span>
+                                    <span className="text-[13px] sm:text-sm font-bold text-[#DCAA4A] drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
+                                      {PAYMENT_DATA[paymentMethod].number}
+                                    </span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(PAYMENT_DATA[paymentMethod].number);
+                                      setCopiedField("number");
+                                      setTimeout(() => setCopiedField(null), 2000);
+                                    }}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                                  >
+                                    📋 {copiedField === "number" ? "Copied!" : "Copy"}
+                                  </button>
+                                </div>
+
+                                {/* Account Title Box */}
+                                <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
+                                  <div>
+                                    <span className="block text-[11px] sm:text-xs font-medium text-neutral-400 tracking-wider uppercase">
+                                      ACCOUNT TITLE
+                                    </span>
+                                    <span className="text-[13px] sm:text-sm font-bold text-[#DCAA4A] drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] tracking-wider">
+                                      {PAYMENT_DATA[paymentMethod].accountTitle}
+                                    </span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(PAYMENT_DATA[paymentMethod].accountTitle);
+                                      setCopiedField("title");
+                                      setTimeout(() => setCopiedField(null), 2000);
+                                    }}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-neutral-950/80 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 text-[11px] font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                                  >
+                                    📋 {copiedField === "title" ? "Copied!" : "Copy"}
+                                  </button>
+                                </div>
+
+                                <p className="text-[12px] sm:text-[13px] font-medium text-neutral-400 pt-1 tracking-wide">
+                                  {PAYMENT_DATA[paymentMethod].instruction}
+                                </p>
+                              </motion.div>
+                            </AnimatePresence>
+                          </div>
+
+                          <div className="bg-neutral-900/70 border border-amber-500/20 rounded-xl p-3 space-y-2 mt-2">
+
+                            <label className="relative flex flex-col items-center justify-center border border-dashed border-amber-500/40 rounded-lg p-3 sm:p-4 bg-neutral-950/60 cursor-pointer hover:border-amber-400 transition-all">
+                              <span className="text-[11px] sm:text-[12px] text-neutral-300 font-medium flex items-center">
+                                📷 {screenshotName ? screenshotName : "Upload Payment Receipt / Screenshot"}
+                              </span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files && e.target.files[0];
+                                  if (file) {
+                                    setScreenshotName(file.name);
+
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                      setScreenshotBase64(reader.result);
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                                className="hidden"
+                              />
+                            </label>
+                          </div>
+
+                          <motion.button
+                            type="submit"
+                            disabled={loading || orderSuccess}
+                            whileHover={!loading ? { scale: 1.01 } : {}}
+                            whileTap={!loading ? { scale: 0.98 } : {}}
+                            className={`w-full mt-3 py-3 sm:py-3.5 rounded-full text-neutral-950 font-bold text-xs sm:text-sm tracking-widest uppercase transition-all ${loading || orderSuccess
+                                ? "bg-amber-600/60 opacity-70 cursor-not-allowed"
+                                : "bg-gradient-to-r from-amber-500 to-amber-600 shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] cursor-pointer"
+                              }`}
+                          >
+                            {loading ? (
+                              <span className="flex items-center justify-center gap-2">
+                                <svg className="animate-spin h-4 w-4 text-neutral-950" viewBox="0 0 24 24" fill="none">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                Processing Order...
+                              </span>
+                            ) : (
+                              `Confirm Order • ${calculateTotal(checkoutItems)}`
+                            )}
+                          </motion.button>
+                        </motion.form>
+                      )}
+                    </div>
+
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
+            </div>
           </div>
         )}
       </AnimatePresence>
