@@ -146,3 +146,13 @@ div.watch-box-scroll::-webkit-scrollbar-button {
   background: transparent !important;
 }
 }
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}

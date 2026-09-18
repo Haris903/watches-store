@@ -8,6 +8,69 @@ import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
 import wLogo from "@/public/wLogo.png"
 
+// 👇 Yeh Typewriter Component Import ke niche aur Main Component ke Upar paste karna hai
+// 👇 Yeh Updated Typewriter Component Paste Kar (Imports ke niche aur Main Component ke upar)// 👇 Yeh Updated Typewriter Component Paste Kar (Cursor Fix ke sath)
+// 👇 Yeh Updated Typewriter Component Paste Kar (Timing & Cutting Issue Fixed)
+// 👇 Yeh Updated Typewriter Component Paste Kar (Slow & Smooth Delete)
+const Typewriter = ({ 
+  strings, 
+  delay = 80,          // Typing speed (ms per letter)
+  deleteDelay = 90,    // Deleting speed (ms per letter) - Isko badha ke slow karein
+  pause = 2000,        // Word poora likhne ke baad kitni der ruke
+  deletePause = 500,   // Delete shuru karne se pehle ka chota pause
+  className = "" 
+}) => {
+  const [currentStringIndex, setCurrentStringIndex] = useState(0);
+  const [currentText, setCurrentText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    const fullText = strings[currentStringIndex];
+    let timeout;
+
+    // 1. Word poora likha gaya - ab thoda ruk kar delete shuru karo
+    if (!isDeleting && currentText === fullText) {
+      setIsPaused(true);
+      timeout = setTimeout(() => {
+        setIsPaused(false);
+        setIsDeleting(true);
+      }, pause);
+    }
+    // 2. Word poora delete ho gaya - ab next word par jao
+    else if (isDeleting && currentText === "") {
+      setIsDeleting(false);
+      setCurrentStringIndex((prev) => (prev + 1) % strings.length);
+    }
+    // 3. Normal Typing ya Deleting
+    else {
+      // Delete start hone se pehle ek chota sa pause (elegant feel ke liye)
+      const currentSpeed = isDeleting ? deleteDelay : delay;
+      
+      timeout = setTimeout(() => {
+        setCurrentText(
+          isDeleting
+            ? fullText.substring(0, currentText.length - 1)
+            : fullText.substring(0, currentText.length + 1)
+        );
+      }, currentSpeed);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [currentText, isDeleting, currentStringIndex, strings, delay, deleteDelay, pause]);
+
+  return (
+    <span className={`relative inline-block ${className}`}>
+      {currentText}
+      {/* Blinking Cursor - Pause hote waqt bhi blink karta rahega */}
+      <span 
+        className={`inline-block w-[4px] h-[1.1em] bg-white ml-2 align-middle transition-opacity duration-100 ${
+          isPaused ? "animate-[blink_1s_step-end_infinite]" : "opacity-100"
+        }`} 
+      />
+    </span>
+  );
+};
 export default function WristWatchesPage() {
   const router = useRouter();
   // slider usestate
@@ -34,7 +97,17 @@ export default function WristWatchesPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("JAZZCASH");
   const [copiedField, setCopiedField] = useState(null);
+  // 👇 Yeh states add kar
+  const [activeDetail, setActiveDetail] = useState(null); // 'classic' ya 'smart'
+  const detailsRef = useRef(null);
 
+  // 👇 Yeh scroll handler function add kar
+  const handleViewDetails = (id) => {
+    setActiveDetail(id);
+    setTimeout(() => {
+      detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
 
   const { data: session, status } = useSession();
   const [cart, setCart] = useState([])
@@ -932,7 +1005,7 @@ export default function WristWatchesPage() {
           </div>
 
           <div className="mt-16 text-center relative z-10">
-            <Link href={'./new-arrival'}>
+            <Link href={'./the-fresh-drop'}>
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
@@ -1519,183 +1592,190 @@ export default function WristWatchesPage() {
         </div>
       </section>
 
-      {/* Curated Categories */}
-      <section className="relative bg-black py-20 px-4 sm:px-8 lg:px-16 border-t border-neutral-900 overflow-hidden">
-        <div className="max-w-7xl mx-auto relative z-10">
+      
+            {/* Curated Categories (Branded & Heavy Animated) */}
+                {/* Curated Categories (Compact, Responsive & Branded) */}
+      <section className="relative bg-black py-20 px-4 sm:px-8 lg:px-12 border-t border-neutral-900 overflow-hidden font-jakarta">
+        {/* Background Ambient Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-amber-500/5 blur-[120px] pointer-events-none rounded-full" />
+        
+        <div className="max-w-6xl mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16 space-y-2"
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center mb-12 space-y-2"
           >
-            <span className="wtxt text-2xs animate-pulse font-mono tracking-[0.35em] text-[#DCAA4A] uppercase block font-semibold">
+            <span className="text-[10px] sm:text-xs animate-pulse font-bold tracking-[0.4em] text-[#DCAA4A] uppercase block">
               Curated Categories
             </span>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-amber-100 tracking-[0.2em] uppercase drop-shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-white to-amber-200 tracking-[0.15em] uppercase drop-shadow-[0_0_20px_rgba(245,158,11,0.2)]">
               Built For Every Wrist
             </h2>
-            <div className="w-16 h-[2px] bg-gradient-to-r from-transparent via-amber-500/60 to-transparent mx-auto my-3" />
-            <p className="text-neutral-400 text-xs sm:text-sm font-Sans tracking-wide max-w-xl mx-auto">
+            <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-amber-500/80 to-transparent mx-auto my-3" />
+            <p className="text-neutral-400 text-xs sm:text-sm font-medium tracking-wide max-w-lg mx-auto">
               Two houses of craft under one roof, each with its own standards of finishing and service.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              whileHover={{ y: -6 }}
-              className="group relative rounded-3xl bg-neutral-950 border border-neutral-800 p-8 sm:p-10 flex flex-col justify-between transition-all duration-500 hover:border-amber-500/50 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/15 transition-all duration-500" />
+          <motion.div 
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { opacity: 1, transition: { staggerChildren: 0.2, delayChildren: 0.1 } }
+            }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8"
+          >
+            {[
+              {
+                id: 'classic',
+                title: 'Classic Timepieces',
+                icon: '⏱️',
+                badge1: '120+ Models',
+                badge2: '4.8 / 5 Rated',
+                description: 'Automatic and quartz dress watches with sapphire crystal, genuine leather straps and movements finished by hand for collectors who prefer restraint over noise.',
+                includes: ["Swiss & Japanese Movements", "Sapphire Crystal Glass", "Genuine Leather Straps", "Free Sizing & Engraving"],
+                tags: ["AUTOMATIC", "CHRONOGRAPH", "SKELETON", "ROSE GOLD", "GMT"],
+                shopLink: '/collections/men',
+              },
+              {
+                id: 'smart',
+                title: 'Smart Watches',
+                icon: '⌚',
+                badge1: '60+ Models',
+                badge2: '98% Satisfaction',
+                description: 'AMOLED smart wearables with health tracking, always-on displays and multi-day battery life, tuned and updated before dispatch so they work the minute you unbox them.',
+                includes: ["AMOLED Always-On Display", "Heart Rate & SpO2", "7-Day Battery Life", "IP68 Water Resistance"],
+                tags: ["AMOLED", "BLUETOOTH CALLING", "GPS", "FITNESS", "IP68"],
+                shopLink: '/collections/smart-watches',
+              }
+            ].map((item) => (
+              <motion.div
+                key={item.id}
+                variants={{
+                  hidden: { opacity: 0, y: 30, scale: 0.98 },
+                  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+                }}
+                whileHover={{ y: -6 }}
+                className="group relative rounded-3xl bg-neutral-950 border border-neutral-800/80 p-6 sm:p-8 flex flex-col justify-between transition-all duration-500 hover:border-amber-500/40 hover:shadow-[0_15px_40px_-15px_rgba(245,158,11,0.15)] overflow-hidden"
+              >
+                {/* Animated Glow Background */}
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-amber-500/15 group-hover:scale-150 transition-all duration-700 ease-out" />
+                
+                {/* Subtle Grid Pattern Overlay */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
-              <div>
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-neutral-900 border border-amber-500/30 flex items-center justify-center flex-shrink-0 text-amber-400">
-                    ⏱️
+                <div className="relative z-10">
+                  {/* Header Section */}
+                  <div className="flex items-start gap-4 mb-6">
+                    <motion.div 
+                      whileHover={{ rotate: 10, scale: 1.1 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                      className="w-12 h-12 rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-950 border border-amber-500/30 flex items-center justify-center flex-shrink-0 text-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
+                    >
+                      {item.icon}
+                    </motion.div>
+                    <div>
+                      <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white uppercase">
+                        {item.title}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 mt-2">
+                        <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full backdrop-blur-sm">
+                          {item.badge1}
+                        </span>
+                        <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider bg-neutral-900/80 text-neutral-300 border border-neutral-800 px-2.5 py-0.5 rounded-full backdrop-blur-sm hover:border-neutral-600 transition-colors duration-300">
+                          {item.badge2}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-bold tracking-[0.2em] text-amber-100 uppercase">
-                      Classic Timepieces
-                    </h3>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-[11px] font-Sans font-medium uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
-                        120+ Models
-                      </span>
-                      <span className="text-[11px] font-Sans font-medium uppercase bg-neutral-900 text-neutral-300 border border-neutral-800 px-2.5 py-0.5 rounded-full hover:border-gray-400 hover:bg-[#201E1A] duration-300">
-                        4.8 / 5 Rated
-                      </span>
+
+                  {/* Description */}
+                  <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-medium mb-8">
+                    {item.description}
+                  </p>
+
+                  {/* What's Included Section */}
+                  <div className="mb-8">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-neutral-500 block mb-3">
+                      What's Included
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-4">
+                      {item.includes.map((inc, i) => (
+                        <motion.div 
+                          key={i} 
+                          whileHover={{ x: 4 }}
+                          className="flex items-center gap-2.5 group/item cursor-default"
+                        >
+                          <span className="flex items-center justify-center w-3.5 h-3.5 rounded-full bg-amber-500/10 text-amber-400 text-[9px] font-bold group-hover/item:bg-amber-500 group-hover/item:text-neutral-950 transition-colors duration-300">
+                            ✓
+                          </span>
+                          <span className="text-[11px] sm:text-xs font-medium text-neutral-300 group-hover/item:text-amber-100 transition-colors duration-300">
+                            {inc}
+                          </span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Signature Details (Tags) */}
+                  <div className="mb-8">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-neutral-500 block mb-3">
+                      Signature Details
+                    </span>
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                      {item.tags.map((tag, i) => (
+                        <motion.span 
+                          key={i} 
+                          whileHover={{ scale: 1.05, y: -1 }}
+                          className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider bg-neutral-900/50 text-neutral-400 border border-neutral-800/80 px-2.5 py-1 rounded-md cursor-pointer hover:border-amber-500/30 hover:text-amber-300 hover:bg-amber-500/5 transition-all duration-300 backdrop-blur-sm"
+                        >
+                          {tag}
+                        </motion.span>
+                      ))}
                     </div>
                   </div>
                 </div>
 
-                <p className="text-xs text-neutral-400 leading-relaxed font-Sans font-medium mb-8">
-                  Automatic and quartz dress watches with sapphire crystal, genuine leather straps and movements finished by hand for collectors who prefer restraint over noise.
-                </p>
-
-                <div className="mb-8 border-t border-neutral-900 pt-6">
-                  <span className="text-[12px] font-Sans font-bold uppercase tracking-[0.10em] text-neutral-500 block mb-3 mix-blend-overlay">
-                    What's Included
-                  </span>
-                  <div className="grid grid-cols-2 gap-2 text-xs text-neutral-300 font-light">
-                    {["Swiss & Japanese Movements", "Sapphire Crystal Glass", "Genuine Leather Straps", "Free Sizing & Engraving"].map((inc, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <span className="text-amber-400 text-xs font-Sans font-medium">✓</span>
-                        <span className="text-[12px] font-Sans font-medium">{inc}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mb-8">
-                  <span className="text-[11px] font-Sans uppercase tracking-[0.15em] text-neutral-500 block mb-3 font-bold">
-                    Signature Details
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {["AUTOMATIC", "CHRONOGRAPH", "SKELETON", "ROSE GOLD", "GMT"].map((tag, i) => (
-                      <span key={i} className="text-[11px] font-medium uppercase bg-neutral-900/80 text-neutral-400 border border-neutral-800 px-3 py-1 rounded-lg">
-                        {tag}
+                {/* Buttons Section */}
+                <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3 pt-6 border-t border-neutral-900/80">
+                  <Link href={item.shopLink} className="w-full sm:flex-1">
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="relative w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-bold text-xs uppercase tracking-widest overflow-hidden group/btn shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] transition-all duration-300 cursor-pointer"
+                    >
+                      {/* Shine Effect */}
+                      <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]" />
+                      <span className="relative z-10">Shop Now</span>
+                    </motion.button>
+                  </Link>
+                  
+                                       {/* 👇 Yeh naya View Details Button laga */}
+                  <button 
+                    onClick={() => handleViewDetails(item.id)}
+                    className="w-full sm:flex-1 relative py-3.5 rounded-2xl border border-neutral-800 bg-neutral-950/80 overflow-hidden group/viewBtn transition-all duration-500 hover:border-amber-500/50 hover:shadow-[0_0_25px_rgba(245,158,11,0.15)] cursor-pointer backdrop-blur-sm"
+                  >
+                    <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-amber-500/15 to-transparent -translate-x-full group-hover/viewBtn:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+                    <span className="absolute inset-0 bg-amber-500/0 group-hover/viewBtn:bg-amber-500/5 transition-colors duration-500 pointer-events-none" />
+                    <span className="relative z-10 flex items-center justify-center gap-2 text-neutral-300 group-hover/viewBtn:text-amber-300 transition-all duration-300 text-xs font-semibold uppercase tracking-widest">
+                      <span className="transform group-hover/viewBtn:-translate-x-1 transition-transform duration-300 ease-out">
+                        View Details
                       </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 border-t border-neutral-900 pt-6">
-                <Link href="/men" className="flex-1">
-                  <button className="w-full py-3 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-bold text-xs uppercase tracking-widest hover:shadow-[0_0_25px_rgba(245,158,11,0.5)] transition-all cursor-pointer">
-                    Shop Now
+                      <svg className="w-4 h-4 opacity-0 -translate-x-3 group-hover/viewBtn:opacity-100 group-hover/viewBtn:translate-x-0 transition-all duration-300 ease-out" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </span>
                   </button>
-                </Link>
-                <Link href="#watch-collections" className="flex-1">
-                  <button className="w-full py-3 rounded-full border border-amber-500/30 bg-neutral-950 text-amber-300 font-medium text-xs uppercase tracking-widest hover:border-amber-400 hover:text-white hover:bg-amber-500/10 transition-all cursor-pointer">
-                    View Details
-                  </button>
-                </Link>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              whileHover={{ y: -6 }}
-              className="group relative rounded-3xl bg-neutral-950 border border-neutral-800 p-8 sm:p-10 flex flex-col justify-between transition-all duration-500 hover:border-amber-500/50 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/15 transition-all duration-500" />
-
-              <div>
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-neutral-900 border border-amber-500/30 flex items-center justify-center flex-shrink-0 text-amber-400">
-                    ⌚
-                  </div>
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-bold tracking-[0.2em] text-amber-100 uppercase">
-                      Smart Watches
-                    </h3>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-[11px] font-Sans font-medium uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
-                        60+ Models
-                      </span>
-                      <span className="text-[11px] font-Sans font-medium uppercase bg-neutral-900 text-neutral-300 border border-neutral-800 px-2.5 py-0.5 rounded-full hover:border-gray-400 hover:bg-[#201E1A] duration-300">
-                        98% Satisfaction
-                      </span>
-                    </div>
-                  </div>
                 </div>
-
-                <p className="text-xs text-neutral-400 leading-relaxed font-Sans font-medium mb-8">
-                  AMOLED smart wearables with health tracking, always-on displays and multi-day battery life, tuned and updated before dispatch so they work the minute you unbox them.
-                </p>
-
-                <div className="mb-8 border-t border-neutral-900 pt-6">
-                  <span className="text-[12px] font-Sans font-bold uppercase tracking-[0.10em] text-neutral-500 block mb-3 mix-blend-overlay">
-                    What's Included
-                  </span>
-                  <div className="grid grid-cols-2 gap-2 text-xs text-neutral-300 font-light">
-                    {["AMOLED Always-On Display", "Heart Rate & SpO2", "7-Day Battery Life", "IP68 Water Resistance"].map((inc, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <span className="text-amber-400 text-xs font-bold">✓</span>
-                        <span className="text-[12px] font-Sans font-medium">{inc}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mb-8">
-                  <span className="text-[11px] font-Sans uppercase tracking-[0.15em] text-neutral-500 block mb-3 font-bold">
-                    Signature Details
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {["AMOLED", "BLUETOOTH CALLING", "GPS", "FITNESS", "IP68"].map((tag, i) => (
-                      <span key={i} className="text-[11px] font-medium uppercase bg-neutral-900/80 text-neutral-400 border border-neutral-800 px-3 py-1 rounded-lg">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 border-t border-neutral-900 pt-6">
-                <Link href="/smart-watches" className="flex-1">
-                  <button className="w-full py-3 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-bold text-xs uppercase tracking-widest hover:shadow-[0_0_25px_rgba(245,158,11,0.5)] transition-all cursor-pointer">
-                    Shop Now
-                  </button>
-                </Link>
-                <Link href="#watch-collections" className="flex-1">
-                  <button className="w-full py-3 rounded-full border border-amber-500/30 bg-neutral-950 text-amber-300 font-medium text-xs uppercase tracking-widest hover:border-amber-400 hover:text-white hover:bg-amber-500/10 transition-all cursor-pointer">
-                    View Details
-                  </button>
-                </Link>
-              </div>
-            </motion.div>
-          </div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
-      </section>
+      </section>     
 
       {/* FAQ Section */}
       <section className="relative bg-black py-20 px-4 sm:px-8 lg:px-16 border-t border-neutral-900 overflow-hidden">
@@ -1785,6 +1865,125 @@ export default function WristWatchesPage() {
           </div>
         </div>
       </section>
+           
+        {/* Details section */}
+                  {/* ================= VIEW DETAILS DYNAMIC SECTION ================= */}
+      <section 
+        ref={detailsRef} 
+        className="relative bg-black py-24 px-4 sm:px-8 lg:px-16 border-t border-neutral-900 overflow-hidden font-jakarta min-h-[500px] flex items-center justify-center"
+      >
+        {/* Ambient Glow Background */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-amber-500/10 blur-[150px] pointer-events-none rounded-full" />
+        <div className="absolute inset-0 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:32px_32px] opacity-[0.03] pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto relative z-10 w-full">
+                    <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center mb-16 min-h-[120px] flex flex-col items-center justify-center"
+          >
+            {/* 
+              👇 Yeh hai Bold Glowing Heading + Typewriter Effect 
+              Static text hata diya, ab Typewriter hi Heading banega
+            */}
+            <Typewriter 
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-neutral-400 drop-shadow-[0_0_30px_rgba(255,255,255,0.4)] tracking-widest uppercase block"
+              strings={
+                activeDetail === 'classic' 
+                  ? ["CLASSIC TIMEPIECES", "SWISS PRECISION", "TIMELESS ELEGANCE"]
+                  : activeDetail === 'smart'
+                  ? ["SMART WATCHES", "AMOLED BRILLIANCE", "SEAMLESS CONNECTIVITY"]
+                  : ["BUILT FOR EVERY WRIST", "DISCOVER THE CRAFT"]
+              } 
+            />
+          </motion.div>
+
+          {/* Dynamic Content Based on Selection */}
+       <AnimatePresence mode="wait">
+            {activeDetail && (
+              <motion.div
+                key={activeDetail}
+                initial={{ opacity: 0, y: 30, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
+              >
+                {/* Left Side: Image / Visual */}
+                <div className="relative flex justify-center items-center h-[300px] md:h-[400px]">
+                  <motion.div 
+                    animate={{ 
+                      y: [0, -15, 0],
+                      rotate: [0, 2, -2, 0]
+                    }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    className="relative z-10 w-full h-full flex items-center justify-center"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 to-transparent blur-3xl rounded-full" />
+                    <img 
+                      src={activeDetail === 'classic' ? '/wClassic.png' : '/wClassic.png'} 
+                      alt="Watch Detail" 
+                      className="w-[80%] h-[80%]  object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)]"
+                    />
+                  </motion.div>
+                </div>
+
+                {/* Right Side: Features Grid */}
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-white uppercase tracking-wider mb-6 border-b border-amber-500/30 pb-3">
+                    {activeDetail === 'classic' ? 'Classic Timepieces' : 'Smart Watches'} Details
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {(activeDetail === 'classic' 
+                      ? [
+                          { title: "Swiss Movement", desc: "Precision engineering at its finest." },
+                          { title: "Sapphire Crystal", desc: "Scratch-resistant and ultra-clear." },
+                          { title: "Genuine Leather", desc: "Hand-stitched premium comfort." },
+                          { title: "Water Resistant", desc: "Built to withstand daily elements." }
+                        ]
+                      : [
+                          { title: "AMOLED Display", desc: "Vibrant colors, always-on." },
+                          { title: "Health Tracking", desc: "Heart rate, SpO2, and sleep." },
+                          { title: "7-Day Battery", desc: "Long-lasting performance." },
+                          { title: "IP68 Rating", desc: "Dust and water resistant." }
+                        ]
+                    ).map((feature, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ 
+                          default: { delay: idx * 0.1, duration: 0.5 },
+                          hover: { duration: 0.15, ease: "easeOut" } 
+                        }}
+                        whileHover={{ scale: 1.03, backgroundColor: "rgba(245, 158, 11, 0.05)", borderColor: "rgba(245, 158, 11, 0.4)" }}
+                        style={{ backfaceVisibility: "hidden", WebkitFontSmoothing: "antialiased", transform: "translateZ(0)" }}
+                        className="p-4 rounded-2xl bg-neutral-900/50 border border-neutral-800 cursor-default antialiased transform-gpu will-change-transform"
+                      >
+                        <h4 className="text-amber-400 font-bold text-sm uppercase tracking-wider mb-2">{feature.title}</h4>
+                        <p className="text-neutral-400 text-xs leading-relaxed">{feature.desc}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActiveDetail(null)}
+                    className="mt-8 px-8 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300 text-xs font-bold uppercase tracking-widest hover:text-white hover:border-amber-500/50 transition-all cursor-pointer"
+                  >
+                    Close Details
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </section>
+
 
       {/* Footer */}
       <footer className="bg-black border-t border-neutral-900 pt-16 pb-8 px-4 sm:px-8 lg:px-16 text-neutral-400 text-xs relative overflow-hidden">
