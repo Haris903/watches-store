@@ -6,6 +6,7 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import wLogo from "@/public/wLogo.png";
+import { useRouter } from "next/navigation";
 
 // 🔒 STRICT ADMIN AUTHORIZATION
 const AUTHORIZED_ADMIN_EMAIL = "opff56266@gmail.com";
@@ -41,6 +42,17 @@ export default function AdminDashboard() {
   const [watches, setWatches] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+
+  const router = useRouter();
+ const userEmail = session?.user?.email?.toLowerCase().trim();
+  const isAdmin = userEmail === "opff56266@gmail.com";
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (status === "unauthenticated" || (status === "authenticated" && !isAdmin)) {
+      router.replace("/");
+    }
+  }, [status, isAdmin, router]);
 
   // 🟢 Live Traffic & Visit Statistics State
   const [trafficStats, setTrafficStats] = useState({
@@ -281,6 +293,7 @@ export default function AdminDashboard() {
     return sum + numeric;
   }, 0);
 
+  // Screen Loading & Block Check
   if (!isMounted || status === "loading") {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-amber-400 font-bold text-sm sm:text-base">
@@ -289,35 +302,9 @@ export default function AdminDashboard() {
     );
   }
 
-  // 🔒 STRICT SECURITY CHECK: Only opff56266@gmail.com is allowed
-  if (status === "unauthenticated" && session?.user?.email !== AUTHORIZED_ADMIN_EMAIL && session?.user?.name !== ADMIN_ID_NAME) {
-    return (
-      <div className="min-h-screen bg-black flex flex-col justify-center items-center text-white px-4 font-jakarta">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-2xl sm:text-3xl mb-4">
-          🔒
-        </div>
-        <h1 className="text-xl sm:text-2xl font-black text-amber-400 uppercase tracking-widest mb-2 text-center">
-          Access Denied
-        </h1>
-        <p className="text-neutral-400 text-xs sm:text-sm max-w-md text-center mb-6 leading-relaxed">
-         You cannot access this page only admin can access this page please login as admin [cite: 14]
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
-          <Link
-            href="/"
-            className="w-full text-center px-5 py-2.5 bg-neutral-900 border border-neutral-800 text-neutral-300 font-bold rounded-full text-xs uppercase hover:text-white transition-colors"
-          >
-            Back To Store
-          </Link>
-          <button
-            onClick={() => signIn("google")}
-            className="w-full text-center px-5 py-2.5 bg-[#DCAA4A] text-black font-extrabold rounded-full text-xs uppercase tracking-wider hover:opacity-90 transition-opacity cursor-pointer"
-          >
-            Login as Admin
-          </button>
-        </div>
-      </div>
-    );
+  // Agar unauthorized user ho toh screen par kuch bhi render na ho
+  if (!session || !isAdmin) {
+    return null;
   }
 
   const menuItems = [
