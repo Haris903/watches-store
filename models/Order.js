@@ -9,8 +9,11 @@ const orderSchema = new mongoose.Schema(
     paymentMethod: { type: String, default: "NOT SELECTED" },
     watchTitle: { type: String, required: true },
     watchPrice: { type: String, required: true },
+    // 🟢 Exact watches aur unki quantities record karne ke liye:
+    items: { type: Array, default: [] },
     screenshotName: { type: String, default: "" },
-    screenshotUrl: { type: String, required: true }, // Base64 image receiver string
+    screenshotUrl: { type: String, required: true },
+    status: { type: String, default: "Pending" },
   },
   { timestamps: true }
 );

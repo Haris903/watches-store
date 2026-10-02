@@ -9,11 +9,9 @@ import wLogo from "@/public/wLogo.png";
 import { usePathname } from "next/navigation";
 
 /* ================================================================== */
-/*  DATA                                                               */
+/*  DATA CONFIGURATION                                                */
 /* ================================================================== */
 
-
-// NAV_LINKS – now includes collection keys for Smart and Couples
 const NAV_LINKS = [
   { name: "FRESH DROP", href: "/collections/the-fresh-drop", collection: "freshdrop" },
   { name: "MEN", href: "/collections/men", collection: "men" },
@@ -39,150 +37,64 @@ const SORT_OPTIONS = [
   { value: "rating", label: "Top Rated" },
 ];
 
-// ----- MEN (unchanged) -----
-const MEN_WATCHES = [
-  { id: "m-01", title: "REGAL CHRONO NOIR", category: "Chronograph", price: "Rs. 18,500", original: "Rs. 26,000", rating: 4.9, reviews: 214, tag: "Bestseller", spec: "TACHYMETER SCALE", image: "/wClassic.png" },
-  { id: "m-02", title: "HERITAGE AUTOMATIC 1954", category: "Automatic", price: "Rs. 24,900", original: "Rs. 34,500", rating: 4.8, reviews: 168, tag: "NEW", spec: "SELF-WINDING MOVEMENT", image: "/wClassic.png" },
-  { id: "m-03", title: "SOVEREIGN STEEL LINK", category: "Steel Edition", price: "Rs. 21,200", original: "Rs. 28,900", rating: 4.7, reviews: 302, tag: null, spec: "316L SURGICAL STEEL", image: "/wClassic.png" },
-  { id: "m-04", title: "MERIDIAN COGNAC STRAP", category: "Leather Strap", price: "Rs. 15,900", original: "Rs. 22,400", rating: 4.6, reviews: 121, tag: "Bestseller", spec: "ITALIAN FULL-GRAIN LEATHER", image: "/wClassic.png" },
-  { id: "m-05", title: "AVIATOR PILOT CHRONO", category: "Chronograph", price: "Rs. 27,400", original: "Rs. 39,000", rating: 4.9, reviews: 97, tag: "NEW", spec: "DUAL SUB-DIAL COMPLICATION", image: "/wClassic.png" },
-  { id: "m-06", title: "OBSIDIAN SKELETON", category: "Automatic", price: "Rs. 32,800", original: "Rs. 45,000", rating: 5.0, reviews: 64, tag: "Bestseller", spec: "EXHIBITION CASEBACK", image: "/wClassic.png" },
-  { id: "m-07", title: "CONTINENTAL SILVER MESH", category: "Steel Edition", price: "Rs. 17,600", original: "Rs. 24,000", rating: 4.5, reviews: 188, tag: null, spec: "MILANESE MESH BRACELET", image: "/wClassic.png" },
-  { id: "m-08", title: "NOCTURNE ESPRESSO", category: "Leather Strap", price: "Rs. 13,900", original: "Rs. 19,500", rating: 4.4, reviews: 243, tag: null, spec: "SAPPHIRE CRYSTAL GLASS", image: "/wClassic.png" },
-  { id: "m-09", title: "IMPERATOR GOLD CHRONO", category: "Chronograph", price: "Rs. 36,500", original: "Rs. 52,000", rating: 4.9, reviews: 78, tag: "NEW", spec: "18K GOLD PVD COATING", image: "/wClassic.png" },
-];
+// Fallback Default Data (Jab DB khali ho)
 
-// ----- WOMEN (unchanged) -----
-const WOMEN_WATCHES = [
-  { id: "w-01", title: "ELEGANCE ROSE GOLD", category: "Chronograph", price: "Rs. 22,500", original: "Rs. 30,000", rating: 4.9, reviews: 187, tag: "Bestseller", spec: "MOTHER-OF-PEARL DIAL", image: "/wClassic.png" },
-  { id: "w-02", title: "MINIMALIST SILVER", category: "Automatic", price: "Rs. 19,900", original: "Rs. 27,500", rating: 4.7, reviews: 143, tag: "NEW", spec: "SAPPHIRE CRYSTAL", image: "/wClassic.png" },
-  { id: "w-03", title: "CLASSIC LEATHER STRAP", category: "Leather Strap", price: "Rs. 14,200", original: "Rs. 20,000", rating: 4.5, reviews: 98, tag: null, spec: "ITALIAN LEATHER", image: "/wClassic.png" },
-  { id: "w-04", title: "DIAMOND ACCENT STEEL", category: "Steel Edition", price: "Rs. 28,800", original: "Rs. 38,000", rating: 4.8, reviews: 76, tag: "Bestseller", spec: "GENUINE DIAMONDS", image: "/wClassic.png" },
-  { id: "w-05", title: "CHRONOGRAPH PEARL", category: "Chronograph", price: "Rs. 24,000", original: "Rs. 33,000", rating: 4.6, reviews: 112, tag: "NEW", spec: "PEARL BEZEL", image: "/wClassic.png" },
-  { id: "w-06", title: "AUTOMATIC SKELETON", category: "Automatic", price: "Rs. 29,500", original: "Rs. 40,000", rating: 4.9, reviews: 54, tag: null, spec: "EXHIBITION CASEBACK", image: "/wClassic.png" },
-  { id: "w-07", title: "MESH BRACELET", category: "Steel Edition", price: "Rs. 16,700", original: "Rs. 22,500", rating: 4.4, reviews: 201, tag: null, spec: "MILANESE MESH", image: "/wClassic.png" },
-  { id: "w-08", title: "COGNAC LEATHER", category: "Leather Strap", price: "Rs. 13,200", original: "Rs. 18,900", rating: 4.3, reviews: 164, tag: null, spec: "FULL-GRAIN LEATHER", image: "/wClassic.png" },
-];
 
-// ----- FRESH DROP (unchanged) -----
-const FRESH_DROP_WATCHES = [
-  { id: "f-01", title: "LIMITED EDITION GMT", category: "Chronograph", price: "Rs. 42,000", original: "Rs. 55,000", rating: 5.0, reviews: 42, tag: "NEW", spec: "GMT COMPLICATION", image: "/wClassic.png" },
-  { id: "f-02", title: "SKELETON TITANIUM", category: "Automatic", price: "Rs. 38,500", original: "Rs. 50,000", rating: 4.9, reviews: 33, tag: "Bestseller", spec: "TITANIUM CASE", image: "/wClassic.png" },
-  { id: "f-03", title: "CHRONOGRAPH CARBON", category: "Chronograph", price: "Rs. 45,000", original: "Rs. 60,000", rating: 4.8, reviews: 28, tag: "NEW", spec: "CARBON FIBER DIAL", image: "/wClassic.png" },
-  { id: "f-04", title: "AUTOMATIC DIVER", category: "Automatic", price: "Rs. 32,000", original: "Rs. 42,000", rating: 4.7, reviews: 51, tag: null, spec: "300M WATER RESIST", image: "/wClassic.png" },
-  { id: "f-05", title: "STEEL CHRONOGRAPH", category: "Steel Edition", price: "Rs. 36,200", original: "Rs. 48,000", rating: 4.6, reviews: 39, tag: null, spec: "316L STEEL", image: "/wClassic.png" },
-  { id: "f-06", title: "RACING LEATHER STRAP", category: "Leather Strap", price: "Rs. 28,500", original: "Rs. 37,000", rating: 4.5, reviews: 22, tag: "Bestseller", spec: "PERFORATED LEATHER", image: "/wClassic.png" },
-];
-
-// ----- SMART WATCHES (new) -----
-const SMART_WATCHES = [
-  { id: "s-01", title: "AMOLED SPORT", category: "Steel Edition", price: "Rs. 25,000", original: "Rs. 32,000", rating: 4.7, reviews: 143, tag: "NEW", spec: "AMOLED DISPLAY", image: "/wClassic.png" },
-  { id: "s-02", title: "FITNESS PRO", category: "Automatic", price: "Rs. 19,900", original: "Rs. 27,000", rating: 4.6, reviews: 98, tag: null, spec: "HEART RATE MONITOR", image: "/wClassic.png" },
-  { id: "s-03", title: "HYBRID CLASSIC", category: "Leather Strap", price: "Rs. 21,500", original: "Rs. 29,000", rating: 4.8, reviews: 76, tag: "Bestseller", spec: "ANALOG + DIGITAL", image: "/wClassic.png" },
-  { id: "s-04", title: "GPS RUNNER", category: "Chronograph", price: "Rs. 28,000", original: "Rs. 36,000", rating: 4.5, reviews: 54, tag: null, spec: "BUILT-IN GPS", image: "/wClassic.png" },
-  { id: "s-05", title: "ROSE GOLD SMART", category: "Steel Edition", price: "Rs. 32,500", original: "Rs. 42,000", rating: 4.9, reviews: 33, tag: "NEW", spec: "ROSE GOLD PVD", image: "/wClassic.png" },
-  { id: "s-06", title: "FITNESS BAND", category: "Leather Strap", price: "Rs. 15,500", original: "Rs. 20,000", rating: 4.4, reviews: 211, tag: null, spec: "WATER RESISTANT", image: "/wClassic.png" },
-];
-
-// ----- COUPLES WATCHES (new) -----
-const COUPLES_WATCHES = [
-  { id: "c-01", title: "HIS & HERS SILVER", category: "Steel Edition", price: "Rs. 42,000", original: "Rs. 55,000", rating: 5.0, reviews: 62, tag: "Bestseller", spec: "MATCHING SET", image: "/wClassic.png" },
-  { id: "c-02", title: "ROSE GOLD DUO", category: "Chronograph", price: "Rs. 48,500", original: "Rs. 62,000", rating: 4.9, reviews: 45, tag: "NEW", spec: "DUAL TIMEPIECES", image: "/wClassic.png" },
-  { id: "c-03", title: "LEATHER COUPLE", category: "Leather Strap", price: "Rs. 35,000", original: "Rs. 45,000", rating: 4.7, reviews: 38, tag: null, spec: "ITALIAN LEATHER", image: "/wClassic.png" },
-  { id: "c-04", title: "STEEL BRACELET SET", category: "Steel Edition", price: "Rs. 38,200", original: "Rs. 50,000", rating: 4.6, reviews: 28, tag: null, spec: "316L STEEL", image: "/wClassic.png" },
-  { id: "c-05", title: "CHRONOGRAPH PAIR", category: "Chronograph", price: "Rs. 52,000", original: "Rs. 68,000", rating: 4.8, reviews: 19, tag: "Bestseller", spec: "MATCHING DIALS", image: "/wClassic.png" },
-];
-
-// ----- COLLECTION META DATA (extended with smart and couples) -----
+// ----- COLLECTION META DATA (Ab isme koi hardcoded watch array nahi hai) -----
 const COLLECTIONS = {
   men: {
     label: "Men",
     href: "/collections/men",
-    watches: MEN_WATCHES,
     hero: {
       subtitle: "The Men's Collection",
       title: "Crafted For Uncompromising Power",
-      description:
-        "Every case is machined, weighted and finished to sit like it belongs on your wrist. Sapphire glass, surgical steel and movements calibrated to outlive the trend that sold them.",
+      description: "Every case is machined, weighted and finished to sit like it belongs on your wrist. Sapphire glass, surgical steel and movements calibrated to outlive the trend that sold them.",
       badges: ["100% Original Steel", "2 Years Warranty", "Free Nationwide Delivery"],
-      stats: [
-        { v: "12,400+", k: "Owners" },
-        { v: "4.9 / 5", k: "Rated" },
-        { v: "48 Hrs", k: "Tested" },
-        { v: "5 ATM", k: "Resistance" },
-      ],
+      stats: [{ v: "12,400+", k: "Owners" }, { v: "4.9 / 5", k: "Rated" }, { v: "48 Hrs", k: "Tested" }, { v: "5 ATM", k: "Resistance" }],
     },
   },
   women: {
     label: "Women",
     href: "/collections/women",
-    watches: WOMEN_WATCHES,
     hero: {
       subtitle: "The Women's Collection",
       title: "Designed For Timeless Elegance",
-      description:
-        "Refined, delicate and unmistakably sophisticated. Our women's timepieces combine precision with artistry, using mother-of-pearl, diamonds, and supple leather to celebrate every moment.",
+      description: "Refined, delicate and unmistakably sophisticated. Our women's timepieces combine precision with artistry, using mother-of-pearl, diamonds, and supple leather to celebrate every moment.",
       badges: ["Authentic Materials", "2 Years Warranty", "Free Nationwide Delivery"],
-      stats: [
-        { v: "8,200+", k: "Owners" },
-        { v: "4.8 / 5", k: "Rated" },
-        { v: "48 Hrs", k: "Tested" },
-        { v: "3 ATM", k: "Resistance" },
-      ],
+      stats: [{ v: "8,200+", k: "Owners" }, { v: "4.8 / 5", k: "Rated" }, { v: "48 Hrs", k: "Tested" }, { v: "3 ATM", k: "Resistance" }],
     },
   },
   freshdrop: {
     label: "Fresh Drop",
     href: "/collections/the-fresh-drop",
-    watches: FRESH_DROP_WATCHES,
     hero: {
       subtitle: "The Fresh Drop",
       title: "New Arrivals – Limited Edition",
-      description:
-        "Be the first to own our latest creations. These exclusive timepieces are released in small batches, each one individually numbered and finished with the finest materials available.",
+      description: "Be the first to own our latest creations. These exclusive timepieces are released in small batches, each one individually numbered and finished with the finest materials available.",
       badges: ["Limited Quantities", "2 Years Warranty", "Free Nationwide Delivery"],
-      stats: [
-        { v: "1,200+", k: "Owners" },
-        { v: "4.9 / 5", k: "Rated" },
-        { v: "48 Hrs", k: "Tested" },
-        { v: "5 ATM", k: "Resistance" },
-      ],
+      stats: [{ v: "1,200+", k: "Owners" }, { v: "4.9 / 5", k: "Rated" }, { v: "48 Hrs", k: "Tested" }, { v: "5 ATM", k: "Resistance" }],
     },
   },
   smart: {
     label: "Smart",
     href: "/collections/smart-watches",
-    watches: SMART_WATCHES,
     hero: {
       subtitle: "Smart Watches",
       title: "Intelligent Timepieces",
-      description:
-        "Experience the future of timekeeping with our smart watches. Featuring AMOLED displays, heart rate sensors, GPS, and seamless connectivity – all wrapped in a design that speaks elegance.",
+      description: "Experience the future of timekeeping with our smart watches. Featuring AMOLED displays, heart rate sensors, GPS, and seamless connectivity – all wrapped in a design that speaks elegance.",
       badges: ["AMOLED Display", "GPS Tracking", "Free Nationwide Delivery"],
-      stats: [
-        { v: "5,400+", k: "Owners" },
-        { v: "4.7 / 5", k: "Rated" },
-        { v: "7 Days", k: "Battery" },
-        { v: "IP68", k: "Waterproof" },
-      ],
+      stats: [{ v: "5,400+", k: "Owners" }, { v: "4.7 / 5", k: "Rated" }, { v: "7 Days", k: "Battery" }, { v: "IP68", k: "Waterproof" }],
     },
   },
   couples: {
     label: "Couples",
     href: "/collections/for-couples",
-    watches: COUPLES_WATCHES,
     hero: {
       subtitle: "For Couples",
       title: "Two Hearts, One Time",
-      description:
-        "Celebrate your bond with perfectly matched timepieces. Each set is curated to complement both personalities, creating a timeless symbol of unity and shared moments.",
+      description: "Celebrate your bond with perfectly matched timepieces. Each set is curated to complement both personalities, creating a timeless symbol of unity and shared moments.",
       badges: ["Matching Sets", "2 Years Warranty", "Free Nationwide Delivery"],
-      stats: [
-        { v: "3,800+", k: "Couples" },
-        { v: "4.9 / 5", k: "Rated" },
-        { v: "48 Hrs", k: "Tested" },
-        { v: "5 ATM", k: "Resistance" },
-      ],
+      stats: [{ v: "3,800+", k: "Couples" }, { v: "4.9 / 5", k: "Rated" }, { v: "48 Hrs", k: "Tested" }, { v: "5 ATM", k: "Resistance" }],
     },
   },
 };
@@ -194,13 +106,18 @@ const PAYMENT_DATA = {
 };
 
 /* ================================================================== */
-/*  HELPERS                                                            */
+/*  HELPERS                                                           */
 /* ================================================================== */
 
 const parsePrice = (p) => (p ? Number(String(p).replace(/[^0-9]/g, "")) || 0 : 0);
 
-const calculateTotal = (items) =>
-  `Rs. ${items.reduce((s, i) => s + parsePrice(i.price), 0).toLocaleString("en-PK")}`;
+const calculateTotal = (items) => {
+  const total = items.reduce(
+    (s, i) => s + parsePrice(i.price) * (Number(i.quantity) || 1),
+    0
+  );
+  return `Rs. ${total.toLocaleString("en-PK")}`;
+};
 
 function Stars({ rating, size = "h-[18px] w-[18px]" }) {
   return (
@@ -247,31 +164,31 @@ const IconLogout = (p) => (
 );
 
 /* ================================================================== */
-/*  FLOATING GLASS DOCK NAVIGATION                                     */
+/*  FLOATING GLASS DOCK NAVIGATION                                    */
 /* ================================================================== */
 
 function FloatingDock({ session, cartCount, isMounted, onCart, onSearch, onMenu, scrolled, currentCollection, onCollectionChange, hidden }) {
   const handleNavClick = (e, link) => {
     if (link.collection) {
       e.preventDefault();
+      // ⚡ URL bina kisi page reload ya lag ke foran badal jayega:
+      window.history.pushState(null, "", link.href);
       onCollectionChange(link.collection);
     }
-    // For non-collection links, allow default navigation
   };
 
-  
   return (
     <>
       <motion.header
         initial={{ y: -80, opacity: 0 }}
         animate={hidden ? { y: -120, opacity: 0 } : { y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="pointer-events-none fixed inset-x-0 top-5 z-[60] hidden justify-center px-3 sm:px-4 lg:px-6 lg:flex"
+        className="pointer-events-none fixed inset-x-0 top-5 z-[60] hidden justify-center px-3 sm:px-4 lg:px-6 lg:flex"
       >
         <div
-     className={`pointer-events-auto flex w-fit max-w-[calc(100vw-1.5rem)] items-center gap-1.5 sm:gap-2 rounded-full border border-[#DCAA4A]/25 px-3 py-2.5 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.95)] backdrop-blur-xl transition-colors duration-500 ${
-  scrolled ? "bg-black/90" : "bg-white/[0.045]"
-}`}
+          className={`pointer-events-auto flex w-fit max-w-[calc(100vw-1.5rem)] items-center gap-1.5 sm:gap-2 rounded-full border border-[#DCAA4A]/25 px-3 py-2.5 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.95)] backdrop-blur-xl transition-colors duration-500 ${
+            scrolled ? "bg-black/90" : "bg-white/[0.045]"
+          }`}
         >
           <Link
             href="/"
@@ -296,9 +213,9 @@ function FloatingDock({ session, cartCount, isMounted, onCart, onSearch, onMenu,
                   target={external ? "_blank" : undefined}
                   rel={external ? "noopener noreferrer" : undefined}
                   onClick={(e) => handleNavClick(e, link)}
-                 className={`relative rounded-full px-2 lg:px-3 py-2 lg:py-2.5 text-[10px] md:text-[11px] lg:text-[12px] xl:text-[13px] font-extrabold uppercase tracking-[0.1em] lg:tracking-[0.12em] transition-colors duration-300 xl:px-4 ${
-  active ? "text-black" : "text-neutral-300 hover:text-[#DCAA4A]"
-}`}
+                  className={`relative rounded-full px-2 lg:px-3 py-2 lg:py-2.5 text-[10px] md:text-[11px] lg:text-[12px] xl:text-[13px] font-extrabold uppercase tracking-[0.1em] lg:tracking-[0.12em] transition-colors duration-300 xl:px-4 ${
+                    active ? "text-black" : "text-neutral-300 hover:text-[#DCAA4A]"
+                  }`}
                 >
                   {active && (
                     <motion.span
@@ -354,7 +271,7 @@ function FloatingDock({ session, cartCount, isMounted, onCart, onSearch, onMenu,
         </div>
       </motion.header>
 
-    <motion.div
+      <motion.div
         initial={{ y: -60, opacity: 0 }}
         animate={hidden ? { y: -100, opacity: 0 } : { y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -412,49 +329,87 @@ function FloatingDock({ session, cartCount, isMounted, onCart, onSearch, onMenu,
 }
 
 /* ================================================================== */
-/*  PRODUCT CARD                                                       */
+/*  PRODUCT CARD (Responsive Luxury Stacked Badges)                   */
+/* ================================================================== */
+
+/* ================================================================== */
+/*  PRODUCT CARD (Fast Hardware-Accelerated Hover)                     */
 /* ================================================================== */
 
 function ProductCard({ watch, index, inCart, onAdd, onQuickView }) {
+  const isOutOfStock = (watch.stock ?? 10) <= 0;
+
   return (
     <motion.article
       layout
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -14, transition: { duration: 0.2 } }}
-      transition={{ duration: 0.55, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-b from-[#171717] via-[#0d0d0d] to-[#050505] transition-colors duration-500 hover:border-[#DCAA4A]/45 hover:shadow-[0_0_50px_-12px_rgba(220,170,74,0.35)]"
+      exit={{ opacity: 0, transition: { duration: 0.15 } }}
+      transition={{ duration: 0.35, delay: index * 0.03, ease: "easeOut" }}
+      className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-b from-[#171717] via-[#0d0d0d] to-[#050505] transition-colors duration-200 hover:border-[#DCAA4A]/45 hover:shadow-[0_0_40px_-12px_rgba(220,170,74,0.3)]"
     >
       <div className="relative aspect-square overflow-hidden bg-[radial-gradient(circle_at_50%_38%,#262626_0%,#080808_68%)] sm:aspect-[4/5]">
-        {watch.tag && (
+        
+        {/* TOP LEFT: TAG + STOCK STATUS STACK */}
+        <div className="absolute left-3.5 top-3.5 sm:left-5 sm:top-5 z-20 flex flex-col items-start gap-1.5 pointer-events-none">
+          {watch.tag && (
+            <span
+              className={`rounded-full px-3 py-1 sm:px-3.5 sm:py-1 text-[9px] sm:text-[10px] md:text-[11px] font-extrabold uppercase tracking-[0.16em] shadow-md backdrop-blur-md ${
+                watch.tag === "NEW"
+                  ? "bg-[#DCAA4A] text-black"
+                  : "border border-[#DCAA4A]/45 bg-black/75 text-[#DCAA4A]"
+              }`}
+            >
+              {watch.tag}
+            </span>
+          )}
+
           <span
-            className={`absolute left-4 top-4 sm:left-5 sm:top-5 z-20 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-[11px] md:text-[12px] font-extrabold uppercase tracking-[0.16em] ${
-              watch.tag === "NEW"
-                ? "bg-[#DCAA4A] text-black"
-                : "border border-[#DCAA4A]/45 bg-black/75 text-[#DCAA4A] backdrop-blur"
+            className={`flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-widest backdrop-blur-md border ${
+              isOutOfStock
+                ? "bg-red-500/20 text-red-400 border-red-500/40"
+                : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
             }`}
           >
-            {watch.tag}
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                isOutOfStock ? "bg-red-400" : "bg-emerald-400 animate-pulse"
+              }`}
+            />
+            {isOutOfStock ? "Out of Stock" : "In Stock"}
           </span>
-        )}
-        <span className="absolute right-4 top-4 sm:right-5 sm:top-5 z-20 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/70 px-2.5 py-1 sm:px-3 sm:py-1.5 backdrop-blur">
+        </div>
+
+        {/* TOP RIGHT: RATING BADGE */}
+        <span className="absolute right-3.5 top-3.5 sm:right-5 sm:top-5 z-20 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/70 px-2.5 py-1 sm:px-3 sm:py-1.5 backdrop-blur-md pointer-events-none">
           <svg viewBox="0 0 20 20" className="h-[12px] w-[12px] sm:h-[14px] sm:w-[14px] fill-[#DCAA4A]">
             <path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9L10 1.5z" />
           </svg>
-          <span className="text-[11px] sm:text-[12px] md:text-[13px] font-extrabold text-white">{watch.rating.toFixed(1)}</span>
+          <span className="text-[11px] sm:text-[12px] md:text-[13px] font-extrabold text-white">
+            {watch.rating?.toFixed(1) || "4.9"}
+          </span>
         </span>
 
-        <div className="pointer-events-none absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#DCAA4A]/0 blur-3xl transition-all duration-500 group-hover:bg-[#DCAA4A]/25" />
+        {/* Ambient Glow */}
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#DCAA4A]/0 blur-3xl transition-opacity duration-300 group-hover:bg-[#DCAA4A]/20" />
 
+        {/* ⚡ Fast Watch Image (Snappy 250ms & GPU Rendered) */}
         <img
           src={watch.image}
           alt={watch.title}
           draggable={false}
-          className="relative z-10 h-full w-full object-contain p-8 sm:p-10 drop-shadow-[0_14px_22px_rgba(0,0,0,0.85)] transition-transform duration-700 ease-out group-hover:-translate-y-2 group-hover:scale-[1.08]"
+          className={`relative z-10 h-full w-full object-contain p-8 sm:p-10 drop-shadow-[0_12px_18px_rgba(0,0,0,0.8)] transform-gpu will-change-transform transition-transform duration-250 ease-out ${
+            isOutOfStock ? "grayscale opacity-40" : "group-hover:scale-105"
+          }`}
         />
 
-        <div className="pointer-events-none absolute inset-0 z-20 flex items-end justify-center bg-gradient-to-t from-black/90 via-black/10 to-transparent p-5 sm:p-7 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-          <button type="button" onClick={() => onQuickView(watch)} className="pointer-events-auto translate-y-4 cursor-pointer rounded-full border border-[#DCAA4A]/60 bg-black/70 px-6 py-2.5 sm:px-9 sm:py-3.5 text-[11px] sm:text-[12px] md:text-[13px] font-extrabold uppercase tracking-[0.2em] text-[#DCAA4A] backdrop-blur transition-all duration-500 group-hover:translate-y-0 hover:bg-[#DCAA4A] hover:text-black">
+        {/* ⚡ Instant Hover Overlay & Quick View Button (200ms) */}
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-end justify-center bg-gradient-to-t from-black/80 via-transparent to-transparent p-5 sm:p-7 opacity-0 transition-opacity duration-200 ease-out group-hover:opacity-100">
+          <button
+            type="button"
+            onClick={() => onQuickView(watch)}
+            className="pointer-events-auto cursor-pointer rounded-full border border-[#DCAA4A]/60 bg-black/85 px-6 py-2.5 sm:px-8 sm:py-3 text-[11px] sm:text-[12px] font-extrabold uppercase tracking-[0.18em] text-[#DCAA4A] shadow-lg backdrop-blur-md transform-gpu transition-all duration-200 hover:scale-105 hover:bg-[#DCAA4A] hover:text-black"
+          >
             Quick View
           </button>
         </div>
@@ -465,42 +420,47 @@ function ProductCard({ watch, index, inCart, onAdd, onQuickView }) {
           {watch.category}
         </p>
 
-        <h3 className="text-base sm:text-lg md:text-xl lg:text-[22px] font-extrabold uppercase leading-snug tracking-[0.03em] text-white transition-colors group-hover:text-[#DCAA4A]">
+        <h3 className="text-base sm:text-lg md:text-xl font-extrabold uppercase leading-snug tracking-[0.03em] text-white transition-colors duration-200 group-hover:text-[#DCAA4A] truncate">
           {watch.title}
         </h3>
 
         <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-          <Stars rating={watch.rating} size="h-[14px] w-[14px] sm:h-[18px] sm:w-[18px]" />
+          <Stars rating={watch.rating || 4.9} size="h-[14px] w-[14px] sm:h-[18px] sm:w-[18px]" />
           <span className="text-[12px] sm:text-[13px] md:text-[14px] font-bold text-neutral-400">
-            {watch.rating.toFixed(1)} · {watch.reviews} reviews
+            {watch.rating?.toFixed(1) || "4.9"} · {watch.reviews || 24} reviews
           </span>
         </div>
 
-        <p className="text-[11px] sm:text-[12px] md:text-[13px] font-bold uppercase tracking-[0.16em] text-neutral-500">
+        <p className="text-[11px] sm:text-[12px] md:text-[13px] font-bold uppercase tracking-[0.16em] text-neutral-500 truncate">
           {watch.spec}
         </p>
 
         <div className="mt-auto flex flex-wrap items-end justify-between gap-4 pt-4">
           <div>
-            <p className="text-xl sm:text-2xl md:text-3xl lg:text-[28px] font-extrabold tracking-tight text-[#DCAA4A]">
+            <p className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#DCAA4A]">
               {watch.price}
             </p>
-            <p className="mt-0.5 text-sm sm:text-base font-bold text-neutral-600 line-through">
-              {watch.original}
-            </p>
+            {watch.original && (
+              <p className="mt-0.5 text-sm font-bold text-neutral-600 line-through">
+                {watch.original}
+              </p>
+            )}
           </div>
 
           <motion.button
             type="button"
-            whileTap={{ scale: 0.94 }}
+            disabled={isOutOfStock}
+            whileTap={!isOutOfStock ? { scale: 0.96 } : {}}
             onClick={() => onAdd(watch)}
-            className={`cursor-pointer rounded-full border px-4 py-2 sm:px-6 sm:py-3 text-[11px] sm:text-[12px] md:text-[13px] font-extrabold uppercase tracking-[0.16em] transition-colors duration-300 ${
-              inCart
+            className={`cursor-pointer rounded-full border px-4 py-2 sm:px-6 sm:py-3 text-[11px] sm:text-[12px] md:text-[13px] font-extrabold uppercase tracking-[0.16em] transition-colors duration-200 ${
+              isOutOfStock
+                ? "border-neutral-800 bg-neutral-900 text-neutral-500 cursor-not-allowed"
+                : inCart
                 ? "border-[#DCAA4A] bg-[#DCAA4A] text-black"
                 : "border-white/20 text-white hover:border-[#DCAA4A] hover:bg-[#DCAA4A] hover:text-black"
             }`}
           >
-            {inCart ? "In Cart" : "+ Add To Cart"}
+            {isOutOfStock ? "Out of Stock" : inCart ? "In Cart" : "+ Add To Cart"}
           </motion.button>
         </div>
       </div>
@@ -509,43 +469,24 @@ function ProductCard({ watch, index, inCart, onAdd, onQuickView }) {
 }
 
 /* ================================================================== */
-/*  PAGE                                                               */
+/*  MAIN PAGE COMPONENT                                               */
 /* ================================================================== */
 
 export default function MenWatchesCollectionPage() {
-    const pathname = usePathname();
+  const pathname = usePathname();
+
+  // 1. ALL CORE STATES DECLARED AT THE TOP
+  const [currentCollection, setCurrentCollection] = useState("freshdrop");
+  const [activeCategory, setActiveCategory] = useState("All Timepieces");
+  const [sortBy, setSortBy] = useState("featured");
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const searchInputRef = useRef(null);
-
-  // ----- COLLECTION STATE -----
-  const [currentCollection, setCurrentCollection] = useState("freshdrop");
-
-  // ----- FILTER BAR STICK DETECTION -----
   const [isFilterStuck, setIsFilterStuck] = useState(false);
-  const filterSentinelRef = useRef(null);
 
- useEffect(() => {
-    if (pathname) {
-      if (pathname.includes("the-fresh-drop")) {
-        setCurrentCollection("freshdrop");
-      } else if (pathname.includes("women")) { // <-- 'women' MUST be checked before 'men'
-        setCurrentCollection("women");
-      } else if (pathname.includes("men")) {
-        setCurrentCollection("men");
-      } else if (pathname.includes("smart-watches")) {
-        setCurrentCollection("smart");
-      } else if (pathname.includes("for-couples")) {
-        setCurrentCollection("couples");
-      }
-    }
-  }, [pathname]);
-
-  const [activeCategory, setActiveCategory] = useState("All Timepieces");
-  const [sortBy, setSortBy] = useState("featured");
-
+  // Cart & Checkout
   const [cart, setCart] = useState([]);
   const [selectedWatch, setSelectedWatch] = useState(null);
   const [selectedCartIndexes, setSelectedCartIndexes] = useState([]);
@@ -560,9 +501,173 @@ export default function MenWatchesCollectionPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isMounted, setIsMounted] = useState(false);
 
+  // Live Database Watches
+  const [dbWatches, setDbWatches] = useState([]);
+
+  // Session & Refs
   const { data: session, status } = useSession();
+  const searchInputRef = useRef(null);
+  const filterSentinelRef = useRef(null);
   const isInitialSync = useRef(true);
 
+  
+
+  // 2. PATHNAME BASED COLLECTION AUTO-SELECTION
+  // 🟢 Browser Back/Forward buttons dabane par URL & Collection sync
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path.includes("the-fresh-drop")) {
+        setCurrentCollection("freshdrop");
+      } else if (path.includes("women")) {
+        setCurrentCollection("women");
+      } else if (path.includes("men")) {
+        setCurrentCollection("men");
+      } else if (path.includes("smart-watches")) {
+        setCurrentCollection("smart");
+      } else if (path.includes("for-couples")) {
+        setCurrentCollection("couples");
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  // 3. FETCH LIVE WATCHES FROM DATABASE
+  // 🟢 3. LIVE AUTO-SYNC: Har 3 sec baad silently check karega (Bina Page Refresh ke)
+  // 3. FETCH LIVE WATCHES & INSTANT CART AUTO-PURGE
+  useEffect(() => {
+    let isSubscribed = true;
+
+    async function fetchLiveWatches() {
+      try {
+        const res = await fetch("/api/admin/products", { cache: "no-store" });
+        const data = await res.json();
+        
+        if (data.success && isSubscribed) {
+          const rawList = data.watches || [];
+          const formatted = rawList.map((w) => ({
+            id: w._id,
+            _id: w._id,
+            title: w.title,
+            category: w.subCategory || (["Chronograph", "Automatic", "Steel Edition", "Leather Strap"].includes(w.category) ? w.category : "Automatic"),
+            collection: (w.collectionName || w.category || "").toLowerCase().trim(),
+            price: typeof w.price === "number" ? `Rs. ${w.price.toLocaleString("en-PK")}` : w.price,
+            original: w.originalPrice 
+              ? `Rs. ${Math.round(Number(w.originalPrice)).toLocaleString("en-PK")}` 
+              : "",
+            rating: Number(w.rating) || 4.9,
+            reviews: Number(w.reviews) || 24,
+            stock: Number(w.stock) ?? 0,
+            tag: w.tag || null,
+            spec: w.spec || "SWISS PRECISION MOVEMENT",
+            description: w.description || "",
+            image: w.image || "/wClassic.png",
+          }));
+
+          setDbWatches(formatted);
+
+          // ⚡ INSTANT PURGE: Agar cart mein koi item Out of Stock ya Delete ho gaya to foran nikaal do
+        // ⚡ LIVE CART STOCK SYNC & AUTO-PURGE
+          setCart((prevCart) => {
+            if (!prevCart || prevCart.length === 0) return prevCart;
+
+            let hasChanged = false;
+            const updatedCart = [];
+
+            for (const item of prevCart) {
+              const liveMatch = rawList.find(
+                (w) => String(w._id) === String(item.id || item._id)
+              );
+
+              // 1. Agar item DB se delete ho gaya ya stock 0 ho gaya, toh cart se remove karein
+              if (!liveMatch || Number(liveMatch.stock) <= 0) {
+                hasChanged = true;
+                continue;
+              }
+
+              const freshStock = Number(liveMatch.stock);
+              const currentQty = Number(item.quantity) || 1;
+              const safeQty = Math.min(currentQty, freshStock);
+
+              // 2. Agar stock ya quantity mein koi farq aaya hai toh flag true karein
+              if (item.stock !== freshStock || currentQty !== safeQty) {
+                hasChanged = true;
+              }
+
+              // 3. Cart item mein fresh stock aur safe quantity inject karein
+              updatedCart.push({
+                ...item,
+                stock: freshStock,
+                quantity: safeQty,
+              });
+            }
+
+            if (hasChanged) {
+              localStorage.setItem("my_store_cart", JSON.stringify(updatedCart));
+              return updatedCart;
+            }
+            return prevCart;
+          });
+        }
+      } catch (err) {
+        console.error("Live products fetch error:", err);
+      }
+    }
+
+    fetchLiveWatches();
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetchLiveWatches();
+      }
+    }, 2500);
+
+    const handleFocus = () => fetchLiveWatches();
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      isSubscribed = false;
+      clearInterval(interval);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []);
+
+  // 4. DATA DERIVATION & FILTERING
+  const collectionData = COLLECTIONS[currentCollection] || COLLECTIONS.freshdrop;
+
+  // Main Collection Level Filter
+  const watches = useMemo(() => {
+    return dbWatches.filter(
+      (w) => (w.collection || "").toLowerCase() === (currentCollection || "").toLowerCase()
+    );
+  }, [dbWatches, currentCollection]);
+
+  const hero = collectionData.hero;
+
+  // Sub-Category Level Filter (All Timepieces, Chronograph, Automatic, etc.)
+  const visibleWatches = useMemo(() => {
+    let list = [];
+    if (activeCategory === "All Timepieces") {
+      list = [...watches];
+    } else {
+      list = watches.filter(
+        (w) => (w.category || "").toLowerCase() === activeCategory.toLowerCase()
+      );
+    }
+
+    switch (sortBy) {
+      case "price-low": return list.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+      case "price-high": return list.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
+      case "rating": return list.sort((a, b) => b.rating - a.rating);
+      default: return list;
+    }
+  }, [activeCategory, sortBy, watches]);
+
+  const cartIds = useMemo(() => new Set(cart.map((c) => c.id)), [cart]);
+
+  // 5. AUTH & CART SYNCHRONIZATION
   useEffect(() => {
     setIsMounted(true);
     const syncOnAuthChange = async () => {
@@ -586,7 +691,6 @@ export default function MenWatchesCollectionPage() {
           isInitialSync.current = false;
         }
       } else {
-        // Corrupted JSON parse error handled safely here
         try {
           const localCart = JSON.parse(localStorage.getItem("my_store_cart") || "[]");
           setCart(Array.isArray(localCart) ? localCart : []);
@@ -602,88 +706,43 @@ export default function MenWatchesCollectionPage() {
     syncOnAuthChange();
   }, [session, status]);
 
-  // ===================== MOBILE NAV LINKS (updated with smart and couples) =====================
-  const mobileNavLinks = [
-    { name: "THE FRESH DROP", href: "/collections/the-fresh-drop", collection: "freshdrop" },
-    { name: "MEN", href: "/collections/men", collection: "men" },
-    { name: "WOMEN", href: "/collections/women", collection: "women" },
-    { name: "SMART WATCHES", href: "/collections/smart-watches", collection: "smart" },
-    { name: "FOR COUPLES", href: "/collections/for-couples", collection: "couples" },
-    { name: "TRACK ORDER", href: "/collections/track-order" },
-    { name: "CONTACT US", href: "https://wa.me/923186643032" },
-  ];
-
-  // --- Get current collection data ---
-  const collectionData = COLLECTIONS[currentCollection];
-  const watches = collectionData.watches;
-  const hero = collectionData.hero;
-
+  // Debounced LocalStorage & Database Cart Update
   useEffect(() => {
-    setIsMounted(true);
-    const syncOnAuthChange = async () => {
-      if (status === "loading") return;
-      if (session?.user) {
-        isInitialSync.current = true;
-        try {
-          const res = await fetch("/api/cart");
-          if (res.ok) {
-            const data = await res.json();
-            if (data.success) {
-              const dbCart = data.cart || [];
-              setCart(dbCart);
-              localStorage.setItem("my_store_cart", JSON.stringify(dbCart));
-            }
-          }
-        } catch (err) {
-          console.error("Cart fetch error:", err);
-        } finally {
-          isInitialSync.current = false;
-        }
-      } else {
-        const localCart = JSON.parse(localStorage.getItem("my_store_cart") || "[]");
-        setCart(localCart);
-        isInitialSync.current = false;
-      }
+    if (!isMounted || isInitialSync.current) return;
+    localStorage.setItem("my_store_cart", JSON.stringify(cart));
+
+    if (!session?.user) return;
+
+    const timer = setTimeout(() => {
+      fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart }),
+      }).catch((err) => console.error("Database update error:", err));
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [cart, isMounted, session]);
+
+  // Scroll & Sticky Bar Observer
+  useEffect(() => {
+    const el = filterSentinelRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const rect = el.getBoundingClientRect();
+      setIsFilterStuck(rect.top <= 104);
+      setScrolled(window.scrollY > 50);
     };
-    syncOnAuthChange();
-  }, [session, status]);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
 
-  useEffect(() => {
-  if (!isMounted || isInitialSync.current) return;
-  localStorage.setItem("my_store_cart", JSON.stringify(cart));
-
-  if (!session?.user) return;
-
-  // ⏱️ Debounce timer taake bar bar request na jaye
-  const timer = setTimeout(() => {
-    fetch("/api/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cart }),
-    }).catch((err) => console.error("Database update error:", err));
-  }, 800); // 0.8 seconds ka delay
-
-  return () => clearTimeout(timer);
-}, [cart, isMounted, session]);
-
-  // ===================== FILTER BAR STICK DETECTION =====================
-  // Jab filter bar nav ki jagah le, nav upar chala jaye
-  useEffect(() => {
-  const el = filterSentinelRef.current;
-  if (!el) return;
-  const onScroll = () => {
-    const rect = el.getBoundingClientRect();
-    setIsFilterStuck(rect.top <= 104);
-  };
-  onScroll();
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onScroll);
-  return () => {
-    window.removeEventListener("scroll", onScroll);
-    window.removeEventListener("resize", onScroll);
-  };
-}, []);
-
+  // Keyboard Shortcuts & Body Scroll Lock
   useEffect(() => {
     if (isSearchOpen) setTimeout(() => searchInputRef.current?.focus(), 120);
   }, [isSearchOpen]);
@@ -706,58 +765,89 @@ export default function MenWatchesCollectionPage() {
     return () => { document.body.style.overflow = ""; };
   }, [isMobileMenuOpen, isCartOpen, isSearchOpen, selectedWatch, isCheckout]);
 
-  const handleAddToCart = (watch) => {
-    setCart((prev) => [...prev, watch]);
+  // Handlers
+ // 🟢 Cart mein add karna (Quantity support ke sath)
+  const handleAddToCart = (watch, customQty = 1) => {
+    if ((watch.stock ?? 10) <= 0) return;
+
+    setCart((prev) => {
+      const idx = prev.findIndex((item) => (item.id || item._id) === (watch.id || watch._id));
+      if (idx > -1) {
+        const updated = [...prev];
+        const currentQty = updated[idx].quantity || 1;
+        const maxLimit = watch.stock ?? 99;
+        updated[idx] = { ...updated[idx], quantity: Math.min(currentQty + customQty, maxLimit) };
+        return updated;
+      }
+      return [...prev, { ...watch, quantity: customQty }];
+    });
+
     setSelectedWatch(null);
     setIsCheckout(false);
-    setScreenshotName("");
     setIsCartOpen(true);
   };
 
-  const handleToggleCartSelect = (i) => setSelectedCartIndexes((prev) => prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]);
+  // 🟢 [-] 1 [+] Quantity Handler
+  const handleUpdateQuantity = (idx, delta) => {
+    setCart((prev) => {
+      const updated = [...prev];
+      const item = updated[idx];
+      const currentQty = item.quantity || 1;
+      const maxLimit = item.stock ?? 99;
+      const newQty = currentQty + delta;
+
+      if (newQty <= 0) {
+        return prev.filter((_, i) => i !== idx);
+      }
+      if (newQty > maxLimit) return prev;
+
+      updated[idx] = { ...item, quantity: newQty };
+      return updated;
+    });
+  };
+
+  
+
+  const handleToggleCartSelect = (i) =>
+    setSelectedCartIndexes((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]));
 
   const handleRemoveFromCart = (indexToRemove) => {
     setCart((prev) => prev.filter((_, idx) => idx !== indexToRemove));
-    setSelectedCartIndexes((prev) => prev.filter((i) => i !== indexToRemove).map((i) => (i > indexToRemove ? i - 1 : i)));
+    setSelectedCartIndexes((prev) =>
+      prev.filter((i) => i !== indexToRemove).map((i) => (i > indexToRemove ? i - 1 : i))
+    );
   };
 
   const handleProceedToCheckout = () => {
     if (cart.length === 0) return;
-    const itemsToBuy = selectedCartIndexes.length === 0 || selectedCartIndexes.length === cart.length ? [...cart] : cart.filter((_, idx) => selectedCartIndexes.includes(idx));
+    const itemsToBuy =
+      selectedCartIndexes.length === 0 || selectedCartIndexes.length === cart.length
+        ? [...cart]
+        : cart.filter((_, idx) => selectedCartIndexes.includes(idx));
     setCheckoutItems(itemsToBuy);
     setIsCartOpen(false);
     setIsCheckout(true);
   };
 
-  const closeModal = () => {
-    setSelectedWatch(null);
-    setIsCheckout(false);
-    setCheckoutItems([]);
-    setErrorMessage("");
-  };
-
-  // Filter and sort watches
-  const visibleWatches = useMemo(() => {
-    const list = activeCategory === "All Timepieces" ? [...watches] : watches.filter((w) => w.category === activeCategory);
-    switch (sortBy) {
-      case "price-low": return list.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
-      case "price-high": return list.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
-      case "rating": return list.sort((a, b) => b.rating - a.rating);
-      default: return list;
-    }
-  }, [activeCategory, sortBy, watches]);
-
-  const cartIds = useMemo(() => new Set(cart.map((c) => c.id)), [cart]);
+  const mobileNavLinks = [
+    { name: "THE FRESH DROP", href: "/collections/the-fresh-drop", collection: "freshdrop" },
+    { name: "MEN", href: "/collections/men", collection: "men" },
+    { name: "WOMEN", href: "/collections/women", collection: "women" },
+    { name: "SMART WATCHES", href: "/collections/smart-watches", collection: "smart" },
+    { name: "FOR COUPLES", href: "/collections/for-couples", collection: "couples" },
+    { name: "TRACK ORDER", href: "/collections/track-order" },
+    { name: "CONTACT US", href: "https://wa.me/923186643032" },
+  ];
 
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-black font-jakarta text-white antialiased">
-      {/* Plus Jakarta Sans Injection For Guaranteed Branding */}
       <style dangerouslySetInnerHTML={{
         __html: `
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         .font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
       `}} />
 
+      {/* FLOATING GLASS NAVIGATION DOCK */}
       <FloatingDock
         session={session}
         cartCount={cart.length}
@@ -771,7 +861,7 @@ export default function MenWatchesCollectionPage() {
         hidden={isFilterStuck}
       />
 
-      {/* ============ HERO (dynamic) ============ */}
+      {/* HERO SECTION */}
       <section className="relative overflow-hidden border-b border-white/[0.07] bg-gradient-to-b from-[#0a0a0a] to-black">
         <div className="pointer-events-none absolute left-1/2 top-[-20rem] h-[40rem] w-[40rem] -translate-x-1/2 rounded-full bg-[#DCAA4A]/[0.16] blur-[150px]" />
         <div className="pointer-events-none absolute bottom-[-16rem] right-[-12rem] h-[30rem] w-[30rem] rounded-full bg-[#DCAA4A]/[0.07] blur-[140px]" />
@@ -827,7 +917,6 @@ export default function MenWatchesCollectionPage() {
             ))}
           </motion.div>
 
-          {/* Trust stats */}
           <motion.div
             key={currentCollection + "-stats"}
             initial={{ opacity: 0, y: 20 }}
@@ -847,10 +936,10 @@ export default function MenWatchesCollectionPage() {
         </div>
       </section>
 
-      {/* ============ SENTINEL for filter bar stick detection ============ */}
+      {/* FILTER SENTINEL FOR STICKY DETECTION */}
       <div ref={filterSentinelRef} className="h-0 w-full" aria-hidden="true" />
 
-      {/* ============ STICKY FILTER BAR ============ */}
+      {/* STICKY FILTER BAR */}
       <div className={`sticky top-0 z-40 border-b border-white/[0.08] bg-black/85 backdrop-blur-xl transition-[top] duration-300 ${isFilterStuck ? "lg:top-0" : "lg:top-[104px]"}`}>
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <LayoutGroup id="collection-filters">
@@ -910,13 +999,13 @@ export default function MenWatchesCollectionPage() {
         </div>
       </div>
 
-      {/* ============ PRODUCT GRID ============ */}
+      {/* DYNAMIC PRODUCT GRID */}
       <section className="mx-auto w-full max-w-7xl px-5 py-14 sm:px-8 lg:py-20">
         <motion.div layout className="grid grid-cols-1 gap-6 sm:gap-7 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           <AnimatePresence mode="popLayout">
             {visibleWatches.map((watch, i) => (
               <ProductCard
-                key={watch.id}
+                key={watch.id || i}
                 watch={watch}
                 index={i}
                 inCart={cartIds.has(watch.id)}
@@ -929,12 +1018,12 @@ export default function MenWatchesCollectionPage() {
 
         {visibleWatches.length === 0 && (
           <p className="py-24 text-center text-base sm:text-lg md:text-xl font-extrabold uppercase tracking-[0.16em] text-neutral-600">
-            No timepieces in this collection yet.
+            No timepieces found in this category yet.
           </p>
         )}
       </section>
 
-      {/* ============ EDITORIAL BANNER ============ */}
+      {/* EDITORIAL BANNER */}
       <section className="relative overflow-hidden border-y border-white/[0.08] bg-[#050505]">
         <div className="pointer-events-none absolute left-1/3 top-1/2 h-[28rem] w-[28rem] -translate-y-1/2 rounded-full bg-[#DCAA4A]/[0.1] blur-[140px]" />
 
@@ -988,7 +1077,7 @@ export default function MenWatchesCollectionPage() {
         </div>
       </section>
 
-      {/* ============ FOOTER ============ */}
+      {/* FOOTER */}
       <footer className="relative overflow-hidden bg-black px-5 pb-32 pt-16 sm:px-8 lg:px-16 lg:pb-12">
         <div className="pointer-events-none absolute bottom-0 left-1/2 h-[220px] w-[820px] -translate-x-1/2 rounded-full bg-[#DCAA4A]/[0.06] blur-[130px]" />
 
@@ -1075,7 +1164,7 @@ export default function MenWatchesCollectionPage() {
         </div>
       </footer>
 
-      {/* ============ SEARCH MODAL ============ */}
+      {/* SEARCH MODAL */}
       <AnimatePresence>
         {isSearchOpen && (
           <motion.div
@@ -1133,11 +1222,10 @@ export default function MenWatchesCollectionPage() {
         )}
       </AnimatePresence>
 
-      {/* ============ MOBILE MENU (LEFT DRAWER) ============ */}
+      {/* MOBILE DRAWER */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1147,7 +1235,6 @@ export default function MenWatchesCollectionPage() {
               className="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] md:hidden"
             />
 
-            {/* Sidebar Menu */}
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
@@ -1155,10 +1242,8 @@ export default function MenWatchesCollectionPage() {
               transition={{ type: "spring", stiffness: 300, damping: 28 }}
               className="fixed top-0 left-0 h-full w-[85%] max-w-[320px] bg-neutral-950 border-r border-amber-500/20 z-[75] shadow-[20px_0_50px_rgba(0,0,0,0.8)] flex flex-col md:hidden overflow-hidden"
             >
-              {/* Background Glow */}
               <div className="absolute top-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-              {/* Header (Profile/Auth & Close Button) */}
               <div className="p-5 border-b border-neutral-900 flex items-center justify-between relative z-10 bg-neutral-950/50">
                 <div className="flex items-center">
                   {session ? (
@@ -1190,7 +1275,6 @@ export default function MenWatchesCollectionPage() {
                   )}
                 </div>
 
-                {/* Close Button */}
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="text-neutral-500 hover:text-amber-400 hover:bg-amber-500/10 p-1.5 rounded-full transition-all duration-300 focus:outline-none cursor-pointer"
@@ -1201,7 +1285,6 @@ export default function MenWatchesCollectionPage() {
                 </button>
               </div>
 
-              {/* Navigation Links */}
               <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2 relative z-10 [scrollbar-width:none]">
                 <span className="text-[10px] font-bold text-neutral-600 tracking-[0.25em] uppercase block mb-4 ml-2">
                   Menu Collections
@@ -1217,22 +1300,23 @@ export default function MenWatchesCollectionPage() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 + idx * 0.05, type: "spring", stiffness: 300, damping: 24 }}
                       >
-                        <Link
-                          href={link.href}
-                          onClick={(e) => {
-                            if (link.collection) {
-                              e.preventDefault();
-                              setCurrentCollection(link.collection);
-                              setIsMobileMenuOpen(false);
-                            }
-                            // other links will navigate normally
-                          }}
-                          target={link.href?.startsWith("http") ? "_blank" : undefined}
-                          rel={link.href?.startsWith("http") ? "noopener noreferrer" : undefined}
-                          className={`group flex items-center justify-between py-3.5 px-4 rounded-xl hover:bg-neutral-900 border border-transparent hover:border-amber-500/20 transition-all duration-300 ${
-                            active ? "border-amber-500/20 bg-neutral-900" : ""
-                          }`}
-                        >
+                       <Link
+  href={link.href}
+  onClick={(e) => {
+    if (link.collection) {
+      e.preventDefault();
+      // ⚡ Mobile par bhi click karte hi URL foran change hoga:
+      window.history.pushState(null, "", link.href);
+      setCurrentCollection(link.collection);
+      setIsMobileMenuOpen(false);
+    }
+  }}
+  target={link.href?.startsWith("http") ? "_blank" : undefined}
+  rel={link.href?.startsWith("http") ? "noopener noreferrer" : undefined}
+  className={`group flex items-center justify-between py-3.5 px-4 rounded-xl hover:bg-neutral-900 border border-transparent hover:border-amber-500/20 transition-all duration-300 ${
+    active ? "border-amber-500/20 bg-neutral-900" : ""
+  }`}
+>
                           <span className={`text-[13px] font-bold tracking-widest uppercase transition-colors ${
                             active ? "text-amber-400" : "text-neutral-300 group-hover:text-amber-400"
                           }`}>
@@ -1253,7 +1337,6 @@ export default function MenWatchesCollectionPage() {
                 </div>
               </div>
 
-              {/* Footer Logo Area */}
               <div className="p-6 border-t border-neutral-900 relative z-10 bg-neutral-950">
                 <div className="flex items-center justify-center">
                   <Image src={wLogo} preload width={40} height={40} alt="Logo" className="opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
@@ -1267,19 +1350,19 @@ export default function MenWatchesCollectionPage() {
         )}
       </AnimatePresence>
 
-      {/* ============ CART DRAWER ============ */}
-   {/* ============ CART DRAWER ============ */}
+      {/* SHOPPING CART DRAWER */}
       <div
-        className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-[85] transition-opacity duration-300 ${isCartOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-          }`}
+        className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-[85] transition-opacity duration-300 ${
+          isCartOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
         onClick={() => setIsCartOpen(false)}
       />
 
       <aside
-        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] max-w-full bg-neutral-950 border-l border-neutral-800 z-[86] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col font-jakarta ${isCartOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] max-w-full bg-neutral-950 border-l border-neutral-800 z-[86] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col font-jakarta ${
+          isCartOpen ? "translate-x-0" : "translate-x-full"
+        }`}
       >
-        {/* Cart Drawer Header */}
         <div className="p-4 sm:p-6 border-b border-neutral-800 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <h2 className="text-base sm:text-lg font-bold tracking-wider uppercase">Shopping Cart</h2>
@@ -1298,7 +1381,6 @@ export default function MenWatchesCollectionPage() {
           </button>
         </div>
 
-        {/* Cart Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
@@ -1320,37 +1402,61 @@ export default function MenWatchesCollectionPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {cart.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-3 bg-neutral-900/60 border border-amber-500/20 p-3 rounded-xl">
-                  {/* Checkbox for item selection */}
-                  <input
-                    type="checkbox"
-                    checked={selectedCartIndexes.includes(idx)}
-                    onChange={() => handleToggleCartSelect(idx)}
-                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
-                    title="Select for checkout"
-                  />
+  {cart.map((item, idx) => (
+    <div key={idx} className="flex items-center gap-3 bg-neutral-900/60 border border-amber-500/20 p-3 rounded-2xl">
+      <input
+        type="checkbox"
+        checked={selectedCartIndexes.includes(idx)}
+        onChange={() => handleToggleCartSelect(idx)}
+        className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+        title="Select for checkout"
+      />
+      <img src={item.image} alt={item.title} className="w-14 h-14 object-contain bg-neutral-950 rounded-xl p-1 border border-neutral-800" />
+      
+      <div className="flex-1 min-w-0">
+        <h4 className="text-xs sm:text-sm font-bold text-amber-100 truncate">{item.title}</h4>
+        <p className="text-xs font-bold text-[#DCAA4A] mt-0.5">{item.price}</p>
 
-                  <img src={item.image} alt={item.title} className="w-14 h-14 object-contain bg-neutral-950 rounded-lg p-1" />
+        {/* 🟢 [- 1 +] Quantity Selector */}
+        <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center border border-neutral-800 bg-black rounded-lg overflow-hidden">
+            <button
+              type="button"
+              onClick={() => handleUpdateQuantity(idx, -1)}
+              className="w-7 h-6 flex items-center justify-center text-xs text-neutral-400 hover:bg-neutral-800 hover:text-amber-400 font-bold cursor-pointer"
+            >
+              −
+            </button>
+            <span className="w-8 text-center text-xs font-bold text-white font-mono">
+              {item.quantity || 1}
+            </span>
+            <button
+              type="button"
+              onClick={() => handleUpdateQuantity(idx, 1)}
+              disabled={(item.quantity || 1) >= (item.stock ?? 99)}
+              className="w-7 h-6 flex items-center justify-center text-xs text-neutral-400 hover:bg-neutral-800 hover:text-amber-400 font-bold cursor-pointer disabled:opacity-30"
+            >
+              +
+            </button>
+          </div>
+          <span className="text-[10px] text-neutral-500 font-mono">
+            Stock: {item.stock ?? 10}
+          </span>
+        </div>
+      </div>
 
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-xs sm:text-sm font-bold text-amber-100 truncate">{item.title}</h4>
-                    <p className="text-xs sm:text-sm text-amber-400 font-bold mt-1">{item.price}</p>
-                  </div>
-
-                  <button
-                    onClick={() => handleRemoveFromCart(idx)}
-                    className="text-neutral-500 hover:text-amber-400 text-sm duration-100 mr-1 cursor-pointer transition-colors"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
+      <button
+        onClick={() => handleRemoveFromCart(idx)}
+        className="text-neutral-500 hover:text-red-400 text-sm p-1.5 cursor-pointer transition-colors"
+      >
+        ✕
+      </button>
+    </div>
+  ))}
+</div>
           )}
         </div>
 
-        {/* Footer */}
         <div className="p-4 border-t border-neutral-900 text-center">
           {cart.length > 0 ? (
             <button
@@ -1367,13 +1473,10 @@ export default function MenWatchesCollectionPage() {
         </div>
       </aside>
 
-      {/* ============ QUICK VIEW / CHECKOUT MODAL ============ */}
-    {/* ============ QUICK VIEW / CHECKOUT MODAL ============ */}
+      {/* QUICK VIEW & CHECKOUT MODAL */}
       <AnimatePresence>
         {(selectedWatch || isCheckout) && (
           <div className="fixed inset-0 z-[100] font-jakarta">
-
-            {/* 1. Backdrop Overlay (Fixed, Never Scrolls) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1382,7 +1485,6 @@ export default function MenWatchesCollectionPage() {
               className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
             />
 
-            {/* 2. Scrollable Container */}
             <div 
               className="fixed inset-0 overflow-y-auto"
               onClick={() => {
@@ -1391,10 +1493,7 @@ export default function MenWatchesCollectionPage() {
                 setCheckoutItems([]);
               }}
             >
-              {/* 3. Center Alignment Wrapper */}
               <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
-                
-                {/* 4. Main Modal Box */}
                 <motion.div
                   onClick={(e) => e.stopPropagation()}
                   initial={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -1421,8 +1520,7 @@ export default function MenWatchesCollectionPage() {
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-
-                    {/* Left Column: Watch Image / Multiple Selected Items Display */}
+                    {/* Left Column: Watch Image / Order Summary Display */}
                     <div className="relative flex flex-col justify-start min-h-[280px] max-h-[380px] overflow-y-auto bg-neutral-900/50 rounded-2xl p-4 border border-zinc-800/80 watch-box-scroll">
                       <div className="absolute w-48 h-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none self-center transform-gpu" />
 
@@ -1466,10 +1564,9 @@ export default function MenWatchesCollectionPage() {
                       )}
                     </div>
 
-                    {/* Right Column: Watch Details OR Checkout Form */}
+                    {/* Right Column: Details or Checkout */}
                     <div className="flex flex-col justify-between">
                       {!isCheckout ? (
-                        /* 1. WATCH DETAILS VIEW */
                         <motion.div
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
@@ -1490,40 +1587,64 @@ export default function MenWatchesCollectionPage() {
                               {selectedWatch?.price}
                             </p>
                             {selectedWatch?.original && (
-                                <p className="pb-0.5 sm:pb-1 text-sm sm:text-base font-bold text-neutral-600 line-through">{selectedWatch?.original}</p>
+                              <p className="pb-0.5 sm:pb-1 text-sm sm:text-base font-bold text-neutral-600 line-through">
+                                {selectedWatch?.original}
+                              </p>
                             )}
                           </div>
 
                           <p className="text-neutral-400 text-xs sm:text-sm md:text-[15px] leading-relaxed mb-6 border-t border-b border-neutral-800 py-4">
-                            Crafted with sapphire crystal glass, 316L surgical-grade stainless steel, and high-precision automatic movement. A true statement of timeless elegance and craftsmanship.
+                            {selectedWatch?.description}
                           </p>
 
-                          <div className="flex flex-col sm:flex-row gap-4 mt-2">
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => handleAddToCart(selectedWatch)}
-                              className="flex-1 py-3.5 px-6 rounded-full border border-amber-500/50 bg-neutral-900 text-amber-300 font-medium text-xs sm:text-sm tracking-widest uppercase transition-all hover:bg-amber-500/10 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] flex items-center justify-center gap-3 cursor-pointer whitespace-nowrap"
-                            >
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
-                              Add To Cart
-                            </motion.button>
+                          {/* 🟢 Action Buttons with Live Stock Validation */}
+                          {(() => {
+                            const isOut = (selectedWatch?.stock ?? 0) <= 0;
+                            return (
+                              <div className="flex flex-col sm:flex-row gap-4 mt-2">
+                                <button
+                                  type="button"
+                                  disabled={isOut}
+                                  onClick={() => handleAddToCart(selectedWatch)}
+                                  className={`flex-1 py-3.5 px-6 rounded-full border font-medium text-xs sm:text-[0.8rem] tracking-widest uppercase transition-all duration-200 flex items-center justify-center gap-3 whitespace-nowrap ${
+                                    isOut
+                                      ? "border-neutral-800 bg-neutral-900 text-neutral-500 cursor-not-allowed"
+                                      : "border-amber-500/50 bg-neutral-900 text-amber-300 hover:bg-amber-500/10 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] cursor-pointer"
+                                  }`}
+                                >
+                                  <Image
+                                   className="w-5 brightness-0 invert h-5"
+                                   src="/cart.png"
+                                   alt=""
+                                   width={20}
+                                   height={20}
+                                   priority
+                                   />
+                                  {isOut ? "Out of Stock" : "Add To Cart"}
+                                </button>
 
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => {
-                                setCheckoutItems([selectedWatch]);
-                                setIsCheckout(true);
-                              }}
-                              className="flex-1 py-3.5 px-6 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-bold text-xs sm:text-sm tracking-widest uppercase shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] transition-all cursor-pointer"
-                            >
-                              Buy Now
-                            </motion.button>
-                          </div>
+                                <button
+                                  type="button"
+                                  disabled={isOut}
+                                  onClick={() => {
+                                    setCheckoutItems([selectedWatch]);
+                                    setIsCheckout(true);
+                                  }}
+                                  className={`flex-1 py-3.5 px-6 rounded-full font-bold text-xs sm:text-[0.8rem] tracking-widest uppercase transition-all duration-200 ${
+                                    isOut
+                                      ? "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+                                      : "bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] cursor-pointer"
+                                  }`}
+                                >
+                                  {isOut ? "Unavailable" : "Buy Now"}
+                                </button>
+                              </div>
+                            );
+                          })()}
+
+
                         </motion.div>
                       ) : (
-                        /* 2. CHECKOUT FORM VIEW */
                         <motion.form
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
@@ -1532,7 +1653,6 @@ export default function MenWatchesCollectionPage() {
                           style={{ willChange: "transform, opacity" }}
                           onSubmit={async (e) => {
                             e.preventDefault();
-
                             if (loading) return;
                             setErrorMessage("");
 
@@ -1540,39 +1660,32 @@ export default function MenWatchesCollectionPage() {
                             const phone = e.target.phone?.value.trim() || "";
                             const address = e.target.address?.value.trim() || "";
 
-                            if (!name) {
-                              setErrorMessage("Please enter your name.");
-                              return;
-                            }
-
-                            if (!phone) {
-                              setErrorMessage("Please enter your phone number.");
-                              return;
-                            }
-
-                            if (!address) {
-                              setErrorMessage("Please enter your shipping address.");
-                              return;
-                            }
-
-                            if (!screenshotBase64) {
-                              setErrorMessage("Please upload your payment screenshot.");
-                              return;
-                            }
+                            if (!name) return setErrorMessage("Please enter your name.");
+                            if (!phone) return setErrorMessage("Please enter your phone number.");
+                            if (!address) return setErrorMessage("Please enter your shipping address.");
+                            if (!screenshotBase64) return setErrorMessage("Please upload your payment screenshot.");
 
                             setLoading(true);
 
-                            const formData = {
-                              name,
-                              phone,
-                              email: e.target.email?.value.trim() || "",
-                              address,
-                              paymentMethod,
-                              watchTitle: checkoutItems.map((item) => item.title).join(", "),
-                              watchPrice: calculateTotal(checkoutItems),
-                              screenshotName: screenshotName || "",
-                              screenshotBase64: screenshotBase64 || "",
-                            };
+                           const formData = {
+  name,
+  phone,
+  email: e.target.email?.value.trim() || "",
+  address,
+  paymentMethod,
+  // Format: "SADIA (Qty: 2), DFDG (Qty: 1)"
+  watchTitle: checkoutItems.map((item) => `${item.title} (Qty: ${item.quantity || 1})`).join(", "),
+  watchPrice: calculateTotal(checkoutItems),
+  // 🟢 API ko har item ki ID aur quantity pass karein:
+  items: checkoutItems.map((item) => ({
+    id: item.id || item._id,
+    quantity: item.quantity || 1,
+    title: item.title,
+    price: item.price,
+  })),
+  screenshotName: screenshotName || "",
+  screenshotBase64: screenshotBase64 || "",
+};
 
                             try {
                               const res = await fetch("/api/checkout", {
@@ -1597,12 +1710,11 @@ export default function MenWatchesCollectionPage() {
                                 setErrorMessage(data.message || "Order didn't submit");
                               }
                             } catch (err) {
-                              setErrorMessage("Network error! Check the connection of your device");
+                              setErrorMessage("Network error! Check your connection.");
                             } finally {
                               setLoading(false);
                             }
                           }}
-
                           className="space-y-3"
                         >
                           {orderSuccess && (
@@ -1693,10 +1805,8 @@ export default function MenWatchesCollectionPage() {
                             />
                           </div>
 
-                          {/* Dynamic Payment Method Selector & Details */}
+                          {/* Dynamic Payment Selection */}
                           <div className="bg-neutral-950/90 border border-amber-500/30 rounded-2xl p-4 sm:p-5 space-y-4 my-3 shadow-[0_0_25px_rgba(245,158,11,0.08)]">
-
-                            {/* Step Header */}
                             <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
                               <span className="text-[11px] sm:text-[12px] font-medium text-amber-400 tracking-[0.2em] uppercase">
                                 Step 1 — Send Payment
@@ -1706,7 +1816,6 @@ export default function MenWatchesCollectionPage() {
                               </span>
                             </div>
 
-                            {/* Method Toggle Buttons (Tab Bar) */}
                             <div className="grid grid-cols-3 gap-2 bg-neutral-900/80 p-1.5 rounded-xl border border-neutral-800">
                               {["EASYPAISA", "JAZZCASH"].map((method) => {
                                 const isSelected = paymentMethod === method;
@@ -1715,10 +1824,11 @@ export default function MenWatchesCollectionPage() {
                                     key={method}
                                     type="button"
                                     onClick={() => setPaymentMethod(method)}
-                                    className={`relative py-1 px-2 rounded-lg font-medium text-[11px] sm:text-xs tracking-wider transition-all duration-300 cursor-pointer overflow-hidden ${isSelected
+                                    className={`relative py-1 px-2 rounded-lg font-medium text-[11px] sm:text-xs tracking-wider transition-all duration-300 cursor-pointer overflow-hidden ${
+                                      isSelected
                                         ? "text-amber-300 border border-amber-400/70 bg-gradient-to-b from-amber-500/20 to-amber-950/40 shadow-[0_0_20px_rgba(245,158,11,0.35)]"
                                         : "text-neutral-400 hover:text-neutral-200 border border-transparent hover:bg-neutral-800/60"
-                                      }`}
+                                    }`}
                                   >
                                     <span className="relative z-10">{method}</span>
                                     {isSelected && (
@@ -1733,7 +1843,6 @@ export default function MenWatchesCollectionPage() {
                               })}
                             </div>
 
-                            {/* Details Display with Glow & Fade Animation */}
                             <AnimatePresence mode="wait">
                               <motion.div
                                 key={paymentMethod}
@@ -1743,7 +1852,6 @@ export default function MenWatchesCollectionPage() {
                                 transition={{ duration: 0.25 }}
                                 className="space-y-3 pt-1"
                               >
-                                {/* Account / Mobile Number Box */}
                                 <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
                                   <div>
                                     <span className="block text-[11px] sm:text-xs font-medium text-neutral-400 tracking-wider uppercase mb-1">
@@ -1766,7 +1874,6 @@ export default function MenWatchesCollectionPage() {
                                   </button>
                                 </div>
 
-                                {/* Account Title Box */}
                                 <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
                                   <div>
                                     <span className="block text-[11px] sm:text-xs font-medium text-neutral-400 tracking-wider uppercase">
@@ -1797,7 +1904,6 @@ export default function MenWatchesCollectionPage() {
                           </div>
 
                           <div className="bg-neutral-900/70 border border-amber-500/20 rounded-xl p-3 space-y-2 mt-2">
-
                             <label className="relative flex flex-col items-center justify-center border border-dashed border-amber-500/40 rounded-lg p-3 sm:p-4 bg-neutral-950/60 cursor-pointer hover:border-amber-400 transition-all">
                               <span className="text-[11px] sm:text-[12px] text-neutral-300 font-medium flex items-center">
                                 📷 {screenshotName ? screenshotName : "Upload Payment Receipt / Screenshot"}
@@ -1809,7 +1915,6 @@ export default function MenWatchesCollectionPage() {
                                   const file = e.target.files && e.target.files[0];
                                   if (file) {
                                     setScreenshotName(file.name);
-
                                     const reader = new FileReader();
                                     reader.onloadend = () => {
                                       setScreenshotBase64(reader.result);
@@ -1827,10 +1932,11 @@ export default function MenWatchesCollectionPage() {
                             disabled={loading || orderSuccess}
                             whileHover={!loading ? { scale: 1.01 } : {}}
                             whileTap={!loading ? { scale: 0.98 } : {}}
-                            className={`w-full mt-3 py-3 sm:py-3.5 rounded-full text-neutral-950 font-bold text-xs sm:text-sm tracking-widest uppercase transition-all ${loading || orderSuccess
+                            className={`w-full mt-3 py-3 sm:py-3.5 rounded-full text-neutral-950 font-bold text-xs sm:text-sm tracking-widest uppercase transition-all ${
+                              loading || orderSuccess
                                 ? "bg-amber-600/60 opacity-70 cursor-not-allowed"
                                 : "bg-gradient-to-r from-amber-500 to-amber-600 shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] cursor-pointer"
-                              }`}
+                            }`}
                           >
                             {loading ? (
                               <span className="flex items-center justify-center gap-2">
@@ -1847,7 +1953,6 @@ export default function MenWatchesCollectionPage() {
                         </motion.form>
                       )}
                     </div>
-
                   </div>
                 </motion.div>
               </div>
@@ -1855,7 +1960,6 @@ export default function MenWatchesCollectionPage() {
           </div>
         )}
       </AnimatePresence>
-  
     </div>
   );
 }

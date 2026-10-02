@@ -341,37 +341,106 @@ export default function WristWatchesPage() {
       }
     }
   };
+    
+     
+      // 🟢 1. Live Database Watches State (Hardcoded Array ki jagah)
+  const [watches, setWatches] = useState([]);
 
-  const watches = [
-    {
-      id: 1,
-      title: 'REFINE GMT MASTER',
-      price: 'PKR 185,000',
-      spec: 'SWISS PRECISION MOVEMENT',
-      image: '/wClassic.png',
-    },
-    {
-      id: 2,
-      title: 'CLASSIC SKELETON',
-      price: 'PKR 210,000',
-      spec: 'SAPPHIRE CRYSTAL',
-      image: '/wClassic.png',
-    },
-    {
-      id: 3,
-      title: 'PILOT CHRONOGRAPH',
-      price: 'PKR 195,000',
-      spec: 'TACHYMETER SCALE',
-      image: '/wClassic.png',
-    },
-    {
-      id: 4,
-      title: 'MINIMALIST ROSE GOLD',
-      price: 'PKR 180,000',
-      spec: 'AUTOMATIC CALIBER',
-      image: '/wClassic.png',
-    },
-  ];
+  // 🟢 Home Page Live Auto-Sync & Instant Cart Purge
+ // 🟢 Home Page Live Auto-Sync & Instant Cart Purge
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadLiveFeaturedWatches() {
+      try {
+        const res = await fetch("/api/admin/products", { cache: "no-store" });
+        const data = await res.json();
+        
+        if (data.success && isMounted) {
+          const rawList = data.watches || [];
+          const featured = rawList.filter(
+            (w) => (w.collectionName || w.category)?.toLowerCase() === "featured"
+          );
+          const activeList = featured.length > 0 ? featured.slice(0, 4) : rawList.slice(0, 4);
+
+          const formatted = activeList.map((w) => ({
+            id: w._id,
+            _id: w._id,
+            title: w.title,
+            price: typeof w.price === "number" ? `PKR ${w.price.toLocaleString("en-PK")}` : w.price,
+            original: w.originalPrice ? `PKR ${Math.round(Number(w.originalPrice)).toLocaleString("en-PK")}` : "",
+            spec: w.spec || "SWISS PRECISION MOVEMENT",
+            description: w.description || "",
+            image: w.image || "/wClassic.png",
+            subCategory: w.subCategory || "Automatic",
+            stock: Number(w.stock) ?? 0,
+          }));
+
+          setWatches(formatted);
+
+          // ⚡ Home page par user ke cart se out of stock / deleted watch instant remove
+         // ⚡ Home page par live stock sync aur auto-purge
+          setCart((prevCart) => {
+            if (!prevCart || prevCart.length === 0) return prevCart;
+
+            let hasChanged = false;
+            const updatedCart = [];
+
+            for (const item of prevCart) {
+              const liveMatch = rawList.find(
+                (w) => String(w._id) === String(item.id || item._id)
+              );
+
+              if (!liveMatch || Number(liveMatch.stock) <= 0) {
+                hasChanged = true;
+                continue;
+              }
+
+              const freshStock = Number(liveMatch.stock);
+              const currentQty = Number(item.quantity) || 1;
+              const safeQty = Math.min(currentQty, freshStock);
+
+              if (item.stock !== freshStock || currentQty !== safeQty) {
+                hasChanged = true;
+              }
+
+              updatedCart.push({
+                ...item,
+                stock: freshStock,
+                quantity: safeQty,
+              });
+            }
+
+            if (hasChanged) {
+              localStorage.setItem("my_store_cart", JSON.stringify(updatedCart));
+              return updatedCart;
+            }
+            return prevCart;
+          });
+          
+        }
+      } catch (err) {
+        console.error("Home live sync error:", err);
+      }
+    }
+
+    loadLiveFeaturedWatches();
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadLiveFeaturedWatches();
+      }
+    }, 2500);
+
+    window.addEventListener("focus", loadLiveFeaturedWatches);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      window.removeEventListener("focus", loadLiveFeaturedWatches);
+    };
+  }, []);
+
 
   // Add to cart option
   const handleAddToCart = (watch) => {
@@ -954,56 +1023,70 @@ export default function WristWatchesPage() {
               Premium collectibles
             </p>
           </motion.div>
-
+             
+             {/* 🟢 2. Dynamic Database Watches Grid */}
           <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
-            {watches.map((watch) => (
-              <motion.div
-                key={watch.id}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{
-                  duration: 0.5,
-                  delay: (index % 4) * 0.08,
-                  ease: "easeOut"
-                }}
-                style={{ willChange: "transform, opacity" }}
-                className="group/card relative rounded-2xl bg-neutral-900/60 border border-amber-500/20 p-6 flex flex-col justify-between items-center transition-colors duration-300 hover:border-amber-400/80 hover:shadow-[0_0_35px_rgba(245,158,11,0.2)] hover:bg-neutral-900/90"
-              >
-                <div className="relative w-full h-64 flex items-center justify-center my-2 group/watch cursor-pointer">
-                  <div className="absolute w-40 h-40 rounded-full bg-amber-500/0 group-hover/watch:bg-amber-500/20 blur-2xl transition-all duration-500 pointer-events-none" />
+            {watches.length === 0 ? (
+              <div className="col-span-full py-16 text-center text-neutral-500 font-medium tracking-widest text-xs uppercase">
+                Loading timepieces from catalog...
+              </div>
+            ) : (
+              watches.map((watch, i) => (
+                <motion.div
+                  key={watch.id || i}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{
+                    duration: 0.5,
+                    delay: (i % 4) * 0.08,
+                    ease: "easeOut",
+                  }}
+                  style={{ willChange: "transform, opacity" }}
+                  className="group/card relative rounded-2xl bg-neutral-900/60 border border-amber-500/20 p-6 flex flex-col justify-between items-center transition-colors duration-300 hover:border-amber-400/80 hover:shadow-[0_0_35px_rgba(245,158,11,0.2)] hover:bg-neutral-900/90"
+                >
+                  <div 
+                    onClick={() => setSelectedWatch(watch)}
+                    className="relative w-full h-64 flex items-center justify-center my-2 group/watch cursor-pointer"
+                  >
+                    <div className="absolute w-40 h-40 rounded-full bg-amber-500/0 group-hover/watch:bg-amber-500/20 blur-2xl transition-all duration-500 pointer-events-none" />
 
-                  <motion.img
-                    src={watch.image}
-                    alt={watch.title}
-                    className="h-full object-contain relative z-10 filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.8)]"
-                    whileHover={{ y: -12, scale: 1.06 }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                  />
-                </div>
-
-                <div className="w-full text-center mt-4">
-                  <h3 className="text-sm font-medium tracking-widest text-neutral-200 group-hover/card:text-amber-100 transition-colors duration-300 uppercase">
-                    {watch.title}
-                  </h3>
-                  <p className="text-amber-400 font-semibold text-base mt-1.5 tracking-wider">
-                    {watch.price}
-                  </p>
-
-                  <div className="mt-5 mb-4" onClick={() => setSelectedWatch(watch)}>
-                    <button className="relative px-6 py-2 cursor-pointer rounded-full border border-amber-500/30 bg-neutral-950/80 text-amber-300/90 text-xs font-light tracking-widest uppercase transition-all duration-300 hover:border-amber-400 hover:text-white hover:bg-amber-500/20 hover:shadow-[0_0_20px_rgba(245,158,11,0.5)]">
-                      View Details
-                    </button>
+                    <motion.img
+                      src={watch.image}
+                      alt={watch.title}
+                      className="h-full object-contain relative z-10 filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.8)]"
+                      whileHover={{ y: -12, scale: 1.06 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                    />
                   </div>
 
-                  <span className="block text-[10px] tracking-[0.25em] text-neutral-500 font-light uppercase border-t border-neutral-800/80 pt-3">
-                    {watch.spec}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                  <div className="w-full text-center mt-4">
+                    <h3 className="text-sm font-medium tracking-widest text-neutral-200 group-hover/card:text-amber-100 transition-colors duration-300 uppercase truncate px-1">
+                      {watch.title}
+                    </h3>
+                    <p className="text-amber-400 font-semibold text-base mt-1.5 tracking-wider">
+                      {watch.price}
+                    </p>
 
+                    <div className="mt-5 mb-4">
+                      <button 
+                        onClick={() => setSelectedWatch(watch)}
+                        className="relative px-6 py-2 cursor-pointer rounded-full border border-amber-500/30 bg-neutral-950/80 text-amber-300/90 text-xs font-light tracking-widest uppercase transition-all duration-300 hover:border-amber-400 hover:text-white hover:bg-amber-500/20 hover:shadow-[0_0_20px_rgba(245,158,11,0.5)]"
+                      >
+                        View Details
+                      </button>
+                    </div>
+
+                    <span className="block text-[10px] tracking-[0.25em] text-neutral-500 font-light uppercase border-t border-neutral-800/80 pt-3 truncate">
+                      {watch.spec}
+                    </span>
+                  </div>
+                </motion.div>
+              ))
+            )}
+          </div>
+          
+          
           <div className="mt-16 text-center relative z-10">
             <Link href={'./the-fresh-drop'}>
               <motion.button
@@ -1133,10 +1216,7 @@ export default function WristWatchesPage() {
                           {selectedWatch?.price}
                         </p>
 
-                        <p className="text-neutral-400 text-xs md:text-sm leading-relaxed mb-6 border-t border-b border-neutral-800 py-4">
-                          Crafted with sapphire crystal glass, 316L surgical-grade stainless steel, and high-precision automatic movement. A true statement of timeless elegance and craftsmanship.
-                        </p>
-
+                        <p className="text-neutral-400 text-xs md:text-sm leading-relaxed mb-6 border-t border-b border-neutral-800 py-4">{selectedWatch?.description}</p>
                         <div className="flex flex-col sm:flex-row gap-4 mt-2">
                           <motion.button
                             whileHover={{ scale: 1.02 }}
@@ -1151,6 +1231,7 @@ export default function WristWatchesPage() {
                                 alt=""
                                 width={20}
                                 height={20}
+                                priority
                               />
                             </span> Add To Cart
                           </motion.button>
