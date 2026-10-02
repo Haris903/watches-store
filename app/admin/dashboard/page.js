@@ -315,7 +315,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="fixed inset-0 flex bg-black text-white font-jakarta overflow-hidden">
+    <div className="flex h-[100dvh] w-full bg-black text-white font-jakarta overflow-hidden">
       
       {/* ================= MOBILE SIDEBAR BACKDROP ================= */}
       <AnimatePresence>
@@ -402,7 +402,7 @@ export default function AdminDashboard() {
       <main className="flex-1 flex flex-col h-full min-w-0 overflow-hidden relative bg-black">
         <div className="absolute top-[-10rem] right-[-10rem] w-[25rem] sm:w-[35rem] h-[25rem] sm:h-[35rem] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none" />
 
-        {/* 🟢 2. Permanently Locked Header (Scroll se bahir hai, isliye kabhi upar nahi jayega) */}
+        {/* 🟢 2. Top Header apni jagah freeze rahega */}
         <header className="shrink-0 w-full h-16 sm:h-20 border-b border-neutral-900 flex items-center justify-between px-4 sm:px-6 lg:px-8 bg-black/95 backdrop-blur-md z-20">
           <div className="flex items-center gap-3">
             <button
@@ -439,8 +439,8 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        {/* 🟢 3. Sirf yeh content div scroll karega, aur pb-24 ki wajah se aakhri card ke baad bhi black background rahega */}
-        <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 lg:p-8 pb-24 z-10 relative bg-black">
+        {/* 🟢 3. pb-6 sm:pb-8 ki wajah se scroll theek aakhri card ke border par ruk jayega */}
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 lg:p-8 pb-6 sm:pb-8 z-10 relative bg-black">
           {loading ? (
             <div className="h-full flex items-center justify-center text-amber-400 gap-2.5 font-semibold text-xs sm:text-sm">
               <span className="animate-spin text-xl">⏳</span> Fetching Latest Store Records...
