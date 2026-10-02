@@ -315,7 +315,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="flex h-screen bg-black text-white font-jakarta overflow-hidden">
+   <div className="flex min-h-screen bg-black text-white font-jakarta">
       
       {/* ================= MOBILE SIDEBAR BACKDROP ================= */}
       <AnimatePresence>
@@ -332,7 +332,7 @@ export default function AdminDashboard() {
 
       {/* ================= SIDEBAR (DESKTOP & MOBILE DRAWER) ================= */}
       <aside
-        className={`fixed lg:static top-0 left-0 h-full w-64 sm:w-72 bg-neutral-950 border-r border-neutral-900 flex flex-col z-50 transition-transform duration-300 ease-in-out ${
+        className={`fixed lg:sticky top-0 left-0 h-screen w-64 sm:w-72 bg-neutral-950 border-r border-neutral-900 flex flex-col z-50 transition-transform duration-300 ease-in-out shrink-0 ${
           isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
@@ -345,7 +345,7 @@ export default function AdminDashboard() {
           </div>
           <button
             onClick={() => setIsMobileSidebarOpen(false)}
-            className="lg:hidden text-neutral-400 hover:text-white p-1 text-lg"
+            className="lg:hidden text-neutral-400 hover:text-white p-1 text-lg cursor-pointer"
           >
             ✕
           </button>
@@ -399,12 +399,10 @@ export default function AdminDashboard() {
       </aside>
 
       {/* ================= MAIN CONTENT WRAPPER ================= */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
+      <main className="flex-1 flex flex-col min-w-0 min-h-screen relative">
         <div className="absolute top-[-10rem] right-[-10rem] w-[25rem] sm:w-[35rem] h-[25rem] sm:h-[35rem] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none" />
 
-        {/* Top Header */}
-      {/* Top Header (Permanently Sticky & Locked on Top) */}
-      {/* Top Header (Permanently Sticky & Locked on Top) */}
+        {/* Top Header (Permanently Sticky & Locked on Top) */}
         <header className="sticky top-0 z-40 shrink-0 w-full h-16 sm:h-20 border-b border-neutral-900 flex items-center justify-between px-4 sm:px-6 lg:px-8 bg-black/95 backdrop-blur-md shadow-lg">
           <div className="flex items-center gap-3">
             <button
@@ -442,8 +440,8 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 z-10 relative">
+        {/* Content Area (Single Natural Scroll) */}
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 z-10 relative">
           {loading ? (
             <div className="h-full flex items-center justify-center text-amber-400 gap-2.5 font-semibold text-xs sm:text-sm">
               <span className="animate-spin text-xl">⏳</span> Fetching Latest Store Records...
