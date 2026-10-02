@@ -83,13 +83,34 @@ export default function TrackOrderPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Sync cart counter badge
+  // 🟢 Sync cart counter badge with total quantities
   useEffect(() => {
-    try {
-      const localCart = JSON.parse(localStorage.getItem("my_store_cart") || "[]");
-      setCartCount(Array.isArray(localCart) ? localCart.length : 0);
-    } catch (e) {
-      setCartCount(0);
-    }
+    const updateCartCount = () => {
+      try {
+        const localCart = JSON.parse(localStorage.getItem("my_store_cart") || "[]");
+        if (Array.isArray(localCart)) {
+          // Har watch ki quantity jama (sum) karega
+          const totalQty = localCart.reduce(
+            (sum, item) => sum + (Number(item.quantity) || 1),
+            0
+          );
+          setCartCount(totalQty);
+        } else {
+          setCartCount(0);
+        }
+      } catch (e) {
+        setCartCount(0);
+      }
+    };
+
+    updateCartCount();
+    window.addEventListener("storage", updateCartCount);
+    window.addEventListener("focus", updateCartCount);
+
+    return () => {
+      window.removeEventListener("storage", updateCartCount);
+      window.removeEventListener("focus", updateCartCount);
+    };
   }, []);
 
   const handleTrack = async (e) => {
