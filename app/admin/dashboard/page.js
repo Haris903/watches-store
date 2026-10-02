@@ -403,7 +403,8 @@ export default function AdminDashboard() {
         <div className="absolute top-[-10rem] right-[-10rem] w-[25rem] sm:w-[35rem] h-[25rem] sm:h-[35rem] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none" />
 
         {/* Top Header */}
-        <header className="h-16 sm:h-20 border-b border-neutral-900 flex items-center justify-between px-4 sm:px-6 lg:px-8 bg-black/60 backdrop-blur-md z-10">
+      {/* Top Header (Permanently Sticky & Locked on Top) */}
+        <header className="sticky top-0 z-30 shrink-0 w-full h-16 sm:h-20 border-b border-neutral-900 flex items-center justify-between px-4 sm:px-6 lg:px-8 bg-black/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileSidebarOpen(true)}
@@ -420,12 +421,19 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex items-center gap-2.5 sm:gap-4">
-            <button 
-              onClick={fetchAllData} 
-              className="text-xs bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-full hover:border-amber-400 text-neutral-300 transition-colors cursor-pointer whitespace-nowrap"
-            >
-              🔄 Refresh
-            </button>
+          <button 
+  onClick={fetchAllData} 
+  className="group flex items-center gap-1.5 text-xs bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-full hover:border-amber-400 text-neutral-300 hover:text-white transition-all cursor-pointer whitespace-nowrap"
+>
+  {/* 🟢 Next.js Clean SVG Icon */}
+  <svg 
+    viewBox="0 0 24 24" 
+    className="w-3.5 h-3.5 fill-current text-neutral-400 group-hover:text-amber-400 transition-transform duration-500 group-hover:rotate-180"
+  >
+    <path d="M19.603 12.635a.99.99 0 0 0-1.135.844 6.4 6.4 0 0 1-1.83 3.618 6.506 6.506 0 0 1-9.192 0 6.507 6.507 0 0 1 0-9.192 6.4 6.4 0 0 1 3.503-1.8 6.2 6.2 0 0 1 1.848-.055 6.4 6.4 0 0 1 2.466.828l-1.302.223a1 1 0 1 0 .338 1.971l3.49-.596a1 1 0 0 0 .816-1.155l-.597-3.49a1 1 0 1 0-1.97.338l.156.919a8.4 8.4 0 0 0-3.17-1.025 8.1 8.1 0 0 0-2.428.074 8.38 8.38 0 0 0-4.564 2.354c-3.313 3.314-3.313 8.705 0 12.02a8.47 8.47 0 0 0 6.01 2.485 8.47 8.47 0 0 0 6.01-2.485 8.4 8.4 0 0 0 2.394-4.741 1 1 0 0 0-.843-1.135" />
+  </svg>
+  <span>Refresh</span>
+</button>
             <span className="hidden sm:flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20 whitespace-nowrap">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Live DB
             </span>
