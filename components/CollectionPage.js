@@ -838,7 +838,8 @@ export default function MenWatchesCollectionPage() {
     { name: "TRACK ORDER", href: "/collections/track-order" },
     { name: "CONTACT US", href: "https://wa.me/923186643032" },
   ];
-
+// 🟢 Total Cart Items Quantity Count
+  const totalCartCount = cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-black font-jakarta text-white antialiased">
       <style dangerouslySetInnerHTML={{
@@ -850,7 +851,7 @@ export default function MenWatchesCollectionPage() {
       {/* FLOATING GLASS NAVIGATION DOCK */}
       <FloatingDock
         session={session}
-        cartCount={cart.length}
+        cartCount={totalCartCount}
         isMounted={isMounted}
         scrolled={scrolled}
         onCart={() => setIsCartOpen(true)}
@@ -1367,7 +1368,7 @@ export default function MenWatchesCollectionPage() {
           <div className="flex items-center space-x-2">
             <h2 className="text-base sm:text-lg font-bold tracking-wider uppercase">Shopping Cart</h2>
             <span className="text-xs bg-amber-500/20 text-amber-400 px-2.5 py-0.5 rounded-full font-mono font-bold">
-              ({cart.length})
+              ({totalCartCount})
             </span>
           </div>
           <button
@@ -1524,10 +1525,10 @@ export default function MenWatchesCollectionPage() {
                     <div className="relative flex flex-col justify-start min-h-[280px] max-h-[380px] overflow-y-auto bg-neutral-900/50 rounded-2xl p-4 border border-zinc-800/80 watch-box-scroll">
                       <div className="absolute w-48 h-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none self-center transform-gpu" />
 
-                      {isCheckout && checkoutItems.length > 0 ? (
+                   {isCheckout && checkoutItems.length > 0 ? (
                         <div className="space-y-3 relative z-10 w-full pr-1">
                           <h4 className="text-xs sm:text-sm font-medium tracking-widest text-amber-400 uppercase mb-2 border-b border-amber-500/20 pb-1">
-                            Order Summary ({checkoutItems.length} Items)
+                            Order Summary ({checkoutItems.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)} Items)
                           </h4>
                           {checkoutItems.map((item, index) => (
                             <div key={index} className="flex items-center gap-3 bg-neutral-950/80 p-2.5 rounded-xl border border-neutral-800">
@@ -1538,7 +1539,14 @@ export default function MenWatchesCollectionPage() {
                               />
                               <div className="flex-1 min-w-0">
                                 <p className="text-[14px] sm:text-[15px] font-bold text-amber-100 truncate">{item.title}</p>
-                                <p className="text-xs sm:text-sm text-amber-400 font-semibold mt-1">{item.price}</p>
+                                
+                                {/* 🟢 Price ke sath Quantity Badge */}
+                                <div className="flex items-center justify-between mt-1">
+                                  <p className="text-xs sm:text-sm text-amber-400 font-semibold">{item.price}</p>
+                                  <span className="text-[11px] font-mono font-bold bg-neutral-900 border border-neutral-800 text-neutral-300 px-2 py-0.5 rounded-md">
+                                    Qty: {item.quantity || 1}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -1623,11 +1631,11 @@ export default function MenWatchesCollectionPage() {
                                   {isOut ? "Out of Stock" : "Add To Cart"}
                                 </button>
 
-                                <button
+                            <button
                                   type="button"
                                   disabled={isOut}
                                   onClick={() => {
-                                    setCheckoutItems([selectedWatch]);
+                                    setCheckoutItems([{ ...selectedWatch, quantity: 1 }]);
                                     setIsCheckout(true);
                                   }}
                                   className={`flex-1 py-3.5 px-6 rounded-full font-bold text-xs sm:text-[0.8rem] tracking-widest uppercase transition-all duration-200 ${

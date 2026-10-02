@@ -222,8 +222,12 @@ export default function WristWatchesPage() {
   };
 
   // Total price calculation helper
+  // Total price calculation helper with quantity
   const calculateTotal = (items) => {
-    const total = items.reduce((sum, item) => sum + parsePrice(item.price), 0);
+    const total = items.reduce(
+      (sum, item) => sum + parsePrice(item.price) * (Number(item.quantity) || 1),
+      0
+    );
     return `PKR ${total.toLocaleString()}`;
   };
 
@@ -443,13 +447,46 @@ export default function WristWatchesPage() {
 
 
   // Add to cart option
-  const handleAddToCart = (watch) => {
-    setCart((prev) => [...prev, watch]);
+// 🟢 Cart Add Handler with Quantity Check
+  const handleAddToCart = (watch, customQty = 1) => {
+    if ((watch.stock ?? 10) <= 0) return;
+
+    setCart((prev) => {
+      const idx = prev.findIndex((item) => (item.id || item._id) === (watch.id || watch._id));
+      if (idx > -1) {
+        const updated = [...prev];
+        const currentQty = updated[idx].quantity || 1;
+        const maxLimit = watch.stock ?? 99;
+        updated[idx] = { ...updated[idx], quantity: Math.min(currentQty + customQty, maxLimit) };
+        return updated;
+      }
+      return [...prev, { ...watch, quantity: customQty }];
+    });
+
     setSelectedWatch(null);
     setIsCheckout(false);
     setScreenshotName("");
     setIsCartOpen(true);
   };
+
+  // 🟢 [- 1 +] Quantity Update Handler
+  const handleUpdateQuantity = (idx, delta) => {
+    setCart((prev) => {
+      const updated = [...prev];
+      const item = updated[idx];
+      const currentQty = item.quantity || 1;
+      const maxLimit = item.stock ?? 99;
+      const newQty = currentQty + delta;
+
+      if (newQty <= 0) {
+        return prev.filter((_, i) => i !== idx);
+      }
+      if (newQty > maxLimit) return prev;
+
+      updated[idx] = { ...item, quantity: newQty };
+      return updated;
+    });
+  }; 
 
   // Cart item selection checkbox toggle
   const handleToggleCartSelect = (indexToToggle) => {
@@ -628,7 +665,7 @@ export default function WristWatchesPage() {
               </svg>
               {isMounted && cart.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-[#DCAA4A] text-neutral-950 font-bold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shadow-md">
-                  {cart.length}
+                  {cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)}
                 </span>
               )}
             </button>
@@ -761,11 +798,12 @@ export default function WristWatchesPage() {
             }`}
         >
           {/* Cart Drawer Header */}
+         {/* Cart Drawer Header */}
           <div className="p-4 sm:p-6 border-b border-neutral-800 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <h2 className="text-base sm:text-lg font-bold tracking-wider uppercase">Shopping Cart</h2>
               <span className="text-xs bg-amber-500/20 text-amber-400 px-2.5 py-0.5 rounded-full font-mono font-bold">
-                ({cart.length})
+                ({cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)})
               </span>
             </div>
             <button
@@ -800,9 +838,9 @@ export default function WristWatchesPage() {
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
+             <div className="space-y-4">
                 {cart.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-3 bg-neutral-900/60 border border-amber-500/20 p-3 rounded-xl">
+                  <div key={idx} className="flex items-center gap-3 bg-neutral-900/60 border border-amber-500/20 p-3 rounded-2xl">
                     {/* Checkbox for item selection */}
                     <input
                       type="checkbox"
@@ -812,16 +850,47 @@ export default function WristWatchesPage() {
                       title="Select for checkout"
                     />
 
-                    <img src={item.image} alt={item.title} className="w-14 h-14 object-contain bg-neutral-950 rounded-lg p-1" />
+                    <img 
+                      src={item.image} 
+                      alt={item.title} 
+                      className="w-14 h-14 object-contain bg-neutral-950 rounded-xl p-1 border border-neutral-800" 
+                    />
 
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-bold text-amber-100 truncate">{item.title}</h4>
-                      <p className="text-xs text-amber-400 font-Sans font-bold mt-1">{item.price}</p>
+                      <h4 className="text-xs sm:text-sm font-bold text-amber-100 truncate">{item.title}</h4>
+                      <p className="text-xs font-bold text-[#DCAA4A] mt-0.5">{item.price}</p>
+
+                      {/* 🟢 [- 1 +] Quantity Selector */}
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className="flex items-center border border-neutral-800 bg-black rounded-lg overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateQuantity(idx, -1)}
+                            className="w-7 h-6 flex items-center justify-center text-xs text-neutral-400 hover:bg-neutral-800 hover:text-amber-400 font-bold cursor-pointer transition-colors"
+                          >
+                            −
+                          </button>
+                          <span className="w-8 text-center text-xs font-bold text-white font-mono">
+                            {item.quantity || 1}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateQuantity(idx, 1)}
+                            disabled={(item.quantity || 1) >= (item.stock ?? 99)}
+                            className="w-7 h-6 flex items-center justify-center text-xs text-neutral-400 hover:bg-neutral-800 hover:text-amber-400 font-bold cursor-pointer disabled:opacity-30 transition-colors"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <span className="text-[10px] text-neutral-500 font-mono">
+                          Stock: {item.stock ?? 10}
+                        </span>
+                      </div>
                     </div>
 
                     <button
                       onClick={() => handleRemoveFromCart(idx)}
-                      className="text-neutral-500 hover:text-amber-400 text-2xs duration-100 mr-1 cursor-pointer transition-colors"
+                      className="text-neutral-500 hover:text-red-400 text-sm p-1.5 cursor-pointer transition-colors"
                     >
                       ✕
                     </button>
@@ -1153,10 +1222,10 @@ export default function WristWatchesPage() {
             <div className="relative flex flex-col justify-start min-h-[280px] max-h-[380px] overflow-y-auto bg-neutral-900/50 rounded-2xl p-4 border border-zinc-800/80 watch-box-scroll">
                     <div className="absolute w-48 h-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none self-center transform-gpu" />
 
-                    {isCheckout && checkoutItems.length > 0 ? (
+                   {isCheckout && checkoutItems.length > 0 ? (
                       <div className="space-y-3 relative z-10 w-full pr-1">
                         <h4 className="text-xs font-medium font-Sans tracking-widest text-amber-400 uppercase mb-2 border-b border-amber-500/20 pb-1">
-                          Order Summary ({checkoutItems.length} Items)
+                          Order Summary ({checkoutItems.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)} Items)
                         </h4>
                         {checkoutItems.map((item, index) => (
                           <div key={index} className="flex items-center gap-3 bg-neutral-950/80 p-2.5 rounded-xl border border-neutral-800">
@@ -1167,7 +1236,12 @@ export default function WristWatchesPage() {
                             />
                             <div className="flex-1 min-w-0">
                               <p className="text-[14px] font-Sans font-bold text-amber-100 truncate">{item.title}</p>
-                              <p className="text-xs font-Sans text-amber-400 font-semibold mt-1">{item.price}</p>
+                              <div className="flex items-center justify-between mt-1">
+                                <p className="text-xs font-Sans text-amber-400 font-semibold">{item.price}</p>
+                                <span className="text-[11px] font-mono font-bold bg-neutral-900 border border-neutral-800 text-neutral-300 px-2 py-0.5 rounded-md">
+                                  Qty: {item.quantity || 1}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -1236,11 +1310,11 @@ export default function WristWatchesPage() {
                             </span> Add To Cart
                           </motion.button>
 
-                          <motion.button
+                        <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
-                              setCheckoutItems([selectedWatch]);
+                              setCheckoutItems([{ ...selectedWatch, quantity: 1 }]);
                               setIsCheckout(true);
                             }}
                             className="flex-1 py-3.5 px-6 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-Sans font-bold text-xs tracking-widest uppercase shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] transition-all cursor-pointer"
