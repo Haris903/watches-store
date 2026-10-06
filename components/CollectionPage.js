@@ -500,6 +500,7 @@ export default function MenWatchesCollectionPage() {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isMounted, setIsMounted] = useState(false);
+  const [confirmedOrderId, setConfirmedOrderId] = useState("");
 
   // Live Database Watches
   const [dbWatches, setDbWatches] = useState([]);
@@ -1478,17 +1479,20 @@ export default function MenWatchesCollectionPage() {
       <AnimatePresence>
         {(selectedWatch || isCheckout) && (
           <div className="fixed inset-0 z-[100] font-jakarta">
+          {/* 1. Backdrop Overlay (Loading ke waqt click freeze) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               style={{ willChange: "opacity" }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+              className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity pointer-events-none"
             />
 
+            {/* 2. Scrollable Content Wrapper */}
             <div 
               className="fixed inset-0 overflow-y-auto"
               onClick={() => {
+                if (loading || orderSuccess) return; // 🔒 Processing ya success me band nahi hoga
                 setSelectedWatch(null);
                 setIsCheckout(false);
                 setCheckoutItems([]);
@@ -1509,12 +1513,14 @@ export default function MenWatchesCollectionPage() {
 
                   {!isCheckout && (
                     <button
+                      disabled={loading || orderSuccess}
                       onClick={() => {
+                        if (loading || orderSuccess) return;
                         setSelectedWatch(null);
                         setIsCheckout(false);
                         setScreenshotName("");
                       }}
-                      className="absolute top-5 right-5 w-10 h-10 rounded-full bg-neutral-900 border border-amber-500/20 text-neutral-400 hover:text-amber-400 hover:border-amber-400 transition-all flex items-center justify-center text-lg z-20 cursor-pointer"
+                      className="absolute top-5 right-5 w-10 h-10 rounded-full bg-neutral-900 border border-amber-500/20 text-neutral-400 hover:text-amber-400 hover:border-amber-400 transition-all flex items-center justify-center text-lg z-20 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       ✕
                     </button>
@@ -1660,105 +1666,178 @@ export default function MenWatchesCollectionPage() {
                           transition={{ duration: 0.3 }}
                           style={{ willChange: "transform, opacity" }}
                           onSubmit={async (e) => {
-                            e.preventDefault();
-                            if (loading) return;
-                            setErrorMessage("");
+                          e.preventDefault();
+                          if (loading || orderSuccess) return;
+                          setErrorMessage("");
 
-                            const name = e.target.name?.value.trim() || "";
-                            const phone = e.target.phone?.value.trim() || "";
-                            const address = e.target.address?.value.trim() || "";
+                          const name = e.target.name?.value.trim() || "";
+                          const phone = e.target.phone?.value.trim() || "";
+                          const address = e.target.address?.value.trim() || "";
 
-                            if (!name) return setErrorMessage("Please enter your name.");
-                            if (!phone) return setErrorMessage("Please enter your phone number.");
-                            if (!address) return setErrorMessage("Please enter your shipping address.");
-                            if (!screenshotBase64) return setErrorMessage("Please upload your payment screenshot.");
+                          if (!name) return setErrorMessage("Please enter your name.");
+                          if (!phone) return setErrorMessage("Please enter your phone number.");
+                          if (!address) return setErrorMessage("Please enter your shipping address.");
+                          if (!screenshotBase64) return setErrorMessage("Please upload your payment screenshot.");
 
-                            setLoading(true);
+                          setLoading(true);
 
-                           const formData = {
-  name,
-  phone,
-  email: e.target.email?.value.trim() || "",
-  address,
-  paymentMethod,
-  // Format: "SADIA (Qty: 2), DFDG (Qty: 1)"
-  watchTitle: checkoutItems.map((item) => `${item.title} (Qty: ${item.quantity || 1})`).join(", "),
-  watchPrice: calculateTotal(checkoutItems),
-  // 🟢 API ko har item ki ID aur quantity pass karein:
-  items: checkoutItems.map((item) => ({
-    id: item.id || item._id,
-    quantity: item.quantity || 1,
-    title: item.title,
-    price: item.price,
-  })),
-  screenshotName: screenshotName || "",
-  screenshotBase64: screenshotBase64 || "",
-};
+                          const formData = {
+                            name,
+                            phone,
+                            email: e.target.email?.value.trim() || "",
+                            address,
+                            paymentMethod,
+                            watchTitle: checkoutItems.map((item) => `${item.title} (Qty: ${item.quantity || 1})`).join(", "),
+                            watchPrice: calculateTotal(checkoutItems),
+                            items: checkoutItems.map((item) => ({
+                              id: item.id || item._id,
+                              quantity: item.quantity || 1,
+                              title: item.title,
+                              price: item.price,
+                            })),
+                            screenshotName: screenshotName || "",
+                            screenshotBase64: screenshotBase64 || "",
+                          };
 
-                            try {
-                              const res = await fetch("/api/checkout", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(formData),
-                              });
+                          try {
+                            const res = await fetch("/api/checkout", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify(formData),
+                            });
 
-                              const data = await res.json();
+                            const data = await res.json();
 
-                              if (data.success) {
-                                setOrderSuccess(true);
-                                setTimeout(() => {
-                                  setOrderSuccess(false);
-                                  setSelectedWatch(null);
-                                  setIsCheckout(false);
-                                  setCheckoutItems([]);
-                                  setScreenshotName("");
-                                  setScreenshotBase64("");
-                                }, 5000);
-                              } else {
-                                setErrorMessage(data.message || "Order didn't submit");
-                              }
-                            } catch (err) {
-                              setErrorMessage("Network error! Check your connection.");
-                            } finally {
-                              setLoading(false);
+                            if (data.success) {
+                              // 🟢 Hamesha aakhri 6 characters uthayega (Clean #ORD-XXXXXX)
+                              const rawClean = String(data.orderId || data.order?._id || "")
+                                .replace(/[^a-zA-Z0-9]/g, "")
+                                .slice(-6)
+                                .toUpperCase();
+
+                              const ordId = `#ORD-${rawClean || Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+                              setConfirmedOrderId(ordId);
+                              setOrderSuccess(true);
+                              setCart([]);
+                              localStorage.setItem("my_store_cart", "[]");
+
+                              // 🟢 10 Seconds (10000ms) baad window close hogi
+                              setTimeout(() => {
+                                setOrderSuccess(false);
+                                setSelectedWatch(null);
+                                setIsCheckout(false);
+                                setCheckoutItems([]);
+                                setScreenshotName("");
+                                setScreenshotBase64("");
+                                setConfirmedOrderId("");
+                              }, 10000);
+                            } else {
+                              setErrorMessage(data.message || "Order didn't submit");
                             }
-                          }}
+                          } catch (err) {
+                            setErrorMessage("Network error! Check your connection.");
+                          } finally {
+                            setLoading(false);
+                          }
+                        }}
                           className="space-y-3"
                         >
+                          {/* 🟢 10-SECOND CENTER LUXURY POPUP MODAL */}
+                        <AnimatePresence>
                           {orderSuccess && (
                             <motion.div
-                              initial={{ opacity: 0, y: -10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -10 }}
-                              className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 p-3 rounded-xl text-xs sm:text-sm text-center font-semibold flex items-center justify-center gap-2"
+                              initial={{ opacity: 0, scale: 0.88 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.88 }}
+                              transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                              className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-6 rounded-3xl border border-amber-500/40 backdrop-blur-2xl text-center shadow-[0_0_60px_rgba(0,0,0,0.95)]"
                             >
-                              <span>✓</span> Order Successful! Thank you for your purchase.
+                              <div className="relative mb-3 flex h-18 w-18 items-center justify-center rounded-full bg-emerald-500/10 border-2 border-emerald-400 shadow-[0_0_35px_rgba(16,185,129,0.4)]">
+                                <motion.span
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.1 }}
+                                  className="text-3xl text-emerald-400 font-black"
+                                >
+                                  ✓
+                                </motion.span>
+                              </div>
+
+                              <span className="text-[11px] font-extrabold tracking-[0.25em] uppercase text-emerald-400 mb-1">
+                                Order Placed Successfully
+                              </span>
+                              <h3 className="text-xl sm:text-2xl font-black uppercase text-white tracking-wide">
+                                Confirmed & Vault Bound
+                              </h3>
+
+                              {/* Order ID Badge With Copy */}
+                              <div className="mt-4 flex items-center gap-3 rounded-2xl border border-amber-500/40 bg-neutral-900/90 px-4 py-2.5 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                                <div className="text-left">
+                                  <span className="block text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                                    Your Order Tracking ID
+                                  </span>
+                                  <span className="font-mono text-base sm:text-lg font-black text-[#DCAA4A]">
+                                    {confirmedOrderId}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(confirmedOrderId);
+                                    setCopiedField("orderId");
+                                    setTimeout(() => setCopiedField(null), 2000);
+                                  }}
+                                  className="rounded-xl border border-amber-500/40 bg-neutral-950 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-300 hover:bg-amber-500 hover:text-black transition-all cursor-pointer"
+                                >
+                                  {copiedField === "orderId" ? "Copied!" : "Copy"}
+                                </button>
+                              </div>
+
+                              <p className="mt-3 max-w-xs text-xs text-neutral-400 leading-relaxed font-medium">
+                                Payment proof submitted. Verification in progress. Window will close automatically.
+                              </p>
+
+                              {/* 10-Second Animated Progress Bar */}
+                              <div className="mt-5 w-48 h-1.5 bg-neutral-800 rounded-full overflow-hidden">
+                                <motion.div
+                                  initial={{ width: "100%" }}
+                                  animate={{ width: "0%" }}
+                                  transition={{ duration: 10, ease: "linear" }}
+                                  className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 shadow-[0_0_10px_#DCAA4A]"
+                                />
+                              </div>
                             </motion.div>
                           )}
+                        </AnimatePresence>
 
-                          {errorMessage && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -10 }}
-                              className="bg-red-500/20 border border-red-500/50 text-red-300 p-2.5 rounded-xl text-xs sm:text-sm text-center font-semibold flex items-center justify-center gap-4"
-                            >
-                              <span className="text-[15px]">⚠️</span> {errorMessage}
-                            </motion.div>
-                          )}
+                        {errorMessage && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="bg-red-500/20 border border-red-500/50 text-red-300 p-2.5 rounded-xl text-xs sm:text-sm text-center font-semibold flex items-center justify-center gap-4"
+                          >
+                            <span className="text-[15px]">⚠️</span> {errorMessage}
+                          </motion.div>
+                        )}
 
-                          <div className="flex items-center justify-between border-b border-neutral-800 pb-2 mb-2">
-                            <h3 className="text-sm sm:text-base font-extrabold text-amber-300 tracking-wider uppercase">
-                              Checkout
-                            </h3>
-                            <button
-                              type="button"
-                              onClick={() => setIsCheckout(false)}
-                              className="text-xs sm:text-sm text-neutral-400 hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer"
-                            >
-                              ← Back
-                            </button>
-                          </div>
+                        <div className="flex items-center justify-between border-b border-neutral-800 pb-2 mb-2">
+                          <h3 className="text-sm sm:text-base font-extrabold text-amber-300 tracking-wider uppercase">
+                            Checkout
+                          </h3>
+                          <button
+                            type="button"
+                            disabled={loading || orderSuccess}
+                            onClick={() => {
+                              if (loading || orderSuccess) return;
+                              setIsCheckout(false);
+                            }}
+                            className="text-xs sm:text-sm text-neutral-400 hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            ← Back
+                          </button>
+                        </div>
 
                           <div>
                             <label className="block text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest mb-1">

@@ -6,18 +6,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
-import wLogo from "@/public/wLogo.png"
+import wLogo from "@/public/wLogo.png";
 
-// 👇 Yeh Typewriter Component Import ke niche aur Main Component ke Upar paste karna hai
-// 👇 Yeh Updated Typewriter Component Paste Kar (Imports ke niche aur Main Component ke upar)// 👇 Yeh Updated Typewriter Component Paste Kar (Cursor Fix ke sath)
-// 👇 Yeh Updated Typewriter Component Paste Kar (Timing & Cutting Issue Fixed)
-// 👇 Yeh Updated Typewriter Component Paste Kar (Slow & Smooth Delete)
 const Typewriter = ({ 
   strings, 
-  delay = 80,          // Typing speed (ms per letter)
-  deleteDelay = 90,    // Deleting speed (ms per letter) - Isko badha ke slow karein
-  pause = 2000,        // Word poora likhne ke baad kitni der ruke
-  deletePause = 500,   // Delete shuru karne se pehle ka chota pause
+  delay = 80,
+  deleteDelay = 90,
+  pause = 2000,
+  deletePause = 500,
   className = "" 
 }) => {
   const [currentStringIndex, setCurrentStringIndex] = useState(0);
@@ -29,24 +25,17 @@ const Typewriter = ({
     const fullText = strings[currentStringIndex];
     let timeout;
 
-    // 1. Word poora likha gaya - ab thoda ruk kar delete shuru karo
     if (!isDeleting && currentText === fullText) {
       setIsPaused(true);
       timeout = setTimeout(() => {
         setIsPaused(false);
         setIsDeleting(true);
       }, pause);
-    }
-    // 2. Word poora delete ho gaya - ab next word par jao
-    else if (isDeleting && currentText === "") {
+    } else if (isDeleting && currentText === "") {
       setIsDeleting(false);
       setCurrentStringIndex((prev) => (prev + 1) % strings.length);
-    }
-    // 3. Normal Typing ya Deleting
-    else {
-      // Delete start hone se pehle ek chota sa pause (elegant feel ke liye)
+    } else {
       const currentSpeed = isDeleting ? deleteDelay : delay;
-      
       timeout = setTimeout(() => {
         setCurrentText(
           isDeleting
@@ -62,7 +51,6 @@ const Typewriter = ({
   return (
     <span className={`relative inline-block ${className}`}>
       {currentText}
-      {/* Blinking Cursor - Pause hote waqt bhi blink karta rahega */}
       <span 
         className={`inline-block w-[4px] h-[1.1em] bg-white ml-2 align-middle transition-opacity duration-100 ${
           isPaused ? "animate-[blink_1s_step-end_infinite]" : "opacity-100"
@@ -71,37 +59,35 @@ const Typewriter = ({
     </span>
   );
 };
+
 export default function WristWatchesPage() {
   const router = useRouter();
-  // slider usestate
   const [index, setIndex] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchInputRef = useRef(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // States for Checkout and Selection
   const [selectedWatch, setSelectedWatch] = useState(null);
-  const [selectedCartIndexes, setSelectedCartIndexes] = useState([]); // Cart checkbox index tracker
-  const [checkoutItems, setCheckoutItems] = useState([]); // Items going to payment/checkout
+  const [selectedCartIndexes, setSelectedCartIndexes] = useState([]);
+  const [checkoutItems, setCheckoutItems] = useState([]);
 
-  const [isCheckout, setIsCheckout] = useState(false); // Form screen toggler
-  const [screenshotName, setScreenshotName] = useState(""); // Uploaded file name tracker
+  const [isCheckout, setIsCheckout] = useState(false);
+  const [screenshotName, setScreenshotName] = useState("");
   const [screenshotBase64, setScreenshotBase64] = useState("");
   const [loading, setLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [confirmedOrderId, setConfirmedOrderId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isMounted, setIsMounted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("JAZZCASH");
   const [copiedField, setCopiedField] = useState(null);
-  // 👇 Yeh states add kar
-  const [activeDetail, setActiveDetail] = useState(null); // 'classic' ya 'smart'
+  const [activeDetail, setActiveDetail] = useState(null);
   const detailsRef = useRef(null);
 
-  // 👇 Yeh scroll handler function add kar
   const handleViewDetails = (id) => {
     setActiveDetail(id);
     setTimeout(() => {
@@ -110,14 +96,9 @@ export default function WristWatchesPage() {
   };
 
   const { data: session, status } = useSession();
-  const [cart, setCart] = useState([])
-
-  const sliderRef = useRef(null);
+  const [cart, setCart] = useState([]);
   const isInitialSync = useRef(true);
 
-
-
-  // Payment details structure
   const paymentData = {
     JAZZCASH: {
       label: "JAZZCASH NUMBER",
@@ -139,8 +120,6 @@ export default function WristWatchesPage() {
     },
   };
 
-
-  // 1. Session change hone par (Login/Logout) Cart Sync karein
   useEffect(() => {
     setIsMounted(true);
 
@@ -148,16 +127,13 @@ export default function WristWatchesPage() {
       if (status === "loading") return;
 
       if (session?.user) {
-        // Login hone par initial sync start karein (Auto-save block)
         isInitialSync.current = true;
-
         try {
           const res = await fetch("/api/cart");
           if (res.ok) {
             const data = await res.json();
             if (data.success) {
               const dbCart = data.cart || [];
-              // Database se original cart load karein
               setCart(dbCart);
               localStorage.setItem("my_store_cart", JSON.stringify(dbCart));
             }
@@ -165,11 +141,9 @@ export default function WristWatchesPage() {
         } catch (err) {
           console.error("Cart fetch error:", err);
         } finally {
-          // Sync complete! Ab user ke manual changes save ho sakenge
           isInitialSync.current = false;
         }
       } else {
-        // Logout hone par guest local cart load karein
         const localCart = JSON.parse(localStorage.getItem("my_store_cart") || "[]");
         setCart(localCart);
         isInitialSync.current = false;
@@ -179,50 +153,41 @@ export default function WristWatchesPage() {
     syncOnAuthChange();
   }, [session, status]);
 
-  //order cont ke piche koi chez scroll nhi ho gi
   useEffect(() => {
-  // Agar cart, modal ya drawer mein se koi bhi open hai
-  if (isCartOpen || isCheckout || isMobileMenuOpen || selectedWatch) {
-    document.body.style.overflow = "hidden";
-  } else {
-    document.body.style.overflow = "";
-  }
+    if (isCartOpen || isCheckout || isMobileMenuOpen || selectedWatch) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
 
-  // Cleanup: Component unmount ya close hone par scroll restore karega
-  return () => {
-    document.body.style.overflow = "";
-  };
-}, [isCartOpen, isCheckout, isMobileMenuOpen, selectedWatch]);
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isCartOpen, isCheckout, isMobileMenuOpen, selectedWatch]);
 
-  // 2. Sirf tab DB save chale jab User manually cart mein koi item add/remove kare
   useEffect(() => {
     if (!isMounted || isInitialSync.current) return;
 
-    // LocalStorage update
     localStorage.setItem("my_store_cart", JSON.stringify(cart));
 
-    // Agar Logged in user hai to DB update karein
     const timer = setTimeout(() => {
-    if (session?.user) {
-      fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart }),
-      }).catch((err) => console.error("Database update error:", err));
-    }
-     }, 800); // 0.8 seconds ka delay
-  }, [cart]); // Note: Yahan 'ses
+      if (session?.user) {
+        fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cart }),
+        }).catch((err) => console.error("Database update error:", err));
+      }
+    }, 800);
 
+    return () => clearTimeout(timer);
+  }, [cart, isMounted, session]);
 
-
-  // Price string to number helper ("PKR 210,000" -> 210000)
   const parsePrice = (priceStr) => {
     if (!priceStr) return 0;
     return Number(priceStr.replace(/[^0-9]/g, "")) || 0;
   };
 
-  // Total price calculation helper
-  // Total price calculation helper with quantity
   const calculateTotal = (items) => {
     const total = items.reduce(
       (sum, item) => sum + parsePrice(item.price) * (Number(item.quantity) || 1),
@@ -231,13 +196,11 @@ export default function WristWatchesPage() {
     return `PKR ${total.toLocaleString()}`;
   };
 
-  // Slider animation
   const slides = [
     "UPTO 30% OFF | SALE IS NOW LIVE",
     "✓ Free Nationwide Shipping | 7-Day Easy Returns | 1 Year Warranty",
   ];
 
-  // Mobile Detection
   useLayoutEffect(() => {
     const userAgent = navigator.userAgent || window.opera;
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
@@ -247,12 +210,10 @@ export default function WristWatchesPage() {
     }
   }, [router]);
 
-  // Click handler
   const handleToggle = () => {
     setIndex((prev) => (prev === 0 ? 1 : 0));
   };
 
-  // Auto-Loop
   useEffect(() => {
     const timer = setInterval(() => {
       handleToggle();
@@ -261,8 +222,7 @@ export default function WristWatchesPage() {
     return () => clearInterval(timer);
   }, [index]);
 
-  // Menu bar 
- const navLinks = [
+  const navLinks = [
     { name: "THE FRESH DROP", href: "/collections/the-fresh-drop" },
     { name: "MEN", href: "/collections/men" },
     { name: "WOMEN", href: "/collections/women" },
@@ -272,7 +232,6 @@ export default function WristWatchesPage() {
     { name: "CONTACT US", href: "https://wa.me/923186643032" },
   ];
 
-  // Search Bar
   useEffect(() => {
     if (isSearchOpen) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
@@ -285,30 +244,19 @@ export default function WristWatchesPage() {
     }
   }, [isSearchOpen]);
 
-  // Cart open / Close keys
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
+        if (loading || orderSuccess) return;
         setIsSearchOpen(false);
         setIsCartOpen(false);
         setIsMobileMenuOpen(false);
+        if (!isCheckout) setSelectedWatch(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  // Lock body scroll when mobile menu is open
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isMobileMenuOpen]);
+  }, [loading, orderSuccess, isCheckout]);
 
   const heroImages = [
     "/watches.jpg",
@@ -345,22 +293,18 @@ export default function WristWatchesPage() {
       }
     }
   };
-    
-     
-      // 🟢 1. Live Database Watches State (Hardcoded Array ki jagah)
+
   const [watches, setWatches] = useState([]);
 
-  // 🟢 Home Page Live Auto-Sync & Instant Cart Purge
- // 🟢 Home Page Live Auto-Sync & Instant Cart Purge
   useEffect(() => {
-    let isMounted = true;
+    let isMountedLocal = true;
 
     async function loadLiveFeaturedWatches() {
       try {
         const res = await fetch("/api/admin/products", { cache: "no-store" });
         const data = await res.json();
         
-        if (data.success && isMounted) {
+        if (data.success && isMountedLocal) {
           const rawList = data.watches || [];
           const featured = rawList.filter(
             (w) => (w.collectionName || w.category)?.toLowerCase() === "featured"
@@ -382,8 +326,6 @@ export default function WristWatchesPage() {
 
           setWatches(formatted);
 
-          // ⚡ Home page par user ke cart se out of stock / deleted watch instant remove
-         // ⚡ Home page par live stock sync aur auto-purge
           setCart((prevCart) => {
             if (!prevCart || prevCart.length === 0) return prevCart;
 
@@ -421,7 +363,6 @@ export default function WristWatchesPage() {
             }
             return prevCart;
           });
-          
         }
       } catch (err) {
         console.error("Home live sync error:", err);
@@ -439,15 +380,12 @@ export default function WristWatchesPage() {
     window.addEventListener("focus", loadLiveFeaturedWatches);
 
     return () => {
-      isMounted = false;
+      isMountedLocal = false;
       clearInterval(interval);
       window.removeEventListener("focus", loadLiveFeaturedWatches);
     };
   }, []);
 
-
-  // Add to cart option
-// 🟢 Cart Add Handler with Quantity Check
   const handleAddToCart = (watch, customQty = 1) => {
     if ((watch.stock ?? 10) <= 0) return;
 
@@ -469,7 +407,6 @@ export default function WristWatchesPage() {
     setIsCartOpen(true);
   };
 
-  // 🟢 [- 1 +] Quantity Update Handler
   const handleUpdateQuantity = (idx, delta) => {
     setCart((prev) => {
       const updated = [...prev];
@@ -486,9 +423,8 @@ export default function WristWatchesPage() {
       updated[idx] = { ...item, quantity: newQty };
       return updated;
     });
-  }; 
+  };
 
-  // Cart item selection checkbox toggle
   const handleToggleCartSelect = (indexToToggle) => {
     setSelectedCartIndexes((prev) =>
       prev.includes(indexToToggle)
@@ -497,7 +433,6 @@ export default function WristWatchesPage() {
     );
   };
 
-  // Cart se item remove karne ke liye
   const handleRemoveFromCart = (indexToRemove) => {
     setCart((prev) => prev.filter((_, idx) => idx !== indexToRemove));
     setSelectedCartIndexes((prev) =>
@@ -505,16 +440,13 @@ export default function WristWatchesPage() {
     );
   };
 
-  // Cart Checkout Proceed Logic
   const handleProceedToCheckout = () => {
     if (cart.length === 0) return;
 
     let itemsToBuy = [];
-    // Binary check: Agar koi tick nahi hai YA saare tick hain -> Saare items checkout honge
     if (selectedCartIndexes.length === 0 || selectedCartIndexes.length === cart.length) {
       itemsToBuy = [...cart];
     } else {
-      // Sirf ticked items checkout honge
       itemsToBuy = cart.filter((_, idx) => selectedCartIndexes.includes(idx));
     }
 
@@ -523,11 +455,7 @@ export default function WristWatchesPage() {
     setIsCheckout(true);
   };
 
-  // Footer glow card 
-  const cardRef = useRef(null);
-
-  // FAQ Data List
-  const [openFaq, setOpenFaq] = useState(false);
+  const [openFaq, setOpenFaq] = useState(null);
   const faqData = [
     {
       q: "Are your watches original and authentic?",
@@ -556,17 +484,15 @@ export default function WristWatchesPage() {
   ];
 
   return (
-    <div className="w-full min-h-screen text-white flex flex-col relative">
+    <div className="w-full min-h-screen text-white flex flex-col relative font-jakarta">
+      {/* Announcement Bar */}
       <nav className="flex anouncement-bar-scroll sticky top-0 z-50 bg-[linear-gradient(to_right,_black_5%,_#9E674F_18%,_#9E674F_80%,_black_94%)] px-16 h-12 w-full justify-center md:space-x-26 items-center">
-
-        {/* Left Arrow */}
         <button onClick={handleToggle} className="arrow hidden md:block cursor-pointer py-[15px] focus:outline-none">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" color="#dbdbdb" fill="none" stroke="#dbdbdb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M17 4L8.66943 10.0405C6.44352 11.6545 6.44353 12.3455 8.66943 13.9595L17 20"></path>
           </svg>
         </button>
 
-        {/* Carousel Container */}
         <div className="relative h-12 w-full md:w-[540px] flex items-center justify-center overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
@@ -582,7 +508,6 @@ export default function WristWatchesPage() {
           </AnimatePresence>
         </div>
 
-        {/* Right Arrow */}
         <button onClick={handleToggle} className="arrow hidden md:block cursor-pointer py-[15px] focus:outline-none">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" color="#dbdbdb" fill="none" stroke="#dbdbdb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M7 4L15.3306 10.0405C17.5565 11.6545 17.5565 12.3455 15.3306 13.9595L7 20"></path>
@@ -591,20 +516,11 @@ export default function WristWatchesPage() {
       </nav>
 
       {/* Header Bar */}
-     {/* Header Bar */}
       <header
-        className={`w-full sticky top-0 z-50 bg-black border-b border-neutral-900 transition-all duration-300 ${isScrolled
-          ? "shadow-2xl animate-in slide-in-from-top"
-          : ""
-          }`}
+        className={`w-full sticky top-0 z-50 bg-black border-b border-neutral-900 transition-all duration-300 ${isScrolled ? "shadow-2xl animate-in slide-in-from-top" : ""}`}
       >
-
         <div className="w-full max-w-[1600px] mx-auto px-2 sm:px-6 lg:px-10 h-25 flex items-center justify-between gap-2">
-          {/* hamburger menu */}
-
-          {/* Mobile Menu Button (Hamburger) */}
           <div className="flex justify-center items-center">
-
             <button
               onClick={() => setIsMobileMenuOpen(true)}
               className="md:hidden hover:opacity-75 cursor-pointer transition-opacity p-1 focus:outline-none text-white"
@@ -614,7 +530,6 @@ export default function WristWatchesPage() {
               </svg>
             </button>
 
-            {/* Logo */}
             <div className="flex mx-1 sm:-mx-5 flex-col items-center md:ml-8">
               <Link href={'/'} className="flex w-12 items-center justify-center">
                 <Image
@@ -653,6 +568,7 @@ export default function WristWatchesPage() {
               </svg>
             </button>
 
+            {/* 🟢 Live Quantity Synchronized Cart Badge */}
             <button
               onClick={() => setIsCartOpen(true)}
               aria-label="Cart"
@@ -670,26 +586,21 @@ export default function WristWatchesPage() {
               )}
             </button>
 
-            {/* Account Button */}
-            {/* User Auth Section (Login / Logout / Profile Pic) */}
             {session ? (
               <div className="flex items-center gap-3">
-                {/* User Picture */}
                 <div className="relative group flex items-center">
                   <Image
                     src={session.user.image}
                     alt="Profile"
-                    width={7}
-                    height={7}
+                    width={32}
+                    height={32}
                     className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-neutral-700 object-cover cursor-pointer"
                   />
-                  {/* Tooltip Name */}
                   <div className="absolute top-full right-0 mt-2 bg-neutral-900 border border-neutral-800 text-white text-xs px-2.5 py-1 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
                     {session.user?.name}
                   </div>
                 </div>
 
-                {/* Logout Button */}
                 <button
                   onClick={() => signOut()}
                   className="hover:opacity-75 cursor-pointer transition-opacity p-1 relative focus:outline-none"
@@ -701,7 +612,6 @@ export default function WristWatchesPage() {
                 </button>
               </div>
             ) : (
-              /* Login Button */
               <button
                 onClick={() => signIn("google")}
                 className="hover:opacity-75 cursor-pointer transition-opacity p-1 relative focus:outline-none"
@@ -788,17 +698,18 @@ export default function WristWatchesPage() {
 
         {/* ================= RIGHT SLIDE CART DRAWER ================= */}
         <div
-          className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-50 transition-opacity duration-300 ${isCartOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-            }`}
+          className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-50 transition-opacity duration-300 ${
+            isCartOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
           onClick={() => setIsCartOpen(false)}
         />
 
         <aside
-          className={`fixed top-0 right-0 h-full w-full sm:w-[400px] max-w-full bg-neutral-950 border-l border-neutral-800 z-50 shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${isCartOpen ? "translate-x-0" : "translate-x-full"
-            }`}
+          className={`fixed top-0 right-0 h-full w-full sm:w-[400px] max-w-full bg-neutral-950 border-l border-neutral-800 z-50 shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${
+            isCartOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         >
-          {/* Cart Drawer Header */}
-         {/* Cart Drawer Header */}
+          {/* Cart Drawer Header with Live Count */}
           <div className="p-4 sm:p-6 border-b border-neutral-800 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <h2 className="text-base sm:text-lg font-bold tracking-wider uppercase">Shopping Cart</h2>
@@ -838,10 +749,9 @@ export default function WristWatchesPage() {
                 </button>
               </div>
             ) : (
-             <div className="space-y-4">
+              <div className="space-y-4">
                 {cart.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-3 bg-neutral-900/60 border border-amber-500/20 p-3 rounded-2xl">
-                    {/* Checkbox for item selection */}
                     <input
                       type="checkbox"
                       checked={selectedCartIndexes.includes(idx)}
@@ -916,13 +826,11 @@ export default function WristWatchesPage() {
             )}
           </div>
         </aside>
-        {/* //humburger inner menu */}
 
         {/* ================= LEFT MOBILE MENU DRAWER ================= */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <>
-              {/* Blur Backdrop */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -932,7 +840,6 @@ export default function WristWatchesPage() {
                 className="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] md:hidden"
               />
 
-              {/* Sidebar Menu */}
               <motion.aside
                 initial={{ x: "-100%" }}
                 animate={{ x: 0 }}
@@ -940,24 +847,23 @@ export default function WristWatchesPage() {
                 transition={{ type: "spring", stiffness: 300, damping: 28 }}
                 className="fixed top-0 left-0 h-full w-[85%] max-w-[320px] bg-neutral-950 border-r border-amber-500/20 z-[70] shadow-[20px_0_50px_rgba(0,0,0,0.8)] flex flex-col md:hidden overflow-hidden"
               >
-                {/* Background Glow */}
                 <div className="absolute top-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-                {/* Header (Profile/Auth & Close Button) */}
                 <div className="p-5 border-b border-neutral-900 flex items-center justify-between relative z-10 bg-neutral-950/50">
                   <div className="flex items-center">
                     {session ? (
                       <div className="flex items-center gap-3">
-                        <img
+                        <Image
                           src={session.user.image}
                           alt="Profile"
+                          width={40}
+                          height={40}
                           className="w-10 h-10 rounded-full border border-amber-500/50 object-cover shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                         />
                         <div className="flex flex-col">
                           <span className="text-xs font-bold text-amber-100 uppercase tracking-normal truncate max-w-[120px]">
                             {session.user.name}
                           </span>
-
                         </div>
                       </div>
                     ) : (
@@ -974,7 +880,6 @@ export default function WristWatchesPage() {
                     )}
                   </div>
 
-                  {/* Close Button */}
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="text-neutral-500 hover:text-amber-400 hover:bg-amber-500/10 p-1.5 rounded-full transition-all duration-300 focus:outline-none cursor-pointer"
@@ -985,7 +890,6 @@ export default function WristWatchesPage() {
                   </button>
                 </div>
 
-                {/* Navigation Links */}
                 <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2 relative z-10 [scrollbar-width:none]">
                   <span className="text-[10px] font-bold text-neutral-600 tracking-[0.25em] uppercase block mb-4 ml-2">
                     Menu Collections
@@ -1021,10 +925,9 @@ export default function WristWatchesPage() {
                   </div>
                 </div>
 
-                {/* Footer Logo Area */}
                 <div className="p-6 border-t border-neutral-900 relative z-10 bg-neutral-950">
                   <div className="flex items-center justify-center">
-                    <Image src="/wLogo.png" preload alt="Logo" width={40} height={40} className=" opacity-70 hover:opacity-100 transition-all duration-500" />
+                    <Image src="/wLogo.png" alt="Logo" width={40} height={40} className="opacity-70 hover:opacity-100 transition-all duration-500" />
                   </div>
                   <p className="text-center text-[9px] text-amber-500/50 uppercase tracking-[0.25em] mt-3 font-semibold">
                     Elegance On Your Wrist
@@ -1034,44 +937,37 @@ export default function WristWatchesPage() {
             </>
           )}
         </AnimatePresence>
-
       </header>
 
       {/* Hero Banner Section */}
-       <section className="relative w-full h-[550px] pt-5 pb-2 overflow-hidden select-none">
-  {/* 1. Permanent Base Background (Back aane par bhi color change nahi hone dega) */}
-  <div className="absolute inset-0 bg-[#F5F5F0] pointer-events-none" />
+      <section className="relative w-full h-[550px] pt-5 pb-2 overflow-hidden select-none">
+        <div className="absolute inset-0 bg-[#F5F5F0] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/20 to-black/80 pointer-events-none" />
 
-  {/* 2. Aapka Exact Original Gradient */}
-  <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/20 to-black/80 pointer-events-none" />
-
-  <motion.div
-    className="relative z-10 flex w-full h-full cursor-grab active:cursor-grabbing touch-pan-y"
-    drag="x"
-    dragSnapToOrigin={true}
-    dragElastic={0.1}
-    onDragEnd={handleDragEnd}
-    animate={{ x: `-${currentIndex * 100}%` }}
-    transition={{
-      duration: 0.8,
-      ease: [0.16, 1, 0.3, 1],
-    }}
-    style={{ willChange: "transform" }}
-  >
-    {heroImages.map((imgUrl, index) => (
-      <div key={index} className="w-full min-w-full h-full flex-shrink-0 px-5">
-        <div className="relative w-full h-full rounded-4xl overflow-hidden bg-neutral-950">
-          <img
-            src={imgUrl}
-            alt={`SVESTON Watch ${index + 1}`}
-            className="w-full h-full object-cover pointer-events-none"
-            draggable={false}
-          />
-        </div>
-      </div>
-    ))}
-  </motion.div>
-</section>
+        <motion.div
+          className="relative z-10 flex w-full h-full cursor-grab active:cursor-grabbing touch-pan-y"
+          drag="x"
+          dragSnapToOrigin={true}
+          dragElastic={0.1}
+          onDragEnd={handleDragEnd}
+          animate={{ x: `-${currentIndex * 100}%` }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          style={{ willChange: "transform" }}
+        >
+          {heroImages.map((imgUrl, index) => (
+            <div key={index} className="w-full min-w-full h-full flex-shrink-0 px-5">
+              <div className="relative w-full h-full rounded-4xl overflow-hidden bg-neutral-950">
+                <img
+                  src={imgUrl}
+                  alt={`SVESTON Watch ${index + 1}`}
+                  className="w-full h-full object-cover pointer-events-none"
+                  draggable={false}
+                />
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      </section>
 
       {/* Watches Mapping Section */}
       <div className="collection-cont">
@@ -1092,8 +988,7 @@ export default function WristWatchesPage() {
               Premium collectibles
             </p>
           </motion.div>
-             
-             {/* 🟢 2. Dynamic Database Watches Grid */}
+
           <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
             {watches.length === 0 ? (
               <div className="col-span-full py-16 text-center text-neutral-500 font-medium tracking-widest text-xs uppercase">
@@ -1106,11 +1001,7 @@ export default function WristWatchesPage() {
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
-                  transition={{
-                    duration: 0.5,
-                    delay: (i % 4) * 0.08,
-                    ease: "easeOut",
-                  }}
+                  transition={{ duration: 0.5, delay: (i % 4) * 0.08, ease: "easeOut" }}
                   style={{ willChange: "transform, opacity" }}
                   className="group/card relative rounded-2xl bg-neutral-900/60 border border-amber-500/20 p-6 flex flex-col justify-between items-center transition-colors duration-300 hover:border-amber-400/80 hover:shadow-[0_0_35px_rgba(245,158,11,0.2)] hover:bg-neutral-900/90"
                 >
@@ -1155,7 +1046,6 @@ export default function WristWatchesPage() {
             )}
           </div>
           
-          
           <div className="mt-16 text-center relative z-10">
             <Link href={'./the-fresh-drop'}>
               <motion.button
@@ -1172,22 +1062,22 @@ export default function WristWatchesPage() {
       </div>
 
       {/* ================= QUICK VIEW & CHECKOUT MODAL ================= */}
-   <AnimatePresence>
+      <AnimatePresence>
         {(selectedWatch || isCheckout) && (
           <div className="fixed inset-0 z-50">
-            
-            {/* 1. Backdrop Overlay (Fixed Blur) */}
+            {/* 1. Backdrop Overlay (Locked during loading/success) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => {
+                if (loading || orderSuccess) return;
                 setSelectedWatch(null);
                 setIsCheckout(false);
                 setCheckoutItems([]);
               }}
               style={{ willChange: "opacity" }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity z-0"
+              className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity z-0 cursor-default"
             />
 
             {/* 2. Scrollable Content Wrapper */}
@@ -1205,24 +1095,25 @@ export default function WristWatchesPage() {
 
                 {!isCheckout && (
                   <button
+                    disabled={loading || orderSuccess}
                     onClick={() => {
+                      if (loading || orderSuccess) return;
                       setSelectedWatch(null);
                       setIsCheckout(false);
                       setScreenshotName("");
                     }}
-                    className="absolute top-5 right-5 w-10 h-10 rounded-full bg-neutral-900 border border-amber-500/20 text-neutral-400 hover:text-amber-400 hover:border-amber-400 transition-all flex items-center justify-center text-lg z-20 cursor-pointer"
+                    className="absolute top-5 right-5 w-10 h-10 rounded-full bg-neutral-900 border border-amber-500/20 text-neutral-400 hover:text-amber-400 hover:border-amber-400 transition-all flex items-center justify-center text-lg z-20 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     ✕
                   </button>
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-
-                  {/* Left Column: Watch Image / Multiple Selected Items Display */}
-            <div className="relative flex flex-col justify-start min-h-[280px] max-h-[380px] overflow-y-auto bg-neutral-900/50 rounded-2xl p-4 border border-zinc-800/80 watch-box-scroll">
+                  {/* Left Column: Watch Image / Order Summary Display */}
+                  <div className="relative flex flex-col justify-start min-h-[280px] max-h-[380px] overflow-y-auto bg-neutral-900/50 rounded-2xl p-4 border border-zinc-800/80 watch-box-scroll">
                     <div className="absolute w-48 h-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none self-center transform-gpu" />
 
-                   {isCheckout && checkoutItems.length > 0 ? (
+                    {isCheckout && checkoutItems.length > 0 ? (
                       <div className="space-y-3 relative z-10 w-full pr-1">
                         <h4 className="text-xs font-medium font-Sans tracking-widest text-amber-400 uppercase mb-2 border-b border-amber-500/20 pb-1">
                           Order Summary ({checkoutItems.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)} Items)
@@ -1268,9 +1159,8 @@ export default function WristWatchesPage() {
                   </div>
 
                   {/* Right Column: Watch Details OR Checkout Form */}
-                  <div className="flex flex-col justify-between">
+                  <div className="flex flex-col justify-between relative">
                     {!isCheckout ? (
-                      /* 1. WATCH DETAILS VIEW */
                       <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -1290,7 +1180,10 @@ export default function WristWatchesPage() {
                           {selectedWatch?.price}
                         </p>
 
-                        <p className="text-neutral-400 text-xs md:text-sm leading-relaxed mb-6 border-t border-b border-neutral-800 py-4">{selectedWatch?.description}</p>
+                        <p className="text-neutral-400 text-xs md:text-sm leading-relaxed mb-6 border-t border-b border-neutral-800 py-4">
+                          {selectedWatch?.description}
+                        </p>
+
                         <div className="flex flex-col sm:flex-row gap-4 mt-2">
                           <motion.button
                             whileHover={{ scale: 1.02 }}
@@ -1310,7 +1203,7 @@ export default function WristWatchesPage() {
                             </span> Add To Cart
                           </motion.button>
 
-                        <motion.button
+                          <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
@@ -1324,7 +1217,6 @@ export default function WristWatchesPage() {
                         </div>
                       </motion.div>
                     ) : (
-                      /* 2. CHECKOUT FORM VIEW */
                       <motion.form
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -1333,33 +1225,17 @@ export default function WristWatchesPage() {
                         style={{ willChange: "transform, opacity" }}
                         onSubmit={async (e) => {
                           e.preventDefault();
-
-                          if (loading) return;
+                          if (loading || orderSuccess) return;
                           setErrorMessage("");
 
                           const name = e.target.name?.value.trim() || "";
                           const phone = e.target.phone?.value.trim() || "";
                           const address = e.target.address?.value.trim() || "";
 
-                          if (!name) {
-                            setErrorMessage("Please enter your name.");
-                            return;
-                          }
-
-                          if (!phone) {
-                            setErrorMessage("Please enter your phone number.");
-                            return;
-                          }
-
-                          if (!address) {
-                            setErrorMessage("Please enter your shipping address.");
-                            return;
-                          }
-
-                          if (!screenshotBase64) {
-                            setErrorMessage("Please upload your payment screenshot.");
-                            return;
-                          }
+                          if (!name) return setErrorMessage("Please enter your name.");
+                          if (!phone) return setErrorMessage("Please enter your phone number.");
+                          if (!address) return setErrorMessage("Please enter your shipping address.");
+                          if (!screenshotBase64) return setErrorMessage("Please upload your payment screenshot.");
 
                           setLoading(true);
 
@@ -1369,8 +1245,14 @@ export default function WristWatchesPage() {
                             email: e.target.email?.value.trim() || "",
                             address,
                             paymentMethod,
-                            watchTitle: checkoutItems.map((item) => item.title).join(", "),
+                            watchTitle: checkoutItems.map((item) => `${item.title} (Qty: ${item.quantity || 1})`).join(", "),
                             watchPrice: calculateTotal(checkoutItems),
+                            items: checkoutItems.map((item) => ({
+                              id: item.id || item._id,
+                              quantity: item.quantity || 1,
+                              title: item.title,
+                              price: item.price,
+                            })),
                             screenshotName: screenshotName || "",
                             screenshotBase64: screenshotBase64 || "",
                           };
@@ -1384,8 +1266,21 @@ export default function WristWatchesPage() {
 
                             const data = await res.json();
 
-                            if (data.success) {
+                           if (data.success) {
+                              // 🟢 Hamesha aakhri 6 characters uthaye ga (Short Clean ID)
+                              const rawClean = String(data.orderId || data.order?._id || "")
+                                .replace(/[^a-zA-Z0-9]/g, "")
+                                .slice(-6)
+                                .toUpperCase();
+                              
+                              const ordId = `#ORD-${rawClean || Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+                              setConfirmedOrderId(ordId);
                               setOrderSuccess(true);
+                              setCart([]);
+                              localStorage.setItem("my_store_cart", "[]");
+
+                              // 🟢 10 Seconds (10000ms) baad modal close hoga
                               setTimeout(() => {
                                 setOrderSuccess(false);
                                 setSelectedWatch(null);
@@ -1393,29 +1288,86 @@ export default function WristWatchesPage() {
                                 setCheckoutItems([]);
                                 setScreenshotName("");
                                 setScreenshotBase64("");
-                              }, 5000);
+                                setConfirmedOrderId("");
+                              }, 10000);
                             } else {
-                              setErrorMessage(data.message || "Order didn't submit");
+                              setErrorMessage(data.message || "Order submit nahi ho saka.");
                             }
                           } catch (err) {
-                            setErrorMessage("Network error! Check the connection of your device");
+                            setErrorMessage("Network error! Internet connection check karein.");
                           } finally {
                             setLoading(false);
                           }
                         }}
-
-                        className="space-y-3"
+                        className="space-y-3 relative"
                       >
-                        {orderSuccess && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 p-3 rounded-xl text-xs text-center font-semibold flex items-center justify-center gap-2"
-                          >
-                            <span>✓</span> Order Successful! Thank you for your purchase.
-                          </motion.div>
-                        )}
+                        {/* 🟢 5-SECOND CENTER LUXURY POPUP MODAL */}
+                        <AnimatePresence>
+                          {orderSuccess && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.88 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.88 }}
+                              transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                              className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-6 rounded-3xl border border-amber-500/40 backdrop-blur-2xl text-center shadow-[0_0_60px_rgba(0,0,0,0.95)]"
+                            >
+                              <div className="relative mb-3 flex h-18 w-18 items-center justify-center rounded-full bg-emerald-500/10 border-2 border-emerald-400 shadow-[0_0_35px_rgba(16,185,129,0.4)]">
+                                <motion.span
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.1 }}
+                                  className="text-3xl text-emerald-400 font-black"
+                                >
+                                  ✓
+                                </motion.span>
+                              </div>
+
+                              <span className="text-[11px] font-extrabold tracking-[0.25em] uppercase text-emerald-400 mb-1">
+                                Order Placed Successfully
+                              </span>
+                              <h3 className="text-xl sm:text-2xl font-black uppercase text-white tracking-wide">
+                                Confirmed & Vault Bound
+                              </h3>
+
+                              {/* Order ID Badge With Copy */}
+                              <div className="mt-4 flex items-center gap-3 rounded-2xl border border-amber-500/40 bg-neutral-900/90 px-4 py-2.5 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                                <div className="text-left">
+                                  <span className="block text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                                    Your Order Tracking ID
+                                  </span>
+                                  <span className="font-mono text-base sm:text-lg font-black text-[#DCAA4A]">
+                                    {confirmedOrderId}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(confirmedOrderId);
+                                    setCopiedField("orderId");
+                                    setTimeout(() => setCopiedField(null), 2000);
+                                  }}
+                                  className="rounded-xl border border-amber-500/40 bg-neutral-950 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-300 hover:bg-amber-500 hover:text-black transition-all cursor-pointer"
+                                >
+                                  {copiedField === "orderId" ? "Copied!" : "Copy"}
+                                </button>
+                              </div>
+
+                              <p className="mt-3 max-w-xs text-xs text-neutral-400 leading-relaxed font-medium">
+                                Payment proof submitted. Verification in progress. Window will close automatically.
+                              </p>
+
+                              {/* 5-Second Animated Progress Bar */}
+                              <div className="mt-5 w-48 h-1.5 bg-neutral-800 rounded-full overflow-hidden">
+                                <motion.div
+                                  initial={{ width: "100%" }}
+                                  animate={{ width: "0%" }}
+                                  transition={{ duration: 10, ease: "linear" }}
+                                  className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 shadow-[0_0_10px_#DCAA4A]"
+                                />
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
 
                         {errorMessage && (
                           <motion.div
@@ -1434,8 +1386,12 @@ export default function WristWatchesPage() {
                           </h3>
                           <button
                             type="button"
-                            onClick={() => setIsCheckout(false)}
-                            className="text-xs text-neutral-400 hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer"
+                            disabled={loading || orderSuccess}
+                            onClick={() => {
+                              if (loading || orderSuccess) return;
+                              setIsCheckout(false);
+                            }}
+                            className="text-xs text-neutral-400 hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                             ← Back
                           </button>
@@ -1496,8 +1452,6 @@ export default function WristWatchesPage() {
 
                         {/* Dynamic Payment Method Selector & Details */}
                         <div className="bg-neutral-950/90 border border-amber-500/30 rounded-2xl p-4 sm:p-5 space-y-4 my-3 shadow-[0_0_25px_rgba(245,158,11,0.08)]">
-
-                          {/* Step Header */}
                           <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
                             <span className="text-[11px] font-sans font-medium text-amber-400 tracking-[0.2em] uppercase">
                               Step 1 — Send Payment
@@ -1507,7 +1461,6 @@ export default function WristWatchesPage() {
                             </span>
                           </div>
 
-                          {/* Method Toggle Buttons (Tab Bar) */}
                           <div className="grid grid-cols-3 gap-2 bg-neutral-900/80 p-1.5 rounded-xl border border-neutral-800">
                             {["EASYPAISA", "JAZZCASH"].map((method) => {
                               const isSelected = paymentMethod === method;
@@ -1516,10 +1469,11 @@ export default function WristWatchesPage() {
                                   key={method}
                                   type="button"
                                   onClick={() => setPaymentMethod(method)}
-                                  className={`relative py-1 px-2 rounded-lg font-sans font-medium text-[11px] sm:text-xs tracking-wider transition-all duration-300 cursor-pointer overflow-hidden ${isSelected
+                                  className={`relative py-1 px-2 rounded-lg font-sans font-medium text-[11px] sm:text-xs tracking-wider transition-all duration-300 cursor-pointer overflow-hidden ${
+                                    isSelected
                                       ? "text-amber-300 border border-amber-400/70 bg-gradient-to-b from-amber-500/20 to-amber-950/40 shadow-[0_0_20px_rgba(245,158,11,0.35)]"
                                       : "text-neutral-400 hover:text-neutral-200 border border-transparent hover:bg-neutral-800/60"
-                                    }`}
+                                  }`}
                                 >
                                   <span className="relative z-10">{method}</span>
                                   {isSelected && (
@@ -1534,7 +1488,6 @@ export default function WristWatchesPage() {
                             })}
                           </div>
 
-                          {/* Details Display with Glow & Fade Animation */}
                           <AnimatePresence mode="wait">
                             <motion.div
                               key={paymentMethod}
@@ -1544,7 +1497,6 @@ export default function WristWatchesPage() {
                               transition={{ duration: 0.25 }}
                               className="space-y-3 pt-1"
                             >
-                              {/* Account / Mobile Number Box */}
                               <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
                                 <div>
                                   <span className="block text-[11px] font-Sans font-medium text-neutral-400 tracking-wider uppercase mb-1">
@@ -1567,7 +1519,6 @@ export default function WristWatchesPage() {
                                 </button>
                               </div>
 
-                              {/* Account Title Box */}
                               <div className="flex items-center justify-between bg-neutral-900/90 border border-amber-500/20 rounded-xl p-2 hover:border-amber-500/40 transition-all group">
                                 <div>
                                   <span className="block text-[12px] font-sans font-medium text-neutral-400 tracking-wider uppercase">
@@ -1598,7 +1549,6 @@ export default function WristWatchesPage() {
                         </div>
 
                         <div className="bg-neutral-900/70 border border-amber-500/20 rounded-xl p-3 space-y-2 mt-2">
-
                           <label className="relative flex flex-col items-center justify-center border border-dashed border-amber-500/40 rounded-lg p-2.5 bg-neutral-950/60 cursor-pointer hover:border-amber-400 transition-all">
                             <span className="text-[11px] text-neutral-300 font-medium flex items-center">
                               📷 {screenshotName ? screenshotName : "Upload Payment Receipt / Screenshot"}
@@ -1606,11 +1556,11 @@ export default function WristWatchesPage() {
                             <input
                               type="file"
                               accept="image/*"
+                              disabled={loading || orderSuccess}
                               onChange={(e) => {
                                 const file = e.target.files && e.target.files[0];
                                 if (file) {
                                   setScreenshotName(file.name);
-
                                   const reader = new FileReader();
                                   reader.onloadend = () => {
                                     setScreenshotBase64(reader.result);
@@ -1628,10 +1578,11 @@ export default function WristWatchesPage() {
                           disabled={loading || orderSuccess}
                           whileHover={!loading ? { scale: 1.01 } : {}}
                           whileTap={!loading ? { scale: 0.98 } : {}}
-                          className={`w-full mt-3 py-3 rounded-full text-neutral-950 font-bold text-xs tracking-widest uppercase transition-all ${loading || orderSuccess
+                          className={`w-full mt-3 py-3 rounded-full text-neutral-950 font-bold text-xs tracking-widest uppercase transition-all ${
+                            loading || orderSuccess
                               ? "bg-amber-600/60 opacity-70 cursor-not-allowed"
                               : "bg-gradient-to-r from-amber-500 to-amber-600 shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.7)] cursor-pointer"
-                            }`}
+                          }`}
                         >
                           {loading ? (
                             <span className="flex items-center justify-center gap-2">
@@ -1648,7 +1599,6 @@ export default function WristWatchesPage() {
                       </motion.form>
                     )}
                   </div>
-
                 </div>
               </motion.div>
             </div>
@@ -1747,11 +1697,8 @@ export default function WristWatchesPage() {
         </div>
       </section>
 
-      
-            {/* Curated Categories (Branded & Heavy Animated) */}
-                {/* Curated Categories (Compact, Responsive & Branded) */}
+      {/* Curated Categories */}
       <section className="relative bg-black py-20 px-4 sm:px-8 lg:px-12 border-t border-neutral-900 overflow-hidden font-jakarta">
-        {/* Background Ambient Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-amber-500/5 blur-[120px] pointer-events-none rounded-full" />
         
         <div className="max-w-6xl mx-auto relative z-10">
@@ -1817,14 +1764,10 @@ export default function WristWatchesPage() {
                 whileHover={{ y: -6 }}
                 className="group relative rounded-3xl bg-neutral-950 border border-neutral-800/80 p-6 sm:p-8 flex flex-col justify-between transition-all duration-500 hover:border-amber-500/40 hover:shadow-[0_15px_40px_-15px_rgba(245,158,11,0.15)] overflow-hidden"
               >
-                {/* Animated Glow Background */}
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-amber-500/15 group-hover:scale-150 transition-all duration-700 ease-out" />
-                
-                {/* Subtle Grid Pattern Overlay */}
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
                 <div className="relative z-10">
-                  {/* Header Section */}
                   <div className="flex items-start gap-4 mb-6">
                     <motion.div 
                       whileHover={{ rotate: 10, scale: 1.1 }}
@@ -1848,12 +1791,10 @@ export default function WristWatchesPage() {
                     </div>
                   </div>
 
-                  {/* Description */}
                   <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-medium mb-8">
                     {item.description}
                   </p>
 
-                  {/* What's Included Section */}
                   <div className="mb-8">
                     <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-neutral-500 block mb-3">
                       What's Included
@@ -1876,7 +1817,6 @@ export default function WristWatchesPage() {
                     </div>
                   </div>
 
-                  {/* Signature Details (Tags) */}
                   <div className="mb-8">
                     <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-neutral-500 block mb-3">
                       Signature Details
@@ -1895,7 +1835,6 @@ export default function WristWatchesPage() {
                   </div>
                 </div>
 
-                {/* Buttons Section */}
                 <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3 pt-6 border-t border-neutral-900/80">
                   <Link href={item.shopLink} className="w-full sm:flex-1">
                     <motion.button 
@@ -1903,13 +1842,11 @@ export default function WristWatchesPage() {
                       whileTap={{ scale: 0.98 }}
                       className="relative w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-bold text-xs uppercase tracking-widest overflow-hidden group/btn shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] transition-all duration-300 cursor-pointer"
                     >
-                      {/* Shine Effect */}
                       <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]" />
                       <span className="relative z-10">Shop Now</span>
                     </motion.button>
                   </Link>
                   
-                                       {/* 👇 Yeh naya View Details Button laga */}
                   <button 
                     onClick={() => handleViewDetails(item.id)}
                     className="w-full sm:flex-1 relative py-3.5 rounded-2xl border border-neutral-800 bg-neutral-950/80 overflow-hidden group/viewBtn transition-all duration-500 hover:border-amber-500/50 hover:shadow-[0_0_25px_rgba(245,158,11,0.15)] cursor-pointer backdrop-blur-sm"
