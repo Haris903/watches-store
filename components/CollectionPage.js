@@ -1498,7 +1498,7 @@ export default function MenWatchesCollectionPage() {
                 setCheckoutItems([]);
               }}
             >
-              <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
+             <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
                 <motion.div
                   onClick={(e) => e.stopPropagation()}
                   initial={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -1506,8 +1506,97 @@ export default function MenWatchesCollectionPage() {
                   exit={{ opacity: 0, scale: 0.95, y: 15 }}
                   transition={{ type: "spring", stiffness: 350, damping: 30 }}
                   style={{ willChange: "transform, opacity" }}
-                  className="relative w-full max-w-4xl bg-neutral-950/90 border border-amber-500/30 rounded-3xl p-6 md:p-10 shadow-[0_0_60px_rgba(245,158,11,0.15)] backdrop-blur-xl z-10 overflow-hidden"
+                  className="relative w-full max-w-4xl bg-neutral-950 border border-amber-500/30 rounded-3xl p-6 md:p-10 shadow-[0_0_80px_rgba(245,158,11,0.2)] backdrop-blur-xl z-10 overflow-hidden"
                 >
+                  {/* 🟢 100% SOLID OPAQUE 10-SECOND POPUP (Poori Screen Cover Karega) */}
+                  <AnimatePresence>
+                    {orderSuccess && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-[#070707] px-6 py-8 sm:p-12 text-center"
+                      >
+                        <div className="pointer-events-none absolute h-72 w-72 rounded-full bg-[#DCAA4A]/10 blur-[120px]" />
+
+                        {/* Emerald Seal */}
+                        <div className="relative mb-5 flex h-20 w-20 items-center justify-center rounded-full border-2 border-emerald-400/80 bg-emerald-500/10 shadow-[0_0_50px_rgba(16,185,129,0.35)]">
+                          <span className="absolute -inset-2 rounded-full border border-emerald-500/20 animate-ping opacity-75" />
+                          <svg className="h-10 w-10 text-emerald-400 stroke-current stroke-[2.5] fill-none" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+
+                        <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.35em] text-[#DCAA4A] block mb-2">
+                          CONSIGNMENT SECURED • VAULT BOUND
+                        </span>
+                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
+                          Order Placed Successfully
+                        </h3>
+                        <p className="mt-2.5 max-w-md text-xs sm:text-sm text-neutral-400 leading-relaxed font-medium">
+                          Payment proof verified and logged. Your luxury timepiece has been allocated for priority courier dispatch.
+                        </p>
+
+                        {/* Split -6 Order ID with Copy Button */}
+                        <div className="mt-6 flex flex-col sm:flex-row items-center gap-3 rounded-2xl border border-amber-500/35 bg-neutral-900/95 px-5 py-3 shadow-[0_0_30px_rgba(245,158,11,0.12)]">
+                          <div className="text-center sm:text-left">
+                            <span className="block text-[10px] font-extrabold uppercase tracking-widest text-neutral-500">
+                              Tracking Order ID
+                            </span>
+                            <span className="font-mono text-lg sm:text-xl font-black text-[#DCAA4A] tracking-wider select-all">
+                              {confirmedOrderId}
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(confirmedOrderId);
+                              setCopiedField("orderId");
+                              setTimeout(() => setCopiedField(null), 2000);
+                            }}
+                            className="inline-flex items-center gap-2 rounded-xl border border-amber-500/40 bg-neutral-950 px-4 py-2 text-xs font-extrabold uppercase tracking-wider text-amber-300 hover:bg-[#DCAA4A] hover:text-black transition-all cursor-pointer shadow-md"
+                          >
+                            {copiedField === "orderId" ? (
+                              <>
+                                <span className="text-emerald-400 font-bold">✓</span> Copied
+                              </>
+                            ) : (
+                              <>
+                                <span>📋</span> Copy ID
+                              </>
+                            )}
+                          </button>
+                        </div>
+
+                        <div className="mt-6">
+                          <Link
+                            href="/collections/track-order"
+                            className="rounded-full bg-[#DCAA4A] px-6 py-2.5 text-xs font-extrabold uppercase tracking-widest text-black shadow-[0_0_25px_rgba(220,170,74,0.3)] hover:scale-105 transition-all inline-block"
+                          >
+                            Track Live Order →
+                          </Link>
+                        </div>
+
+                        {/* 10-Second Progress Bar */}
+                        <div className="mt-8 flex flex-col items-center gap-2">
+                          <div className="h-1.5 w-60 sm:w-72 overflow-hidden rounded-full bg-neutral-900 border border-neutral-800">
+                            <motion.div
+                              initial={{ width: "100%" }}
+                              animate={{ width: "0%" }}
+                              transition={{ duration: 10, ease: "linear" }}
+                              className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 shadow-[0_0_15px_#DCAA4A]"
+                            />
+                          </div>
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                            Window closes automatically in 10s
+                          </span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   <div className="absolute -top-24 -left-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
                   <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
 
@@ -1838,7 +1927,7 @@ export default function MenWatchesCollectionPage() {
                             ← Back
                           </button>
                         </div>
-
+                        
                           <div>
                             <label className="block text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest mb-1">
                               Full Name
