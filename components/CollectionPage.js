@@ -690,10 +690,25 @@ export default function MenWatchesCollectionPage() {
   const collectionData = COLLECTIONS[currentCollection] || COLLECTIONS.freshdrop;
 
   // Main Collection Level Filter
+  // 🟢 Safe Normalizer: smart-watches, for-couples, men, women, freshdrop sab match honge
+  const isMatchingCollection = (itemCol, targetCol) => {
+    const item = (itemCol || "").toLowerCase().trim();
+    const target = (targetCol || "").toLowerCase().trim();
+
+    if (target === "smart" || target === "smart-watches") return item.includes("smart");
+    if (target === "couples" || target === "for-couples") return item.includes("couple");
+    if (target === "freshdrop" || target === "the-fresh-drop") return item.includes("fresh") || item.includes("drop");
+    if (target === "women") return item.includes("women");
+    if (target === "men") return item === "men" || (item.includes("men") && !item.includes("women"));
+
+    return item === target;
+  };
+
   const watches = useMemo(() => {
-    return dbWatches.filter(
-      (w) => (w.collection || "").toLowerCase() === (currentCollection || "").toLowerCase()
-    );
+    return dbWatches.filter((w) => {
+      const colName = w.collection || w.collectionName || w.category || "";
+      return isMatchingCollection(colName, currentCollection);
+    });
   }, [dbWatches, currentCollection]);
 
   const hero = collectionData.hero;

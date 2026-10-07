@@ -95,6 +95,12 @@ export default function WristWatchesPage() {
     }, 100);
   };
 
+// Mobile Redirect Loop Disabled (Taake smart-watches aur couples bina rukawat open hon)
+  useEffect(() => {
+    // Normal mount
+  }, []);
+
+
   const { data: session, status } = useSession();
   const [cart, setCart] = useState([]);
   const isInitialSync = useRef(true);
@@ -143,9 +149,14 @@ export default function WristWatchesPage() {
         } finally {
           isInitialSync.current = false;
         }
-      } else {
-        const localCart = JSON.parse(localStorage.getItem("my_store_cart") || "[]");
-        setCart(localCart);
+     } else {
+        try {
+          const localCart = JSON.parse(localStorage.getItem("my_store_cart") || "[]");
+          setCart(Array.isArray(localCart) ? localCart : []);
+        } catch (err) {
+          localStorage.removeItem("my_store_cart");
+          setCart([]);
+        }
         isInitialSync.current = false;
       }
     };
@@ -201,14 +212,18 @@ export default function WristWatchesPage() {
     "✓ Free Nationwide Shipping | 7-Day Easy Returns | 1 Year Warranty",
   ];
 
-  useLayoutEffect(() => {
-    const userAgent = navigator.userAgent || window.opera;
-    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+ // 🟢 Safe Navigation Handler: Agar Next.js soft-navigation hang ho to 400ms me direct page open karega
+  const handleDirectNavigation = (e, href) => {
+    if (href.startsWith("http")) return;
+    setIsMobileMenuOpen(false);
 
-    if (isMobileDevice) {
-      router.push('/collections/wrist-watches');
-    }
-  }, [router]);
+    // Backup trigger: agar client-side router stuck ho jaye to force direct open
+    const timer = setTimeout(() => {
+      window.location.href = href;
+    }, 450);
+
+    window.addEventListener("beforeunload", () => clearTimeout(timer), { once: true });
+  };
 
   const handleToggle = () => {
     setIndex((prev) => (prev === 0 ? 1 : 0));
@@ -516,418 +531,383 @@ export default function WristWatchesPage() {
       </nav>
 
       {/* Header Bar */}
-      <header
-        className={`w-full sticky top-0 z-50 bg-black border-b border-neutral-900 transition-all duration-300 ${isScrolled ? "shadow-2xl animate-in slide-in-from-top" : ""}`}
-      >
-        <div className="w-full max-w-[1600px] mx-auto px-2 sm:px-6 lg:px-10 h-25 flex items-center justify-between gap-2">
-          <div className="flex justify-center items-center">
-            <button
+      {/* ================= 1. CLEAN PRO LUXURY HEADER (NO SEARCH) ================= */}
+      <header className="w-full sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-[#DCAA4A]/25 shadow-[0_10px_35px_-10px_rgba(0,0,0,0.9),0_1px_15px_rgba(220,170,74,0.08)] transition-all duration-300">
+        <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between gap-4">
+          
+          {/* LEFT: BRAND EMBLEM & MOBILE HAMBURGER (Never Shrinks) */}
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            <motion.button
+              whileTap={{ scale: 0.92 }}
               onClick={() => setIsMobileMenuOpen(true)}
-              className="md:hidden hover:opacity-75 cursor-pointer transition-opacity p-1 focus:outline-none text-white"
+              className="lg:hidden relative flex h-11 w-11 items-center justify-center rounded-2xl border border-[#DCAA4A]/30 bg-neutral-950 text-neutral-300 hover:text-[#DCAA4A] hover:border-[#DCAA4A] transition-all cursor-pointer shadow-md"
+              aria-label="Open Navigation"
             >
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+              <div className="flex flex-col gap-1.5 w-5 items-center justify-center">
+                <span className="h-[2px] w-5 rounded-full bg-current transition-all" />
+                <span className="h-[2px] w-3.5 self-start rounded-full bg-[#DCAA4A] transition-all" />
+                <span className="h-[2px] w-5 rounded-full bg-current transition-all" />
+              </div>
+            </motion.button>
 
-            <div className="flex mx-1 sm:-mx-5 flex-col items-center md:ml-8">
-              <Link href={'/'} className="flex w-12 items-center justify-center">
+            <Link href="/" className="group flex items-center gap-2.5 sm:gap-3 py-1">
+              <div className="relative flex items-center justify-center">
+                <div className="absolute -inset-1 rounded-full bg-[#DCAA4A]/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <Image
                   src={wLogo}
-                  alt="SVESTON Logo"
+                  alt="Elegance Logo"
                   priority
-                  className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105"
+                  className="relative h-9 sm:h-11 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
                 />
-              </Link>
-              <div className="text-[#DCAA4A] hidden sm:flex text-xs font-medium whitespace-nowrap">Elegance On Your Wrist</div>
-            </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm sm:text-base font-extrabold tracking-[0.2em] text-white uppercase group-hover:text-[#DCAA4A] transition-colors leading-none">
+                  Elegance
+                </span>
+                <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.28em] text-[#DCAA4A] uppercase mt-1 leading-none">
+                  On Your Wrist
+                </span>
+              </div>
+            </Link>
           </div>
 
-          <nav className="flex items-center justify-center flex-wrap gap-x-1 sm:gap-x-2 md:gap-x-3 lg:gap-x-6">
+          {/* CENTER: DESKTOP PRO NAV LINKS (Zero-Hang Navigation) */}
+          <nav className="hidden lg:flex items-center justify-center gap-1 xl:gap-2 min-w-0">
             {navLinks.map((link, idx) => (
               <Link
                 key={idx}
                 href={link.href}
-                className="group relative px-1.5 sm:px-2.5 md:px-3 lg:px-4 py-2 text-[10px] sm:text-xs md:text-[13px] font-medium tracking-wider whitespace-nowrap text-white transition-all duration-300 hover:bg-[#F5F5F0] hover:text-black rounded-sm"
+                prefetch={false}
+                className="group relative px-2.5 xl:px-3.5 py-2 text-[11px] xl:text-[12px] font-extrabold uppercase tracking-[0.12em] xl:tracking-[0.15em] text-neutral-300 hover:text-white transition-colors duration-300 rounded-full whitespace-nowrap"
               >
-                <span className="font-Inter hidden md:flex font-bold text-[13.5px]">{link.name}</span>
-                <span className="absolute bottom-1 left-2 right-2 h-[2px] bg-black scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+                <span className="relative z-10">{link.name}</span>
+                <span className="absolute inset-0 rounded-full bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-0 bg-gradient-to-r from-transparent via-[#DCAA4A] to-transparent rounded-full group-hover:w-3/4 transition-all duration-300" />
               </Link>
             ))}
           </nav>
 
-          <div className="flex-shrink-0 flex items-center space-x-2 sm:space-x-4 lg:space-x-6 text-white">
-            
-            {/* 🟢 Live Quantity Synchronized Cart Badge */}
-            <button
+          {/* RIGHT: CART & SIGN IN (Search Button Hata Diya Gaya) */}
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Shopping Bag Button with Live Badge */}
+            <motion.button
+              whileTap={{ scale: 0.94 }}
               onClick={() => setIsCartOpen(true)}
-              aria-label="Cart"
-              className="hover:opacity-75 cursor-pointer transition-opacity p-1 relative focus:outline-none"
+              aria-label="Shopping Cart"
+              className="relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-neutral-800 bg-neutral-950 text-neutral-300 hover:text-[#DCAA4A] hover:border-[#DCAA4A]/50 hover:bg-[#DCAA4A]/10 transition-all duration-300 cursor-pointer shadow-inner"
             >
-              <svg className="w-6 h-6 sm:w-6 sm:h-6 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 sm:w-5.5 sm:h-5.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
                 <path d="M3 6h18" />
                 <path d="M16 10a4 4 0 0 1-8 0" />
               </svg>
               {isMounted && cart.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#DCAA4A] text-neutral-950 font-bold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shadow-md">
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gradient-to-r from-amber-400 to-[#DCAA4A] px-1 font-mono text-[10px] font-black text-black shadow-[0_0_12px_rgba(220,170,74,0.6)]"
+                >
                   {cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)}
-                </span>
+                </motion.span>
               )}
-            </button>
+            </motion.button>
 
+            {/* Auth Section */}
+           {/* Auth Section */}
+            {/* Auth Section */}
             {session ? (
-              <div className="flex items-center gap-3">
-                <div className="relative group flex items-center">
+              <div className="flex items-center gap-2.5 rounded-full border border-neutral-800 bg-neutral-950 p-1 pl-1.5 sm:pr-2.5">
+                <div className="relative group flex items-center cursor-pointer">
                   <Image
                     src={session.user.image}
                     alt="Profile"
                     width={34}
                     height={34}
-                    className="w-8 h-8 sm:w-8 sm:h-8 rounded-full border border-neutral-700 object-cover cursor-pointer"
+                    className="h-8 w-8 sm:h-9 sm:w-9 rounded-full border-2 border-[#DCAA4A]/60 object-cover shadow-[0_0_12px_rgba(220,170,74,0.3)]"
                   />
-                  <div className="absolute top-full right-0 mt-2 bg-neutral-900 border border-neutral-800 text-white text-xs px-2.5 py-1 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
-                    {session.user?.name}
+                  <div className="absolute top-full right-0 mt-2.5 hidden group-hover:block bg-neutral-950 border border-[#DCAA4A]/40 text-neutral-200 text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-2xl whitespace-nowrap z-50">
+                    <span className="text-[#DCAA4A]">Signed in:</span> {session.user?.name}
                   </div>
                 </div>
 
-                <button
+                <span className="hidden sm:inline-block max-w-[100px] truncate text-xs font-bold text-neutral-200">
+                  {session.user?.name?.split(" ")[0]}
+                </span>
+
+               <button
+                  type="button"
                   onClick={() => signOut()}
-                  className="hover:opacity-75 cursor-pointer transition-opacity p-1 relative focus:outline-none"
+                  title="Logout"
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" color="#dbdbdb" fill="none" stroke="#dbdbdb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14.5 6C14.4534 4.90658 14.3147 4.20985 13.9025 3.67376C13.7426 3.46574 13.5561 3.27954 13.3476 3.11992C12.5381 2.5 11.363 2.5 9.01286 2.5H8.51184C5.67786 2.5 4.26087 2.5 3.38046 3.37867C2.50006 4.25734 2.50004 5.67157 2.50003 8.49997L2.50002 15.5C2.50001 18.3284 2.5 19.7426 3.38042 20.6213C4.26083 21.5 5.67783 21.5 8.51184 21.5H9.01281C11.363 21.5 12.5381 21.5 13.3476 20.8801C13.556 20.7205 13.7426 20.5343 13.9025 20.3263C14.3147 19.7901 14.4534 19.0933 14.5 17.9996"></path>
-                    <path d="M20.5 11.9999H8.50002M18 15.5C18 15.5 21.5 12.9223 21.5 12C21.5 11.0777 18 8.5 18 8.5"></path>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
                   </svg>
                 </button>
               </div>
             ) : (
-              <button
+              <motion.button
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => signIn("google")}
-                className="hover:opacity-75 cursor-pointer transition-opacity p-1 relative focus:outline-none"
+                className="group relative flex items-center gap-2 rounded-full border border-[#DCAA4A]/40 bg-neutral-950/90 hover:border-[#DCAA4A] hover:bg-[#DCAA4A]/10 px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-extrabold uppercase tracking-[0.24em] text-[#DCAA4A] hover:text-[#fcedc7] transition-all duration-300 shadow-[0_0_15px_rgba(220,170,74,0.1)] hover:shadow-[0_0_22px_rgba(220,170,74,0.3)] cursor-pointer overflow-hidden whitespace-nowrap"
               >
-                <svg className="w-6 h-6 sm:w-6 sm:h-6 fill-none stroke-current stroke-2" viewBox="0 0 24 24" >
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-none stroke-current stroke-[2.2] group-hover:scale-105 transition-transform" viewBox="0 0 24 24">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
-              </button>
+                <span className="tracking-[0.24em]">Sign In</span>
+              </motion.button>
             )}
           </div>
         </div>
+      </header>
 
-        {/* Search Bar Modal */}
-        <AnimatePresence>
-          {isSearchOpen && (
+      {/* ================= 2. FULL VIEWPORT CART DRAWER (HEADER SE BAHIR - ZERO UI BREAK) ================= */}
+   {/* ================= 1. EXACT COLLECTION PAGE CART DRAWER ================= */}
+      <div
+        className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-[85] transition-opacity duration-300 ${
+          isCartOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsCartOpen(false)}
+      />
+
+      <aside
+        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] max-w-full bg-neutral-950 border-l border-neutral-800 z-[86] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col font-jakarta ${
+          isCartOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="p-4 sm:p-6 border-b border-neutral-800 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <h2 className="text-base sm:text-lg font-bold tracking-wider uppercase">Shopping Cart</h2>
+            <span className="text-xs bg-amber-500/20 text-amber-400 px-2.5 py-0.5 rounded-full font-mono font-bold">
+              ({cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)})
+            </span>
+          </div>
+          <button
+            onClick={() => setIsCartOpen(false)}
+            className="text-gray-400 hover:text-white p-1.5 rounded-full hover:bg-neutral-900 transition-colors cursor-pointer"
+            aria-label="Close Cart"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          {cart.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
+              <div className="w-20 h-20 bg-neutral-900 border border-neutral-800 rounded-full flex items-center justify-center text-3xl shadow-inner">
+                👜
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base sm:text-lg font-semibold text-white tracking-wide">Your cart is empty</h3>
+                <p className="text-xs sm:text-sm text-gray-400 max-w-[240px]">
+                  Explore our luxury watch collections and add your favorite items.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="mt-2 bg-white text-black font-semibold text-xs sm:text-sm py-3 px-8 rounded hover:bg-neutral-200 transition-colors uppercase tracking-wider shadow-lg hover:scale-105 transition-transform cursor-pointer"
+              >
+                Explore Collections
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {cart.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-3 bg-neutral-900/60 border border-amber-500/20 p-3 rounded-2xl">
+                  <input
+                    type="checkbox"
+                    checked={selectedCartIndexes.includes(idx)}
+                    onChange={() => handleToggleCartSelect(idx)}
+                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                    title="Select for checkout"
+                  />
+                  <img src={item.image} alt={item.title} className="w-14 h-14 object-contain bg-neutral-950 rounded-xl p-1 border border-neutral-800" />
+                  
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-xs sm:text-sm font-bold text-amber-100 truncate">{item.title}</h4>
+                    <p className="text-xs font-bold text-[#DCAA4A] mt-0.5">{item.price}</p>
+
+                    {/* Quantity Selector */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center border border-neutral-800 bg-black rounded-lg overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateQuantity(idx, -1)}
+                          className="w-7 h-6 flex items-center justify-center text-xs text-neutral-400 hover:bg-neutral-800 hover:text-amber-400 font-bold cursor-pointer"
+                        >
+                          −
+                        </button>
+                        <span className="w-8 text-center text-xs font-bold text-white font-mono">
+                          {item.quantity || 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateQuantity(idx, 1)}
+                          disabled={(item.quantity || 1) >= (item.stock ?? 99)}
+                          className="w-7 h-6 flex items-center justify-center text-xs text-neutral-400 hover:bg-neutral-800 hover:text-amber-400 font-bold cursor-pointer disabled:opacity-30"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span className="text-[10px] text-neutral-500 font-mono">
+                        Stock: {item.stock ?? 10}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleRemoveFromCart(idx)}
+                    className="text-neutral-500 hover:text-red-400 text-sm p-1.5 cursor-pointer transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="p-4 border-t border-neutral-900 text-center">
+          {cart.length > 0 ? (
+            <button
+              onClick={handleProceedToCheckout}
+              className="w-full py-3 sm:py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-bold text-xs sm:text-sm tracking-widest uppercase rounded-full shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] transition-all cursor-pointer"
+            >
+              Proceed to Checkout
+            </button>
+          ) : (
+            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-widest">
+              100% Authentic Luxury Timepieces
+            </p>
+          )}
+        </div>
+      </aside>
+
+      {/* ================= 2. EXACT COLLECTION PAGE MOBILE DRAWER ================= */}
+      {/* ================= 2. EXACT COLLECTION PAGE MOBILE DRAWER (FIXED NAVIGATION) ================= */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col justify-start pt-20 px-4"
+              transition={{ duration: 0.3 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] lg:hidden"
+            />
+
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 28 }}
+              className="fixed top-0 left-0 h-full w-[85%] max-w-[320px] bg-neutral-950 border-r border-amber-500/20 z-[75] shadow-[20px_0_50px_rgba(0,0,0,0.8)] flex flex-col lg:hidden overflow-hidden"
             >
-              <div
-                className="absolute inset-0 -z-10"
-                onClick={() => setIsSearchOpen(false)}
-              />
+              <div className="absolute top-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-              <motion.div
-                initial={{ y: -40, opacity: 0, scale: 0.95 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                exit={{ y: -20, opacity: 0, scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                className="max-w-3xl w-full mx-auto bg-neutral-950 border border-neutral-800 rounded-lg p-4 sm:p-6 shadow-2xl relative"
-              >
-                <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
-                  <div className="flex items-center space-x-3 w-full pr-4">
-                    <svg className="w-5 h-5 text-gray-400 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="m21 21-4.35-4.35" />
-                    </svg>
-
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      placeholder="Search watches, collections, couples..."
-                      className="w-full bg-transparent text-white text-base sm:text-lg focus:outline-none placeholder-gray-500 font-light"
-                    />
-                  </div>
-
-                  <button
-                    onClick={() => setIsSearchOpen(false)}
-                    className="text-gray-400 cursor-pointer hover:text-white p-1 rounded-full hover:bg-neutral-800 transition-colors"
-                    aria-label="Close Search"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="mt-4 pt-2">
-                  <span className="text-xs text-gray-500 uppercase tracking-widest block mb-2 font-medium">
-                    Popular Searches
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {["Chronograph", "Couple Set", "Minimalist Gold", "Smart Series", "The Fresh Drop"].map((tag, i) => (
-                      <button
-                        key={i}
-                        onClick={() => {
-                          if (searchInputRef.current) searchInputRef.current.value = tag;
-                        }}
-                        className="text-xs cursor-pointer bg-neutral-900 hover:bg-white hover:text-black text-gray-300 px-3 py-1.5 rounded-full border border-neutral-800 transition-all duration-200"
-                      >
-                        {tag}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ================= RIGHT SLIDE CART DRAWER ================= */}
-        <div
-          className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-50 transition-opacity duration-300 ${
-            isCartOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-          }`}
-          onClick={() => setIsCartOpen(false)}
-        />
-
-        <aside
-          className={`fixed top-0 right-0 h-full w-full sm:w-[400px] max-w-full bg-neutral-950 border-l border-neutral-800 z-50 shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${
-            isCartOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          {/* Cart Drawer Header with Live Count */}
-          <div className="p-4 sm:p-6 border-b border-neutral-800 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <h2 className="text-base sm:text-lg font-bold tracking-wider uppercase">Shopping Cart</h2>
-              <span className="text-xs bg-amber-500/20 text-amber-400 px-2.5 py-0.5 rounded-full font-mono font-bold">
-                ({cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)})
-              </span>
-            </div>
-            <button
-              onClick={() => setIsCartOpen(false)}
-              className="text-gray-400 hover:text-white p-1.5 rounded-full hover:bg-neutral-900 transition-colors cursor-pointer"
-              aria-label="Close Cart"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Cart Body */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-            {cart.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-                <div className="w-20 h-20 bg-neutral-900 border border-neutral-800 rounded-full flex items-center justify-center text-3xl shadow-inner">
-                  👜
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-semibold text-white tracking-wide">Your cart is empty</h3>
-                  <p className="text-xs text-gray-400 max-w-[240px]">
-                    Explore our luxury watch collections and add your favorite items.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setIsCartOpen(false)}
-                  className="mt-2 bg-white text-black font-semibold text-xs py-3 px-8 rounded hover:bg-neutral-200 transition-colors uppercase tracking-wider shadow-lg hover:scale-105 transition-transform cursor-pointer"
-                >
-                  Explore Collections
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {cart.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-3 bg-neutral-900/60 border border-amber-500/20 p-3 rounded-2xl">
-                    <input
-                      type="checkbox"
-                      checked={selectedCartIndexes.includes(idx)}
-                      onChange={() => handleToggleCartSelect(idx)}
-                      className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
-                      title="Select for checkout"
-                    />
-
-                    <img 
-                      src={item.image} 
-                      alt={item.title} 
-                      className="w-14 h-14 object-contain bg-neutral-950 rounded-xl p-1 border border-neutral-800" 
-                    />
-
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-xs sm:text-sm font-bold text-amber-100 truncate">{item.title}</h4>
-                      <p className="text-xs font-bold text-[#DCAA4A] mt-0.5">{item.price}</p>
-
-                      {/* 🟢 [- 1 +] Quantity Selector */}
-                      <div className="flex items-center gap-2 mt-2">
-                        <div className="flex items-center border border-neutral-800 bg-black rounded-lg overflow-hidden">
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateQuantity(idx, -1)}
-                            className="w-7 h-6 flex items-center justify-center text-xs text-neutral-400 hover:bg-neutral-800 hover:text-amber-400 font-bold cursor-pointer transition-colors"
-                          >
-                            −
-                          </button>
-                          <span className="w-8 text-center text-xs font-bold text-white font-mono">
-                            {item.quantity || 1}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateQuantity(idx, 1)}
-                            disabled={(item.quantity || 1) >= (item.stock ?? 99)}
-                            className="w-7 h-6 flex items-center justify-center text-xs text-neutral-400 hover:bg-neutral-800 hover:text-amber-400 font-bold cursor-pointer disabled:opacity-30 transition-colors"
-                          >
-                            +
-                          </button>
-                        </div>
-                        <span className="text-[10px] text-neutral-500 font-mono">
-                          Stock: {item.stock ?? 10}
+              {/* Top Bar (Auth & Close) */}
+              <div className="p-5 border-b border-neutral-900 flex items-center justify-between relative z-10 bg-neutral-950/50">
+                <div className="flex items-center">
+                  {session ? (
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={session.user.image}
+                        alt="Profile"
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 rounded-full border border-amber-500/50 object-cover shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-amber-100 uppercase tracking-normal truncate max-w-[120px]">
+                          {session.user.name}
                         </span>
                       </div>
                     </div>
-
+                  ) : (
                     <button
-                      onClick={() => handleRemoveFromCart(idx)}
-                      className="text-neutral-500 hover:text-red-400 text-sm p-1.5 cursor-pointer transition-colors"
+                      onClick={() => signIn("google")}
+                      className="flex items-center gap-2 bg-gradient-to-r from-amber-500/10 to-amber-600/10 hover:from-amber-500/20 hover:to-amber-600/20 border border-amber-500/30 text-amber-400 px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
                     >
-                      ✕
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                      Sign In
                     </button>
-                  </div>
-                ))}
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-neutral-500 hover:text-amber-400 hover:bg-amber-500/10 p-1.5 rounded-full transition-all duration-300 focus:outline-none cursor-pointer"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-            )}
-          </div>
 
-          {/* Footer */}
-          <div className="p-4 border-t border-neutral-900 text-center">
-            {cart.length > 0 ? (
-              <button
-                onClick={handleProceedToCheckout}
-                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-bold text-xs tracking-widest uppercase rounded-full shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] transition-all cursor-pointer"
-              >
-                Proceed to Checkout
-              </button>
-            ) : (
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest">
-                100% Authentic Luxury Timepieces
-              </p>
-            )}
-          </div>
-        </aside>
+              {/* Navigation Links (Direct Navigation Without Cancellation) */}
+              {/* Navigation Links (Instant Responsive Route Trigger) */}
+             {/* Navigation Links (Zero Crash, Instant Direct Route Trigger) */}
+              <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2 relative z-10 [scrollbar-width:none]">
+                <span className="text-[10px] font-bold text-neutral-600 tracking-[0.25em] uppercase block mb-4 ml-2">
+                  Menu Collections
+                </span>
 
-        {/* ================= LEFT MOBILE MENU DRAWER ================= */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] md:hidden"
-              />
-
-              <motion.aside
-                initial={{ x: "-100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "-100%" }}
-                transition={{ type: "spring", stiffness: 300, damping: 28 }}
-                className="fixed top-0 left-0 h-full w-[85%] max-w-[320px] bg-neutral-950 border-r border-amber-500/20 z-[70] shadow-[20px_0_50px_rgba(0,0,0,0.8)] flex flex-col md:hidden overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-                <div className="p-5 border-b border-neutral-900 flex items-center justify-between relative z-10 bg-neutral-950/50">
-                  <div className="flex items-center">
-                    {session ? (
-                      <div className="flex items-center gap-3">
-                        <Image
-                          src={session.user.image}
-                          alt="Profile"
-                          width={40}
-                          height={40}
-                          className="w-10 h-10 rounded-full border border-amber-500/50 object-cover shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                        />
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold text-amber-100 uppercase tracking-normal truncate max-w-[120px]">
-                            {session.user.name}
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => signIn("google")}
-                        className="flex items-center gap-2 bg-gradient-to-r from-amber-500/10 to-amber-600/10 hover:from-amber-500/20 hover:to-amber-600/20 border border-amber-500/30 text-amber-400 px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                <div className="flex flex-col gap-1">
+                  {navLinks.map((link, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.08 + idx * 0.04, type: "spring", stiffness: 300, damping: 24 }}
+                    >
+                      <Link
+                        href={link.href}
+                        prefetch={false}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        target={link.href?.startsWith("http") ? "_blank" : undefined}
+                        rel={link.href?.startsWith("http") ? "noopener noreferrer" : undefined}
+                        className="group flex items-center justify-between py-3.5 px-4 rounded-xl hover:bg-neutral-900 border border-transparent hover:border-amber-500/20 transition-all duration-300"
                       >
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                          <circle cx="12" cy="7" r="4" />
-                        </svg>
-                        Sign In
-                      </button>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-neutral-500 hover:text-amber-400 hover:bg-amber-500/10 p-1.5 rounded-full transition-all duration-300 focus:outline-none cursor-pointer"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2 relative z-10 [scrollbar-width:none]">
-                  <span className="text-[10px] font-bold text-neutral-600 tracking-[0.25em] uppercase block mb-4 ml-2">
-                    Menu Collections
-                  </span>
-
-                  <div className="flex flex-col gap-1">
-                    {navLinks.map((link, idx) => (
-                      <motion.div
-                        key={idx}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.1 + idx * 0.05, type: "spring", stiffness: 300, damping: 24 }}
-                      >
-                        <Link
-                          href={link.href}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="group flex items-center justify-between py-3.5 px-4 rounded-xl hover:bg-neutral-900 border border-transparent hover:border-amber-500/20 transition-all duration-300"
+                        <span className="text-[13px] font-bold tracking-widest uppercase text-neutral-300 group-hover:text-amber-400 transition-colors">
+                          {link.name}
+                        </span>
+                        <svg
+                          className="w-4 h-4 text-neutral-700 group-hover:text-amber-500 transition-all transform group-hover:translate-x-1 duration-300"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
                         >
-                          <span className="text-[13px] font-bold text-neutral-300 group-hover:text-amber-400 tracking-widest uppercase transition-colors">
-                            {link.name}
-                          </span>
-                          <svg
-                            className="w-4 h-4 text-neutral-700 group-hover:text-amber-500 transition-all transform group-hover:translate-x-1 duration-300"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                          </svg>
-                        </Link>
-                      </motion.div>
-                    ))}
-                  </div>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </motion.div>
+                  ))}
                 </div>
+              </div>
 
-                <div className="p-6 border-t border-neutral-900 relative z-10 bg-neutral-950">
-                  <div className="flex items-center justify-center">
-                    <Image src="/wLogo.png" alt="Logo" width={40} height={40} className="opacity-70 hover:opacity-100 transition-all duration-500" />
-                  </div>
-                  <p className="text-center text-[9px] text-amber-500/50 uppercase tracking-[0.25em] mt-3 font-semibold">
-                    Elegance On Your Wrist
-                  </p>
+              {/* Footer */}
+              <div className="p-6 border-t border-neutral-900 relative z-10 bg-neutral-950">
+                <div className="flex items-center justify-center">
+                  <Image src={wLogo} width={40} height={40} alt="Logo" className="opacity-70 hover:opacity-100 transition-all duration-500" />
                 </div>
-              </motion.aside>
-            </>
-          )}
-        </AnimatePresence>
-      </header>
+                <p className="text-center text-[9px] text-amber-500/50 uppercase tracking-[0.25em] mt-3 font-semibold">
+                  Elegance On Your Wrist
+                </p>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Hero Banner Section */}
       <section className="relative w-full h-[550px] pt-5 pb-2 overflow-hidden select-none">
