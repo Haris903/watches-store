@@ -584,7 +584,7 @@ export default function WristWatchesPage() {
                     alt="Profile"
                     width={34}
                     height={34}
-                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-neutral-700 object-cover cursor-pointer"
+                    className="w-8 h-8 sm:w-8 sm:h-8 rounded-full border border-neutral-700 object-cover cursor-pointer"
                   />
                   <div className="absolute top-full right-0 mt-2 bg-neutral-900 border border-neutral-800 text-white text-xs px-2.5 py-1 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
                     {session.user?.name}
@@ -606,7 +606,7 @@ export default function WristWatchesPage() {
                 onClick={() => signIn("google")}
                 className="hover:opacity-75 cursor-pointer transition-opacity p-1 relative focus:outline-none"
               >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 sm:w-6 sm:h-6 fill-none stroke-current stroke-2" viewBox="0 0 24 24" >
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
