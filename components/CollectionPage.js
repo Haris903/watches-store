@@ -476,7 +476,18 @@ export default function MenWatchesCollectionPage() {
   const pathname = usePathname();
 
   // 1. ALL CORE STATES DECLARED AT THE TOP
-  const [currentCollection, setCurrentCollection] = useState("freshdrop");
+ // 1. Initial URL Detection (Reload ya Direct Link par foran sahi category uthayega)
+  const [currentCollection, setCurrentCollection] = useState(() => {
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname.toLowerCase();
+      if (path.includes("the-fresh-drop") || path.includes("freshdrop")) return "freshdrop";
+      if (path.includes("women")) return "women";
+      if (path.includes("men")) return "men";
+      if (path.includes("smart")) return "smart";
+      if (path.includes("couple")) return "couples";
+    }
+    return "freshdrop";
+  });
   const [activeCategory, setActiveCategory] = useState("All Timepieces");
   const [sortBy, setSortBy] = useState("featured");
 
@@ -511,29 +522,29 @@ export default function MenWatchesCollectionPage() {
   const filterSentinelRef = useRef(null);
   const isInitialSync = useRef(true);
 
-  
-
-  // 2. PATHNAME BASED COLLECTION AUTO-SELECTION
-  // 🟢 Browser Back/Forward buttons dabane par URL & Collection sync
+  // 🟢 Pathname change hone par instant collection switch (No Refresh/No Lag)
   useEffect(() => {
-    const handlePopState = () => {
-      const path = window.location.pathname;
-      if (path.includes("the-fresh-drop")) {
+    const updateCollectionFromUrl = () => {
+      const path = (pathname || (typeof window !== "undefined" ? window.location.pathname : "")).toLowerCase();
+      if (path.includes("the-fresh-drop") || path.includes("freshdrop")) {
         setCurrentCollection("freshdrop");
       } else if (path.includes("women")) {
         setCurrentCollection("women");
       } else if (path.includes("men")) {
         setCurrentCollection("men");
-      } else if (path.includes("smart-watches")) {
+      } else if (path.includes("smart")) {
         setCurrentCollection("smart");
-      } else if (path.includes("for-couples")) {
+      } else if (path.includes("couple")) {
         setCurrentCollection("couples");
       }
     };
 
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
+    updateCollectionFromUrl();
+
+    window.addEventListener("popstate", updateCollectionFromUrl);
+    return () => window.removeEventListener("popstate", updateCollectionFromUrl);
+  }, [pathname]);
+
 
   // 3. FETCH LIVE WATCHES FROM DATABASE
   // 🟢 3. LIVE AUTO-SYNC: Har 3 sec baad silently check karega (Bina Page Refresh ke)
@@ -1498,7 +1509,7 @@ export default function MenWatchesCollectionPage() {
                 setCheckoutItems([]);
               }}
             >
-             <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
+            <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
                 <motion.div
                   onClick={(e) => e.stopPropagation()}
                   initial={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -1506,21 +1517,21 @@ export default function MenWatchesCollectionPage() {
                   exit={{ opacity: 0, scale: 0.95, y: 15 }}
                   transition={{ type: "spring", stiffness: 350, damping: 30 }}
                   style={{ willChange: "transform, opacity" }}
-                  className="relative w-full max-w-4xl bg-neutral-950 border border-amber-500/30 rounded-3xl p-6 md:p-10 shadow-[0_0_80px_rgba(245,158,11,0.2)] backdrop-blur-xl z-10 overflow-hidden"
+                  className="relative w-full max-w-4xl bg-neutral-950 border border-amber-500/30 rounded-3xl p-6 md:p-10 shadow-[0_0_80px_rgba(245,158,11,0.25)] backdrop-blur-xl z-10 overflow-hidden"
                 >
-                  {/* 🟢 100% SOLID OPAQUE 10-SECOND POPUP (Poori Screen Cover Karega) */}
+                  {/* 🟢 100% SOLID OPAQUE FULL-SCREEN MODAL POPUP */}
                   <AnimatePresence>
                     {orderSuccess && (
                       <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
+                        initial={{ opacity: 0, scale: 0.96 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
+                        exit={{ opacity: 0, scale: 0.96 }}
                         transition={{ duration: 0.25, ease: "easeOut" }}
                         className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-[#070707] px-6 py-8 sm:p-12 text-center"
                       >
                         <div className="pointer-events-none absolute h-72 w-72 rounded-full bg-[#DCAA4A]/10 blur-[120px]" />
 
-                        {/* Emerald Seal */}
+                        {/* Emerald Glowing Seal */}
                         <div className="relative mb-5 flex h-20 w-20 items-center justify-center rounded-full border-2 border-emerald-400/80 bg-emerald-500/10 shadow-[0_0_50px_rgba(16,185,129,0.35)]">
                           <span className="absolute -inset-2 rounded-full border border-emerald-500/20 animate-ping opacity-75" />
                           <svg className="h-10 w-10 text-emerald-400 stroke-current stroke-[2.5] fill-none" viewBox="0 0 24 24">
@@ -1538,7 +1549,7 @@ export default function MenWatchesCollectionPage() {
                           Payment proof verified and logged. Your luxury timepiece has been allocated for priority courier dispatch.
                         </p>
 
-                        {/* Split -6 Order ID with Copy Button */}
+                        {/* Clean Short -6 Order ID with Copy Button */}
                         <div className="mt-6 flex flex-col sm:flex-row items-center gap-3 rounded-2xl border border-amber-500/35 bg-neutral-900/95 px-5 py-3 shadow-[0_0_30px_rgba(245,158,11,0.12)]">
                           <div className="text-center sm:text-left">
                             <span className="block text-[10px] font-extrabold uppercase tracking-widest text-neutral-500">
@@ -1579,7 +1590,7 @@ export default function MenWatchesCollectionPage() {
                           </Link>
                         </div>
 
-                        {/* 10-Second Progress Bar */}
+                        {/* 10-Second Countdown Progress Bar */}
                         <div className="mt-8 flex flex-col items-center gap-2">
                           <div className="h-1.5 w-60 sm:w-72 overflow-hidden rounded-full bg-neutral-900 border border-neutral-800">
                             <motion.div
@@ -1900,7 +1911,7 @@ export default function MenWatchesCollectionPage() {
                           )}
                         </AnimatePresence>
 
-                        {errorMessage && (
+                     {errorMessage && (
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
