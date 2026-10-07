@@ -471,12 +471,12 @@ function ProductCard({ watch, index, inCart, onAdd, onQuickView }) {
 /* ================================================================== */
 /*  MAIN PAGE COMPONENT                                               */
 /* ================================================================== */
-
 export default function MenWatchesCollectionPage() {
   const pathname = usePathname();
 
-  // 1. ALL CORE STATES DECLARED AT THE TOP
- // 1. Initial URL Detection (Reload ya Direct Link par foran sahi category uthayega)
+  // 🟢 1. ALL STATES DECLARED FIRST (dbWatches sab se pehle declare hoga)
+  const [dbWatches, setDbWatches] = useState([]);
+  
   const [currentCollection, setCurrentCollection] = useState(() => {
     if (typeof window !== "undefined") {
       const path = window.location.pathname.toLowerCase();
@@ -488,16 +488,18 @@ export default function MenWatchesCollectionPage() {
     }
     return "freshdrop";
   });
+
   const [activeCategory, setActiveCategory] = useState("All Timepieces");
   const [sortBy, setSortBy] = useState("featured");
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isFilterStuck, setIsFilterStuck] = useState(false);
 
-  // Cart & Checkout
+  // Cart & Checkout States
   const [cart, setCart] = useState([]);
   const [selectedWatch, setSelectedWatch] = useState(null);
   const [selectedCartIndexes, setSelectedCartIndexes] = useState([]);
@@ -513,14 +515,52 @@ export default function MenWatchesCollectionPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [confirmedOrderId, setConfirmedOrderId] = useState("");
 
-  // Live Database Watches
-  const [dbWatches, setDbWatches] = useState([]);
-
   // Session & Refs
   const { data: session, status } = useSession();
   const searchInputRef = useRef(null);
   const filterSentinelRef = useRef(null);
   const isInitialSync = useRef(true);
+
+  // 🟢 2. SEARCH & ROUTES CONFIGURATION (Ab dbWatches pehle se ready hai)
+  const COLLECTION_ROUTES = {
+    freshdrop: "/collections/the-fresh-drop",
+    men: "/collections/men",
+    women: "/collections/women",
+    smart: "/collections/smart-watches",
+    couples: "/collections/for-couples",
+  };
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim() || !Array.isArray(dbWatches)) return [];
+    const q = searchQuery.toLowerCase().trim();
+    return dbWatches.filter((w) => {
+      const title = (w.title || "").toLowerCase();
+      const cat = (w.category || "").toLowerCase();
+      const col = (w.collection || "").toLowerCase();
+      const spec = (w.spec || "").toLowerCase();
+      return title.includes(q) || cat.includes(q) || col.includes(q) || spec.includes(q);
+    });
+  }, [searchQuery, dbWatches]);
+
+  const handleSelectSearchedWatch = (watch) => {
+    const targetCol = (watch.collection || currentCollection || "freshdrop").toLowerCase().trim();
+    const targetRoute = COLLECTION_ROUTES[targetCol] || `/collections/${targetCol}`;
+
+    window.history.pushState(null, "", targetRoute);
+    
+    setCurrentCollection(targetCol);
+    if (watch.category && CATEGORIES.includes(watch.category)) {
+      setActiveCategory(watch.category);
+    } else {
+      setActiveCategory("All Timepieces");
+    }
+
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    setSelectedWatch(watch);
+  };
+
+  
 
   // 🟢 Pathname change hone par instant collection switch (No Refresh/No Lag)
   useEffect(() => {
@@ -659,6 +699,7 @@ export default function MenWatchesCollectionPage() {
   const hero = collectionData.hero;
 
   // Sub-Category Level Filter (All Timepieces, Chronograph, Automatic, etc.)
+  // Sub-Category Level Filter & Search Filter
   const visibleWatches = useMemo(() => {
     let list = [];
     if (activeCategory === "All Timepieces") {
@@ -669,13 +710,24 @@ export default function MenWatchesCollectionPage() {
       );
     }
 
+    // Search query agar active ho toh grid par bhi filter karega
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(
+        (w) =>
+          (w.title || "").toLowerCase().includes(q) ||
+          (w.category || "").toLowerCase().includes(q) ||
+          (w.spec || "").toLowerCase().includes(q)
+      );
+    }
+
     switch (sortBy) {
       case "price-low": return list.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
       case "price-high": return list.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
       case "rating": return list.sort((a, b) => b.rating - a.rating);
       default: return list;
     }
-  }, [activeCategory, sortBy, watches]);
+  }, [activeCategory, sortBy, watches, searchQuery]);
 
   const cartIds = useMemo(() => new Set(cart.map((c) => c.id)), [cart]);
 
@@ -1178,6 +1230,7 @@ export default function MenWatchesCollectionPage() {
       </footer>
 
       {/* SEARCH MODAL */}
+      {/* SEARCH MODAL (Live Search with Instant Category Redirection) */}
       <AnimatePresence>
         {isSearchOpen && (
           <motion.div
@@ -1187,48 +1240,159 @@ export default function MenWatchesCollectionPage() {
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-[80] flex flex-col justify-start bg-black/90 px-4 sm:px-5 pt-20 sm:pt-24 backdrop-blur-md"
           >
-            <div className="absolute inset-0 -z-10" onClick={() => setIsSearchOpen(false)} />
+            <div 
+              className="absolute inset-0 -z-10" 
+              onClick={() => {
+                setIsSearchOpen(false);
+                setSearchQuery("");
+              }} 
+            />
 
             <motion.div
               initial={{ y: -40, opacity: 0, scale: 0.96 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: -20, opacity: 0, scale: 0.96 }}
               transition={{ type: "spring", stiffness: 300, damping: 26 }}
-              className="relative mx-auto w-full max-w-3xl rounded-3xl border border-[#DCAA4A]/20 bg-[#0a0a0a] p-5 sm:p-8 shadow-2xl"
+              className="relative mx-auto w-full max-w-3xl rounded-3xl border border-[#DCAA4A]/30 bg-[#0a0a0a] p-5 sm:p-7 shadow-[0_0_60px_rgba(0,0,0,0.95)] max-h-[85vh] flex flex-col overflow-hidden"
             >
-              <div className="flex items-center justify-between gap-3 sm:gap-4 border-b border-neutral-800 pb-3 sm:pb-4">
-                <div className="flex w-full items-center gap-3 sm:gap-4">
+              {/* Search Bar Input */}
+              <div className="flex items-center justify-between gap-3 sm:gap-4 border-b border-neutral-800 pb-3 sm:pb-4 shrink-0">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (searchResults.length > 0) {
+                      handleSelectSearchedWatch(searchResults[0]);
+                    }
+                  }}
+                  className="flex w-full items-center gap-3 sm:gap-4"
+                >
                   <IconSearch className="h-5 w-5 sm:h-6 sm:w-6 shrink-0 text-[#DCAA4A]" />
                   <input
                     ref={searchInputRef}
                     type="text"
-                    placeholder="Search timepieces..."
-                    className="w-full bg-transparent text-base sm:text-lg md:text-2xl font-bold text-white placeholder-neutral-600 focus:outline-none"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search watches by name, movement, collection..."
+                    className="w-full bg-transparent text-base sm:text-lg md:text-xl font-bold text-white placeholder-neutral-500 focus:outline-none"
                   />
-                </div>
-                <button onClick={() => setIsSearchOpen(false)} aria-label="Close search" className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white">
-                  <IconClose className="h-5 w-5 sm:h-6 sm:w-6" />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="text-xs text-neutral-400 hover:text-white px-2 py-1 rounded bg-neutral-900 border border-neutral-800 shrink-0"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </form>
+
+                <button 
+                  onClick={() => {
+                    setIsSearchOpen(false);
+                    setSearchQuery("");
+                  }} 
+                  aria-label="Close search" 
+                  className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white"
+                >
+                  <IconClose className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="mt-5 sm:mt-6">
-                <span className="mb-2.5 sm:mb-3 block text-[11px] sm:text-[12px] md:text-[13px] font-extrabold uppercase tracking-[0.22em] text-neutral-500">
-                  Popular Searches
-                </span>
-                <div className="flex flex-wrap gap-2 sm:gap-2.5">
-                  {["Chronograph", "Automatic", "Steel Edition", "Leather Strap", "Gold PVD"].map((tag) => (
-                    <button
-                      key={tag}
-                      onClick={() => {
-                        setActiveCategory(CATEGORIES.includes(tag) ? tag : activeCategory);
-                        if (searchInputRef.current) searchInputRef.current.value = tag;
-                      }}
-                      className="cursor-pointer rounded-full border border-neutral-800 bg-neutral-900 px-4 py-2 sm:px-5 sm:py-2.5 text-[12px] sm:text-[13px] md:text-sm font-extrabold uppercase tracking-[0.1em] text-neutral-300 transition-all hover:bg-[#DCAA4A] hover:text-black"
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
+              {/* Live Search Results List */}
+              <div className="mt-4 overflow-y-auto flex-1 pr-1 space-y-2.5 [scrollbar-width:thin]">
+                {searchQuery.trim() ? (
+                  searchResults.length > 0 ? (
+                    <div className="space-y-2">
+                      <span className="block text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#DCAA4A] mb-3">
+                        Found {searchResults.length} Matching Timepieces
+                      </span>
+                      {searchResults.map((watch) => (
+                        <div
+                          key={watch.id || watch._id}
+                          onClick={() => handleSelectSearchedWatch(watch)}
+                          className="group flex items-center justify-between gap-3 p-3 rounded-2xl border border-neutral-900 bg-neutral-950/80 hover:border-amber-500/50 hover:bg-neutral-900/90 transition-all cursor-pointer shadow-sm hover:shadow-[0_0_25px_rgba(245,158,11,0.15)]"
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            <div className="h-14 w-14 shrink-0 rounded-xl bg-neutral-900 border border-neutral-800 p-1 flex items-center justify-center">
+                              <img
+                                src={watch.image}
+                                alt={watch.title}
+                                className="h-full w-full object-contain filter drop-shadow group-hover:scale-105 transition-transform"
+                              />
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="text-xs sm:text-sm font-bold text-white truncate group-hover:text-amber-300 transition-colors">
+                                {watch.title}
+                              </h4>
+                              <p className="text-[11px] text-neutral-400 font-medium truncate mt-0.5">
+                                {watch.spec}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] uppercase font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md">
+                                  {watch.collection}
+                                </span>
+                                <span className="text-[10px] text-neutral-500 font-bold uppercase">
+                                  {watch.category}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-right shrink-0">
+                            <p className="text-xs sm:text-sm font-extrabold text-[#DCAA4A]">
+                              {watch.price}
+                            </p>
+                            <span className="text-[10px] font-bold text-neutral-400 group-hover:text-white transition-colors block mt-1">
+                              View Piece →
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-12 text-center text-neutral-500 space-y-2">
+                      <p className="text-sm font-bold">No watches matching "{searchQuery}"</p>
+                      <p className="text-xs text-neutral-600">Try searching by movement (e.g. Automatic, Chronograph) or collection.</p>
+                    </div>
+                  )
+                ) : (
+                  /* Popular Searches Tags when Query is Empty */
+                  <div className="py-2">
+                    <span className="mb-2.5 sm:mb-3 block text-[11px] font-extrabold uppercase tracking-[0.22em] text-neutral-500">
+                      Popular Collections & Categories
+                    </span>
+                    <div className="flex flex-wrap gap-2 sm:gap-2.5">
+                      {[
+                        { label: "Men", col: "men" },
+                        { label: "Women", col: "women" },
+                        { label: "Smart Watches", col: "smart" },
+                        { label: "Couples", col: "couples" },
+                        { label: "Chronograph", tag: "Chronograph" },
+                        { label: "Automatic", tag: "Automatic" },
+                        { label: "Steel Edition", tag: "Steel Edition" },
+                      ].map((item, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            if (item.col) {
+                              const targetRoute = COLLECTION_ROUTES[item.col];
+                              window.history.pushState(null, "", targetRoute);
+                              setCurrentCollection(item.col);
+                              setActiveCategory("All Timepieces");
+                              setIsSearchOpen(false);
+                            } else if (item.tag) {
+                              setSearchQuery(item.tag);
+                            }
+                          }}
+                          className="cursor-pointer rounded-full border border-neutral-800 bg-neutral-900 px-4 py-2 text-xs font-extrabold uppercase tracking-[0.1em] text-neutral-300 transition-all hover:bg-[#DCAA4A] hover:text-black"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>

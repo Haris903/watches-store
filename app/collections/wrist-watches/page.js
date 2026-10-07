@@ -557,24 +557,14 @@ export default function WristWatchesPage() {
           </nav>
 
           <div className="flex-shrink-0 flex items-center space-x-2 sm:space-x-4 lg:space-x-6 text-white">
-            <button
-              onClick={() => setIsSearchOpen(true)}
-              aria-label="Search"
-              className="hover:opacity-75 cursor-pointer transition-opacity p-1 focus:outline-none"
-            >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-              </svg>
-            </button>
-
+            
             {/* 🟢 Live Quantity Synchronized Cart Badge */}
             <button
               onClick={() => setIsCartOpen(true)}
               aria-label="Cart"
               className="hover:opacity-75 cursor-pointer transition-opacity p-1 relative focus:outline-none"
             >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 sm:w-6 sm:h-6 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
                 <path d="M3 6h18" />
                 <path d="M16 10a4 4 0 0 1-8 0" />
@@ -592,8 +582,8 @@ export default function WristWatchesPage() {
                   <Image
                     src={session.user.image}
                     alt="Profile"
-                    width={32}
-                    height={32}
+                    width={34}
+                    height={34}
                     className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-neutral-700 object-cover cursor-pointer"
                   />
                   <div className="absolute top-full right-0 mt-2 bg-neutral-900 border border-neutral-800 text-white text-xs px-2.5 py-1 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
@@ -605,7 +595,7 @@ export default function WristWatchesPage() {
                   onClick={() => signOut()}
                   className="hover:opacity-75 cursor-pointer transition-opacity p-1 relative focus:outline-none"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#dbdbdb" fill="none" stroke="#dbdbdb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" color="#dbdbdb" fill="none" stroke="#dbdbdb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M14.5 6C14.4534 4.90658 14.3147 4.20985 13.9025 3.67376C13.7426 3.46574 13.5561 3.27954 13.3476 3.11992C12.5381 2.5 11.363 2.5 9.01286 2.5H8.51184C5.67786 2.5 4.26087 2.5 3.38046 3.37867C2.50006 4.25734 2.50004 5.67157 2.50003 8.49997L2.50002 15.5C2.50001 18.3284 2.5 19.7426 3.38042 20.6213C4.26083 21.5 5.67783 21.5 8.51184 21.5H9.01281C11.363 21.5 12.5381 21.5 13.3476 20.8801C13.556 20.7205 13.7426 20.5343 13.9025 20.3263C14.3147 19.7901 14.4534 19.0933 14.5 17.9996"></path>
                     <path d="M20.5 11.9999H8.50002M18 15.5C18 15.5 21.5 12.9223 21.5 12C21.5 11.0777 18 8.5 18 8.5"></path>
                   </svg>
