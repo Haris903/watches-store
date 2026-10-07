@@ -501,14 +501,15 @@ export default function WristWatchesPage() {
   return (
     <div className="w-full min-h-screen text-white flex flex-col relative font-jakarta">
       {/* Announcement Bar */}
-      <nav className="flex anouncement-bar-scroll sticky top-0 z-50 bg-[linear-gradient(to_right,_black_5%,_#9E674F_18%,_#9E674F_80%,_black_94%)] px-16 h-12 w-full justify-center md:space-x-26 items-center">
-        <button onClick={handleToggle} className="arrow hidden md:block cursor-pointer py-[15px] focus:outline-none">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" color="#dbdbdb" fill="none" stroke="#dbdbdb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      {/* Announcement Bar (Normal Flow - Scroll karne par upar gayab ho jayega) */}
+      <div className="relative w-full z-30 bg-[linear-gradient(to_right,_black_5%,_#9E674F_18%,_#9E674F_80%,_black_94%)] px-4 sm:px-16 h-11 sm:h-12 flex items-center justify-center overflow-hidden border-b border-white/[0.08]">
+        <button onClick={handleToggle} className="arrow hidden md:block cursor-pointer py-2 focus:outline-none shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#dbdbdb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M17 4L8.66943 10.0405C6.44352 11.6545 6.44353 12.3455 8.66943 13.9595L17 20"></path>
           </svg>
         </button>
 
-        <div className="relative h-12 w-full md:w-[540px] flex items-center justify-center overflow-hidden">
+        <div className="relative h-11 sm:h-12 w-full max-w-[560px] flex items-center justify-center overflow-hidden mx-2">
           <AnimatePresence mode="wait">
             <motion.div
               key={index}
@@ -516,31 +517,31 @@ export default function WristWatchesPage() {
               animate={{ y: "0%", opacity: 1 }}
               exit={{ y: "-100%", opacity: 0 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="absolute font-Inter font-bold text-xs sm:text-[14px] w-full text-center md:whitespace-nowrap"
+              className="absolute font-sans font-bold text-[11px] sm:text-xs md:text-[13px] tracking-wide text-center text-white/95 truncate w-full"
             >
               {slides[index]}
             </motion.div>
           </AnimatePresence>
         </div>
 
-        <button onClick={handleToggle} className="arrow hidden md:block cursor-pointer py-[15px] focus:outline-none">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" color="#dbdbdb" fill="none" stroke="#dbdbdb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <button onClick={handleToggle} className="arrow hidden md:block cursor-pointer py-2 focus:outline-none shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#dbdbdb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M7 4L15.3306 10.0405C17.5565 11.6545 17.5565 12.3455 15.3306 13.9595L7 20"></path>
           </svg>
         </button>
-      </nav>
+      </div>
 
-      {/* Header Bar */}
-      {/* ================= 1. CLEAN PRO LUXURY HEADER (NO SEARCH) ================= */}
-      <header className="w-full sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-[#DCAA4A]/25 shadow-[0_10px_35px_-10px_rgba(0,0,0,0.9),0_1px_15px_rgba(220,170,74,0.08)] transition-all duration-300">
-        <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between gap-4">
+      {/* ================= 1. CLEAN FIXED LUXURY HEADER ================= */}
+      <header className="sticky top-0 z-50 w-full bg-black/95 backdrop-blur-xl border-b border-[#DCAA4A]/25 shadow-[0_10px_35px_-10px_rgba(0,0,0,0.9),0_1px_15px_rgba(220,170,74,0.08)] transition-all duration-300">
+        <div className="w-full max-w-[1650px] mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-22 flex items-center justify-between gap-4">
           
-          {/* LEFT: BRAND EMBLEM & MOBILE HAMBURGER (Never Shrinks) */}
+          {/* LEFT: BRAND EMBLEM & RESPONSIVE HAMBURGER */}
           <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Hamburger Button (Laptops/Tablets < 1280px par show hoga taake layout na tootay) */}
             <motion.button
               whileTap={{ scale: 0.92 }}
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden relative flex h-11 w-11 items-center justify-center rounded-2xl border border-[#DCAA4A]/30 bg-neutral-950 text-neutral-300 hover:text-[#DCAA4A] hover:border-[#DCAA4A] transition-all cursor-pointer shadow-md"
+              className="xl:hidden relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl border border-[#DCAA4A]/30 bg-neutral-950 text-neutral-300 hover:text-[#DCAA4A] hover:border-[#DCAA4A] transition-all cursor-pointer shadow-md shrink-0"
               aria-label="Open Navigation"
             >
               <div className="flex flex-col gap-1.5 w-5 items-center justify-center">
@@ -550,35 +551,36 @@ export default function WristWatchesPage() {
               </div>
             </motion.button>
 
-            <Link href="/" className="group flex items-center gap-2.5 sm:gap-3 py-1">
-              <div className="relative flex items-center justify-center">
+            {/* Brand Logo & Title */}
+            <Link href="/" className="group flex items-center gap-2.5 sm:gap-3 py-1 shrink-0">
+              <div className="relative flex items-center justify-center shrink-0">
                 <div className="absolute -inset-1 rounded-full bg-[#DCAA4A]/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <Image
                   src={wLogo}
                   alt="Elegance Logo"
                   priority
-                  className="relative h-9 sm:h-11 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                  className="relative h-9 sm:h-10 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm sm:text-base font-extrabold tracking-[0.2em] text-white uppercase group-hover:text-[#DCAA4A] transition-colors leading-none">
+                <span className="text-sm sm:text-base font-black tracking-[0.18em] text-white uppercase group-hover:text-[#DCAA4A] transition-colors leading-none">
                   Elegance
                 </span>
-                <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.28em] text-[#DCAA4A] uppercase mt-1 leading-none">
+                <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.24em] text-[#DCAA4A] uppercase mt-1 leading-none">
                   On Your Wrist
                 </span>
               </div>
             </Link>
           </div>
 
-          {/* CENTER: DESKTOP PRO NAV LINKS (Zero-Hang Navigation) */}
-          <nav className="hidden lg:flex items-center justify-center gap-1 xl:gap-2 min-w-0">
+          {/* CENTER: DESKTOP PRO NAV LINKS (Never Collides With Logo) */}
+          <nav className="hidden xl:flex items-center justify-center gap-1 2xl:gap-2.5 min-w-0">
             {navLinks.map((link, idx) => (
               <Link
                 key={idx}
                 href={link.href}
                 prefetch={false}
-                className="group relative px-2.5 xl:px-3.5 py-2 text-[11px] xl:text-[12px] font-extrabold uppercase tracking-[0.12em] xl:tracking-[0.15em] text-neutral-300 hover:text-white transition-colors duration-300 rounded-full whitespace-nowrap"
+                className="group relative px-2.5 2xl:px-3.5 py-2 text-[11px] 2xl:text-[12px] font-extrabold uppercase tracking-[0.12em] 2xl:tracking-[0.15em] text-neutral-300 hover:text-white transition-colors duration-300 rounded-full whitespace-nowrap shrink-0"
               >
                 <span className="relative z-10">{link.name}</span>
                 <span className="absolute inset-0 rounded-full bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
@@ -587,16 +589,16 @@ export default function WristWatchesPage() {
             ))}
           </nav>
 
-          {/* RIGHT: CART & SIGN IN (Search Button Hata Diya Gaya) */}
-          <div className="flex items-center gap-3 shrink-0">
+          {/* RIGHT: CART & SIGN IN */}
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
             {/* Shopping Bag Button with Live Badge */}
             <motion.button
               whileTap={{ scale: 0.94 }}
               onClick={() => setIsCartOpen(true)}
               aria-label="Shopping Cart"
-              className="relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-neutral-800 bg-neutral-950 text-neutral-300 hover:text-[#DCAA4A] hover:border-[#DCAA4A]/50 hover:bg-[#DCAA4A]/10 transition-all duration-300 cursor-pointer shadow-inner"
+              className="relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-neutral-800 bg-neutral-950 text-neutral-300 hover:text-[#DCAA4A] hover:border-[#DCAA4A]/50 hover:bg-[#DCAA4A]/10 transition-all duration-300 cursor-pointer shadow-inner shrink-0"
             >
-              <svg className="w-5 h-5 sm:w-5.5 sm:h-5.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
                 <path d="M3 6h18" />
                 <path d="M16 10a4 4 0 0 1-8 0" />
@@ -613,10 +615,8 @@ export default function WristWatchesPage() {
             </motion.button>
 
             {/* Auth Section */}
-           {/* Auth Section */}
-            {/* Auth Section */}
             {session ? (
-              <div className="flex items-center gap-2.5 rounded-full border border-neutral-800 bg-neutral-950 p-1 pl-1.5 sm:pr-2.5">
+              <div className="flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-950 p-1 pl-1.5 sm:pr-2.5 shrink-0">
                 <div className="relative group flex items-center cursor-pointer">
                   <Image
                     src={session.user.image}
@@ -630,11 +630,11 @@ export default function WristWatchesPage() {
                   </div>
                 </div>
 
-                <span className="hidden sm:inline-block max-w-[100px] truncate text-xs font-bold text-neutral-200">
+                <span className="hidden sm:inline-block max-w-[90px] truncate text-xs font-bold text-neutral-200">
                   {session.user?.name?.split(" ")[0]}
                 </span>
 
-               <button
+                <button
                   type="button"
                   onClick={() => signOut()}
                   title="Logout"
@@ -652,7 +652,7 @@ export default function WristWatchesPage() {
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => signIn("google")}
-                className="group relative flex items-center gap-2 rounded-full border border-[#DCAA4A]/40 bg-neutral-950/90 hover:border-[#DCAA4A] hover:bg-[#DCAA4A]/10 px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-extrabold uppercase tracking-[0.24em] text-[#DCAA4A] hover:text-[#fcedc7] transition-all duration-300 shadow-[0_0_15px_rgba(220,170,74,0.1)] hover:shadow-[0_0_22px_rgba(220,170,74,0.3)] cursor-pointer overflow-hidden whitespace-nowrap"
+                className="group relative flex items-center gap-2 rounded-full border border-[#DCAA4A]/40 bg-neutral-950/90 hover:border-[#DCAA4A] hover:bg-[#DCAA4A]/10 px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-extrabold uppercase tracking-[0.24em] text-[#DCAA4A] hover:text-[#fcedc7] transition-all duration-300 shadow-[0_0_15px_rgba(220,170,74,0.1)] hover:shadow-[0_0_22px_rgba(220,170,74,0.3)] cursor-pointer overflow-hidden whitespace-nowrap shrink-0"
               >
                 <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-none stroke-current stroke-[2.2] group-hover:scale-105 transition-transform" viewBox="0 0 24 24">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
