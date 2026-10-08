@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
 import wLogo from "@/public/wLogo.png";
+// import order from ""
 
 /* ================================================================== */
 /*  ICONS FROM COLLECTION PAGE                                         */
@@ -75,21 +76,19 @@ export default function TrackOrderPage() {
   const { data: session } = useSession();
   const searchInputRef = useRef(null);
 
-  const [query, setQuery] = useState("");
+ const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [order, setOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
   const [cartCount, setCartCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Sync cart counter badge
-  // 🟢 Sync cart counter badge with total quantities
   useEffect(() => {
     const updateCartCount = () => {
       try {
         const localCart = JSON.parse(localStorage.getItem("my_store_cart") || "[]");
         if (Array.isArray(localCart)) {
-          // Har watch ki quantity jama (sum) karega
           const totalQty = localCart.reduce(
             (sum, item) => sum + (Number(item.quantity) || 1),
             0
@@ -115,22 +114,34 @@ export default function TrackOrderPage() {
 
   const handleTrack = async (e) => {
     e.preventDefault();
-    if (!query.trim()) return;
+    const cleanQ = query.trim();
+    if (!cleanQ) return;
+
+    const digitsOnly = cleanQ.replace(/\D/g, "");
+    const isPhone = digitsOnly.length >= 10;
+    const rawId = cleanQ.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().replace(/^ORD/i, "");
+
+    // 🟢 Strict Check: Agar phone number nahi hai to exact 6 characters hone zaroori hain
+    if (!isPhone && rawId.length !== 6) {
+      setError("Order ID me exact 6 characters hone chahiye (e.g. #ORD-XXXXXX).");
+      setOrders([]);
+      return;
+    }
 
     setLoading(true);
     setError("");
-    setOrder(null);
+    setOrders([]);
 
     try {
       const res = await fetch("/api/orders/track", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: query.trim() }),
+        body: JSON.stringify({ query: cleanQ }),
       });
       const data = await res.json();
 
-      if (data.success) {
-        setOrder(data.order);
+      if (data.success && data.orders?.length > 0) {
+        setOrders(data.orders);
       } else {
         setError(data.message || "No record found. Please verify your reference or phone number.");
       }
@@ -489,192 +500,203 @@ export default function TrackOrderPage() {
       </section>
 
       {/* ================= TRACKING RESULT DISPLAY ================= */}
+      {/* ================= TRACKING RESULT DISPLAY (MULTIPLE ORDERS SUPPORT) ================= */}
       <AnimatePresence>
-        {order && (
-          <section className="relative mx-auto max-w-5xl px-4 sm:px-6 md:px-8 py-12 sm:py-16 pb-28 lg:pb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 35 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 15 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-[#111] via-neutral-950 to-black p-5 sm:p-8 md:p-10 shadow-[0_0_80px_rgba(245,158,11,0.12)]"
-            >
-              {/* ORDER HEADER */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6 sm:pb-8">
-                <div>
-                  <span className="text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.25em] text-neutral-400 block whitespace-nowrap">
-                    Live Tracking Record
-                  </span>
-                  <h2 className="mt-1 text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[#DCAA4A] whitespace-nowrap">
-                    {order.orderId}
-                  </h2>
-                  <p className="mt-1 text-xs sm:text-sm font-medium text-neutral-400 whitespace-nowrap">
-                    Placed on: {new Date(order.createdAt).toLocaleDateString("en-PK", { dateStyle: "medium" })}
-                  </p>
-                </div>
-
-                <div className="self-start sm:self-center">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400 whitespace-nowrap">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                    {order.status}
-                  </span>
-                </div>
+        {orders.length > 0 && (
+          <section className="relative mx-auto max-w-5xl px-4 sm:px-6 md:px-8 py-12 sm:py-16 pb-28 lg:pb-16 space-y-8">
+            {orders.length > 1 && (
+              <div className="flex items-center justify-between border-b border-amber-500/20 pb-4">
+                <span className="text-xs sm:text-sm font-extrabold uppercase tracking-[0.25em] text-[#DCAA4A]">
+                  Total Records Found: {orders.length}
+                </span>
+                <span className="text-xs font-mono text-neutral-400">
+                  Phone: +{orders[0].phone}
+                </span>
               </div>
+            )}
 
-              {/* TIMELINE PROGRESS TRACKER */}
-              <div className="my-8 sm:my-12">
-                <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-[0.25em] text-neutral-400 mb-6 sm:mb-8 whitespace-nowrap">
-                  Consignment Milestones
-                </h3>
-
-                <div className="relative">
-                  {/* Connecting Horizontal Line (Laptops/Tablets) */}
-                  <div className="absolute top-5 left-6 right-6 h-0.5 bg-neutral-800 hidden md:block">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{
-                        width: `${(getCurrentStageIndex(order.status) / (ORDER_STAGES.length - 1)) * 100}%`,
-                      }}
-                      transition={{ duration: 0.9, delay: 0.2 }}
-                      className="h-full bg-gradient-to-r from-amber-500 to-amber-300 shadow-[0_0_15px_#DCAA4A]"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-5 sm:gap-6 relative z-10">
-                    {ORDER_STAGES.map((stage, idx) => {
-                      const currentIdx = getCurrentStageIndex(order.status);
-                      const isComplete = idx <= currentIdx;
-                      const isCurrent = idx === currentIdx;
-
-                      return (
-                        <div
-                          key={stage.key}
-                          className="flex md:flex-col items-center md:text-center gap-3.5 sm:gap-4 md:gap-3 bg-neutral-900/40 md:bg-transparent p-3 md:p-0 rounded-2xl border md:border-0 border-white/[0.05]"
-                        >
-                          <div
-                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-all duration-300 whitespace-nowrap ${
-                              isComplete
-                                ? "border-amber-400 bg-amber-400 text-black shadow-[0_0_20px_rgba(220,170,74,0.4)]"
-                                : "border-neutral-800 bg-neutral-900 text-neutral-500"
-                            } ${isCurrent ? "scale-105 ring-4 ring-amber-400/20" : ""}`}
-                          >
-                            {isComplete ? "✓" : idx + 1}
-                          </div>
-                          <div className="min-w-0">
-                            <p className={`text-xs sm:text-sm font-bold tracking-wide uppercase whitespace-nowrap ${
-                              isComplete ? "text-white" : "text-neutral-500"
-                            }`}>
-                              {stage.label}
-                            </p>
-                            <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5 leading-tight whitespace-nowrap">
-                              {stage.desc}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* WATCH PRODUCTS IN ORDER */}
-              <div className="border-t border-white/10 pt-8 sm:pt-10">
-                <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-[0.25em] text-neutral-400 mb-6 whitespace-nowrap">
-                  Vault Consignment Details ({order.items.length} Items)
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {order.items.map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/50 p-4 transition-colors hover:border-amber-500/40"
-                    >
-                      <div className="relative h-18 w-18 sm:h-20 sm:w-20 shrink-0 rounded-xl bg-black p-2 border border-neutral-800 flex items-center justify-center">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="h-full w-full object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-amber-500 block truncate whitespace-nowrap">
-                          {item.spec}
-                        </span>
-                        <h4 className="text-sm sm:text-base font-bold text-white truncate">
-                          {item.title}
-                        </h4>
-                        <div className="mt-1 flex items-center justify-between">
-                          <span className="text-xs font-medium text-neutral-400 whitespace-nowrap">
-                            Qty: <strong className="text-white">{item.quantity}</strong>
-                          </span>
-                          <span className="text-xs sm:text-sm font-extrabold text-[#DCAA4A] whitespace-nowrap">
-                            {item.price}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* CONSIGNMENT & RECIPIENT INFORMATION */}
-              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 border-t border-white/10 pt-8">
-                {/* Destination */}
-                <div className="space-y-2.5 rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#DCAA4A] mb-3 whitespace-nowrap">
-                    Recipient Destination
-                  </h4>
-                  <p className="text-xs sm:text-sm font-medium text-neutral-300">
-                    <span className="text-neutral-500 uppercase font-bold mr-2">Customer:</span>
-                    <strong className="text-white">{order.name}</strong>
-                  </p>
-                  <p className="text-xs sm:text-sm font-medium text-neutral-300">
-                    <span className="text-neutral-500 uppercase font-bold mr-2">Contact:</span>
-                    <span className="font-mono text-white">+{order.phone}</span>
-                  </p>
-                  <p className="text-xs sm:text-sm font-medium text-neutral-300">
-                    <span className="text-neutral-500 uppercase font-bold mr-2">Shipping Address:</span>
-                    <span className="text-neutral-200">{order.address}</span>
-                  </p>
-                </div>
-
-                {/* Invoice & WhatsApp Concierge */}
-                <div className="space-y-2.5 rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5 flex flex-col justify-between">
+            {orders.map((order, orderIdx) => (
+              <motion.div
+                key={order.orderId || orderIdx}
+                initial={{ opacity: 0, y: 35 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 15 }}
+                transition={{ duration: 0.5, delay: orderIdx * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className="overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-[#111] via-neutral-950 to-black p-5 sm:p-8 md:p-10 shadow-[0_0_80px_rgba(245,158,11,0.12)]"
+              >
+                {/* ORDER HEADER */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6 sm:pb-8">
                   <div>
+                    <span className="text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.25em] text-neutral-400 block whitespace-nowrap">
+                      Consignment {orderIdx + 1} of {orders.length}
+                    </span>
+                    <h2 className="mt-1 text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[#DCAA4A] whitespace-nowrap">
+                      {order.orderId}
+                    </h2>
+                    <p className="mt-1 text-xs sm:text-sm font-medium text-neutral-400 whitespace-nowrap">
+                      Placed on: {new Date(order.createdAt).toLocaleDateString("en-PK", { dateStyle: "medium" })}
+                    </p>
+                  </div>
+
+                  <div className="self-start sm:self-center">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400 whitespace-nowrap">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                      {order.status}
+                    </span>
+                  </div>
+                </div>
+
+                {/* TIMELINE PROGRESS TRACKER */}
+                <div className="my-8 sm:my-12">
+                  <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-[0.25em] text-neutral-400 mb-6 sm:mb-8 whitespace-nowrap">
+                    Consignment Milestones
+                  </h3>
+
+                  <div className="relative">
+                    <div className="absolute top-5 left-6 right-6 h-0.5 bg-neutral-800 hidden md:block">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{
+                          width: `${(getCurrentStageIndex(order.status) / (ORDER_STAGES.length - 1)) * 100}%`,
+                        }}
+                        transition={{ duration: 0.9, delay: 0.2 }}
+                        className="h-full bg-gradient-to-r from-amber-500 to-amber-300 shadow-[0_0_15px_#DCAA4A]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 sm:gap-6 relative z-10">
+                      {ORDER_STAGES.map((stage, idx) => {
+                        const currentIdx = getCurrentStageIndex(order.status);
+                        const isComplete = idx <= currentIdx;
+                        const isCurrent = idx === currentIdx;
+
+                        return (
+                          <div
+                            key={stage.key}
+                            className="flex md:flex-col items-center md:text-center gap-3.5 sm:gap-4 md:gap-3 bg-neutral-900/40 md:bg-transparent p-3 md:p-0 rounded-2xl border md:border-0 border-white/[0.05]"
+                          >
+                            <div
+                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-all duration-300 whitespace-nowrap ${
+                                isComplete
+                                  ? "border-amber-400 bg-amber-400 text-black shadow-[0_0_20px_rgba(220,170,74,0.4)]"
+                                  : "border-neutral-800 bg-neutral-900 text-neutral-500"
+                              } ${isCurrent ? "scale-105 ring-4 ring-amber-400/20" : ""}`}
+                            >
+                              {isComplete ? "✓" : idx + 1}
+                            </div>
+                            <div className="min-w-0">
+                              <p className={`text-xs sm:text-sm font-bold tracking-wide uppercase whitespace-nowrap ${
+                                isComplete ? "text-white" : "text-neutral-500"
+                              }`}>
+                                {stage.label}
+                              </p>
+                              <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5 leading-tight whitespace-nowrap">
+                                {stage.desc}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* WATCH PRODUCTS IN ORDER */}
+                <div className="border-t border-white/10 pt-8 sm:pt-10">
+                  <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-[0.25em] text-neutral-400 mb-6 whitespace-nowrap">
+                    Vault Consignment Details ({order.items.length} Items)
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {order.items.map((item, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/50 p-4 transition-colors hover:border-amber-500/40"
+                      >
+                        <div className="relative h-18 w-18 sm:h-20 sm:w-20 shrink-0 rounded-xl bg-black p-2 border border-neutral-800 flex items-center justify-center">
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            className="h-full w-full object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-amber-500 block truncate whitespace-nowrap">
+                            {item.spec}
+                          </span>
+                          <h4 className="text-sm sm:text-base font-bold text-white truncate">
+                            {item.title}
+                          </h4>
+                          <div className="mt-1 flex items-center justify-between">
+                            <span className="text-xs font-medium text-neutral-400 whitespace-nowrap">
+                              Qty: <strong className="text-white">{item.quantity}</strong>
+                            </span>
+                            <span className="text-xs sm:text-sm font-extrabold text-[#DCAA4A] whitespace-nowrap">
+                              {item.price}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* CONSIGNMENT & RECIPIENT INFORMATION */}
+                <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 border-t border-white/10 pt-8">
+                  <div className="space-y-2.5 rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
                     <h4 className="text-xs font-bold uppercase tracking-widest text-[#DCAA4A] mb-3 whitespace-nowrap">
-                      Billing & Settlement
+                      Recipient Destination
                     </h4>
                     <p className="text-xs sm:text-sm font-medium text-neutral-300">
-                      <span className="text-neutral-500 uppercase font-bold mr-2">Payment Method:</span>
-                      <strong className="text-white">{order.paymentMethod}</strong>
+                      <span className="text-neutral-500 uppercase font-bold mr-2">Customer:</span>
+                      <strong className="text-white">{order.name}</strong>
                     </p>
                     <p className="text-xs sm:text-sm font-medium text-neutral-300">
-                      <span className="text-neutral-500 uppercase font-bold mr-2">Total Bill:</span>
-                      <span className="text-base sm:text-lg font-black text-[#DCAA4A] whitespace-nowrap">
-                        {order.totalPrice}
-                      </span>
+                      <span className="text-neutral-500 uppercase font-bold mr-2">Contact:</span>
+                      <span className="font-mono text-white">+{order.phone}</span>
+                    </p>
+                    <p className="text-xs sm:text-sm font-medium text-neutral-300">
+                      <span className="text-neutral-500 uppercase font-bold mr-2">Shipping Address:</span>
+                      <span className="text-neutral-200">{order.address}</span>
                     </p>
                   </div>
 
-                 <div className="pt-3">
-                    <a
-                      href={`https://wa.me/923186643032?text=${encodeURIComponent(
-                        `Assalam-o-Alaikum! Inquiring regarding order ${order.orderId}`
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center w-full gap-2.5 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 px-4 py-2.5 text-xs sm:text-sm font-extrabold text-[#25D366] hover:bg-[#25D366] hover:text-black transition-all whitespace-nowrap shadow-[0_0_20px_rgba(37,211,102,0.15)] hover:shadow-[0_0_25px_rgba(37,211,102,0.35)]"
-                    >
-                      {/* WhatsApp Official SVG Logo */}
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-current shrink-0" viewBox="0 0 24 24">
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99 0-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
-                      </svg>
-                      <span>WhatsApp Support</span>
-                    </a>
+                  <div className="space-y-2.5 rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5 flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold uppercase tracking-widest text-[#DCAA4A] mb-3 whitespace-nowrap">
+                        Billing & Settlement
+                      </h4>
+                      <p className="text-xs sm:text-sm font-medium text-neutral-300">
+                        <span className="text-neutral-500 uppercase font-bold mr-2">Payment Method:</span>
+                        <strong className="text-white">{order.paymentMethod}</strong>
+                      </p>
+                      <p className="text-xs sm:text-sm font-medium text-neutral-300">
+                        <span className="text-neutral-500 uppercase font-bold mr-2">Total Bill:</span>
+                        <span className="text-base sm:text-lg font-black text-[#DCAA4A] whitespace-nowrap">
+                          {order.totalPrice}
+                        </span>
+                      </p>
+                    </div>
+
+                    <div className="pt-3">
+                      <a
+                        href={`https://wa.me/923186643032?text=${encodeURIComponent(
+                          `Assalam-o-Alaikum! Inquiring regarding order ${order.orderId}`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center w-full gap-2.5 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 px-4 py-2.5 text-xs sm:text-sm font-extrabold text-[#25D366] hover:bg-[#25D366] hover:text-black transition-all whitespace-nowrap shadow-[0_0_20px_rgba(37,211,102,0.15)] hover:shadow-[0_0_25px_rgba(37,211,102,0.35)]"
+                      >
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99 0-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                        </svg>
+                        <span>WhatsApp Support</span>
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            ))}
           </section>
         )}
       </AnimatePresence>

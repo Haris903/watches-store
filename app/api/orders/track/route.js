@@ -16,90 +16,110 @@ export async function POST(req) {
     }
 
     const cleanQuery = query.trim();
-    // Clean phone number format
-    let cleanPhone = cleanQuery.replace(/\D/g, "");
-    if (cleanPhone.startsWith("0")) cleanPhone = "92" + cleanPhone.slice(1);
+    const digitsOnly = cleanQuery.replace(/\D/g, "");
+    const isPhone = digitsOnly.length >= 10;
 
     // Extract Short ID (e.g. #ORD-3FA9B1 -> 3FA9B1)
-    const rawShortId = cleanQuery.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-    const shortHex = rawShortId.replace(/^ORD/i, "");
+    const rawClean = cleanQuery.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+    const shortHex = rawClean.replace(/^ORD/i, "");
 
-    // 1. Search Order by Phone OR MongoDB ID match
-    let orders = await Order.find({
-      $or: [
-        { phone: cleanPhone },
-        { phone: cleanQuery },
-        ...(cleanQuery.length === 24 ? [{ _id: cleanQuery }] : []),
-      ],
-    }).sort({ createdAt: -1 });
+    let orders = [];
 
-    // Agar Phone se na mile to Short ID match karein
-    if (orders.length === 0 && shortHex.length >= 4) {
-      const allOrders = await Order.find().sort({ createdAt: -1 }).limit(100);
-      orders = allOrders.filter((ord) =>
-        ord._id.toString().slice(-6).toUpperCase().includes(shortHex)
+    if (isPhone) {
+      // 🟢 1. Phone number se search: Saare orders fetch karega
+      let cleanPhone = digitsOnly;
+      let altPhone = digitsOnly;
+      if (cleanPhone.startsWith("92")) {
+        altPhone = "0" + cleanPhone.slice(2);
+      } else if (cleanPhone.startsWith("0")) {
+        cleanPhone = "92" + cleanPhone.slice(1);
+      }
+
+      orders = await Order.find({
+        $or: [
+          { phone: cleanPhone },
+          { phone: altPhone },
+          { phone: cleanQuery },
+        ],
+      }).sort({ createdAt: -1 });
+    } else {
+      // 🟢 2. Order ID se search: Strict exact 6 characters rule
+      if (shortHex.length !== 6) {
+        return NextResponse.json(
+          { success: false, message: "Order ID must be exactly 6 characters (e.g. #ORD-XXXXXX)." },
+          { status: 400 }
+        );
+      }
+
+      const allOrders = await Order.find().sort({ createdAt: -1 }).limit(300);
+      orders = allOrders.filter(
+        (ord) => ord._id.toString().slice(-6).toUpperCase() === shortHex
       );
     }
 
     if (!orders || orders.length === 0) {
       return NextResponse.json(
-        { success: false, message: "No order found matching your details." },
+        { success: false, message: "No order record found matching your details." },
         { status: 404 }
       );
     }
 
-    const targetOrder = orders[0];
-    const shortId = targetOrder._id.toString().slice(-6).toUpperCase();
-    const formattedOrderId = `#ORD-${shortId}`;
+    // 🟢 3. Saare matching orders ke items aur watches details enrich karein
+    const enrichedOrders = await Promise.all(
+      orders.map(async (targetOrder) => {
+        const shortId = targetOrder._id.toString().slice(-6).toUpperCase();
+        const formattedOrderId = `#ORD-${shortId}`;
 
-    // 2. Fetch images for items
-    const enrichedItems = await Promise.all(
-      (targetOrder.items || []).map(async (item) => {
-        const watchId = item.id || item._id;
-        let watchDoc = null;
-        if (watchId) {
-          try {
-            watchDoc = await Watch.findById(watchId).select("image spec category");
-          } catch (e) {}
+        const enrichedItems = await Promise.all(
+          (targetOrder.items || []).map(async (item) => {
+            const watchId = item.id || item._id;
+            let watchDoc = null;
+            if (watchId) {
+              try {
+                watchDoc = await Watch.findById(watchId).select("image spec category");
+              } catch (e) {}
+            }
+            return {
+              id: watchId,
+              title: item.title || targetOrder.watchTitle,
+              price: item.price || targetOrder.watchPrice,
+              quantity: item.quantity || 1,
+              image: watchDoc?.image || "/wClassic.png",
+              spec: watchDoc?.spec || "SWISS PRECISION MOVEMENT",
+            };
+          })
+        );
+
+        if (enrichedItems.length === 0) {
+          enrichedItems.push({
+            title: targetOrder.watchTitle,
+            price: targetOrder.watchPrice,
+            quantity: 1,
+            image: "/wClassic.png",
+            spec: "SWISS PRECISION MOVEMENT",
+          });
         }
+
         return {
-          id: watchId,
-          title: item.title || targetOrder.watchTitle,
-          price: item.price || targetOrder.watchPrice,
-          quantity: item.quantity || 1,
-          image: watchDoc?.image || "/wClassic.png",
-          spec: watchDoc?.spec || "SWISS PRECISION MOVEMENT",
+          orderId: formattedOrderId,
+          rawId: targetOrder._id,
+          createdAt: targetOrder.createdAt,
+          name: targetOrder.name,
+          phone: targetOrder.phone,
+          email: targetOrder.email,
+          address: targetOrder.address,
+          paymentMethod: targetOrder.paymentMethod,
+          totalPrice: targetOrder.watchPrice,
+          status: targetOrder.status || "Payment Verification",
+          items: enrichedItems,
+          screenshotUrl: targetOrder.screenshotUrl,
         };
       })
     );
 
-    // Agar items array empty ho to fallback
-    if (enrichedItems.length === 0) {
-      enrichedItems.push({
-        title: targetOrder.watchTitle,
-        price: targetOrder.watchPrice,
-        quantity: 1,
-        image: "/wClassic.png",
-        spec: "SWISS PRECISION MOVEMENT",
-      });
-    }
-
     return NextResponse.json({
       success: true,
-      order: {
-        orderId: formattedOrderId,
-        rawId: targetOrder._id,
-        createdAt: targetOrder.createdAt,
-        name: targetOrder.name,
-        phone: targetOrder.phone,
-        email: targetOrder.email,
-        address: targetOrder.address,
-        paymentMethod: targetOrder.paymentMethod,
-        totalPrice: targetOrder.watchPrice,
-        status: targetOrder.status || "Payment Verification",
-        items: enrichedItems,
-        screenshotUrl: targetOrder.screenshotUrl,
-      },
+      orders: enrichedOrders,
     });
   } catch (error) {
     console.error("Tracking API Error:", error);
